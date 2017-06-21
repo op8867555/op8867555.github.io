@@ -53,7 +53,15 @@ Pst Vendor : Elan
 <p>Arch Linux 2017.06 (linux-4.11.3) 的版本裝上去是可以正常運作， 但是會被辨識成為「ImPS/2 Generic Wheel Mouse」， 原因是新的 TrackPoint Firmware ID 跟以前的不相容。<br />
 打上這個<a href="https://patchwork.kernel.org/patch/9565965/">patch</a>就會辨識成以前的「TPPS/2 IBM TrackPoint」， 但是 sysfs 下的 speed 跟 sensitivity 都不能正常運作 (但是至少 libinput 的 Palm detection during trackpoint use 還是會正常運作)。</p>
 <p>但是，打了這個 patch 之後，trackpoint 的中鍵就辨識不到了。 原因是新 firmware 無法正確取得按鈕資訊，用這個<a href="https://patchwork.kernel.org/patch/9753099/">patch</a>解決。</p>
-<p>因為 speed / sensitivity 都不能設定，libinput 的 Accel Speed 改了也沒效果，先暫時已改「Coordinate Transformation Matrix」的方法來調整小紅點的速度</p>
+<p><strong>06/21更新</strong></p>
+<del>
+因為 speed / sensitivity 都不能設定，libinput 的 Accel Speed 改了也沒效果，先暫時已改「Coordinate Transformation Matrix」的方法來調整小紅點的速度
+</del>
+<p>這個<a href="https://bugs.freedesktop.org/show_bug.cgi?id=91369">libinput issue</a>裡面給了一個可以調整小紅點靈敏度(?)的<a href="https://github.com/whot/libinput/tree/wip/trackpoint-accel-v5">fork</a>， 這個版本<a href="https://bugs.freedesktop.org/show_bug.cgi?id=91369#c4://bugs.freedesktop.org/show_bug.cgi?id=91369#c48">新增</a>一個裝置屬性「LIBINPUT_ATTR_TRACKPOINT_RANGE」及工具「libinput-measure-trackpoint-range」</p>
+<p>用上述工具找出LIBINPUT_ATTR_TRACKPOINT_RANGE的設定（目前還沒辦法分開設定X/Y的range），</p>
+<pre><code>* LIBINPUT_ATTR_TRACKPOINT_RANGE=10
+* xinput set-prop 12 &quot;Accel Speed&quot; -0.25</code></pre>
+<p>這個結果明顯比剛開始的好很多</p>
 <h1 id="新-hotkey">新 hotkey</h1>
 <p>新一代的 Thinkpad 多了幾個 hotkey 分別是：</p>
 <ul>
