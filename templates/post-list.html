@@ -1,7 +1,12 @@
-<ul>
-    $for(posts)$
-        <li>
-            <a href="$url$">$title$</a> - $date$
-        </li>
-    $endfor$
+<ul class="mdl-list">
+  $for(posts)$
+  <li class="mdl-list__item mdl-list__item--two-line">
+    <span class="mdl-list__item-primary-content">
+      <a href="$url$">$title$</a>
+    </span>
+      <span class="mdl-list__item-secondary-info">
+        $date$
+      </span>
+  </li>
+  $endfor$
 </ul>
