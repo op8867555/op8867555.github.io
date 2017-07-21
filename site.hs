@@ -60,7 +60,7 @@ main =
         match "index.html" $ do
             route idRoute
             compile $ do
-                posts <- recentFirst =<< loadAll "posts/*"
+                posts <- fmap (take 3) $ recentFirst =<< loadAll "posts/*"
                 let indexCtx =
                         listField "posts" (postCtx tags) (return posts) `mappend`
                         constField "title" "Home" `mappend`
