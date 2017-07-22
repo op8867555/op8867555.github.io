@@ -4,6 +4,8 @@
 import Data.Monoid (mappend)
 import Hakyll
 
+import System.FilePath
+
 --------------------------------------------------------------------------------
 main :: IO ()
 main =
@@ -72,7 +74,11 @@ main =
         match "templates/*" $ compile templateBodyCompiler
 
 --------------------------------------------------------------------------------
+filenameField =
+    field "filename" $ return . takeFileName . toFilePath . itemIdentifier
+
 postCtx :: Tags -> Context String
 postCtx tags =
     tagsField "tags" tags `mappend` dateField "date" "%B %e, %Y" `mappend`
+    filenameField `mappend`
     defaultContext

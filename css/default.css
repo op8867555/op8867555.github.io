@@ -25,3 +25,7 @@ pre {
 img {
   max-width: 100%;
 }
+
+#disqus_thread {
+  width: initial;
+}
