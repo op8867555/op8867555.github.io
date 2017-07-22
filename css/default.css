@@ -29,3 +29,16 @@ img {
 #disqus_thread {
   width: initial;
 }
+
+#avatar {
+  height: 30vh;
+  background-image: url(https://avatars2.githubusercontent.com/u/888716);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  background-color: #f0f0f0;
+}
+
+.intro {
+  font-size: 3rem;
+}
