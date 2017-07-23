@@ -1,0 +1,27 @@
+$for(posts)$
+<div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--4-col">
+  <div class="mdl-card__title
+              $if(image)$
+              card-image-banner
+              $endif$
+              mdl-card--expand"
+       $if(image)$
+       style="background-image: linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.5)), url($image$);"
+       $endif$
+  >
+    <h2 class="mdl-card__title-text">$title$</h2>
+  </div>
+$if(teaser)$
+  <div class="mdl-color-text--grey-700 mdl-card__supporting-text">
+  $teaser$
+  </div>
+$endif$
+  <div class="mdl-card__actions mdl-card--border">
+    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect"
+      href="$url$">
+     continue
+      <i class="material-icons">navigate_next</i>
+    </a>
+  </div>
+</div>
+$endfor$

@@ -42,3 +42,10 @@ img {
 .intro {
   font-size: 3rem;
 }
+
+.card-image-banner {
+  min-height: 20vh;
+  background-size: cover;
+  background-repeat: no-repeat;
+  color: white;
+}
