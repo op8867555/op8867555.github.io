@@ -2,6 +2,7 @@
 title: ADAM CASA Hub A01 在 Linux 使用狀況＆個人心得
 date: 2017/07/20
 tags: linux, hardware
+image: http://i.imgur.com/Kc6ECEAh.jpg
 ---
 
 # TL;DR
