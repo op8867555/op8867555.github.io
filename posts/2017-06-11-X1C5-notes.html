@@ -5,7 +5,7 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="google-site-verification" content="CLMtF1JkUEd-jPZ3RQateLLiKyn729kaOHg9Hnu_TSo" />
-    <title>Alex's Blog - Thinkpad X1 Carbon (5th gen) Notes</title>
+    <title>Alex's Blog - [en] Notes on Thinkpad X1 Carbon 2017 + Arch Linux</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.blue_grey-indigo.min.css" />
     <link rel="stylesheet" href="../css/default.css" />
@@ -37,12 +37,12 @@
         <div class="content-grid mdl-grid">
   <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
     <div class="mdl-card__title mdl-card--expand">
-      <h2 class="mdl-card__title-text">Thinkpad X1 Carbon (5th gen) Notes</h2>
+      <h2 class="mdl-card__title-text">[en] Notes on Thinkpad X1 Carbon 2017 + Arch Linux</h2>
     </div>
     <div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
       <div>
         
-        <span>June 11, 2017</span>
+        <span>July 22, 2017</span>
       </div>
       
       <div>
@@ -51,68 +51,64 @@
       
     </div>
     <div class="mdl-color-text--grey-700 mdl-card__supporting-text" id="post-body">
-      <p>如題，筆記一下最近在 X1C5 上裝 Arch Linux 的一些東西。</p>
-<h1 id="總結">總結</h1>
-<p>大部分不用特殊設定，運作都沒有問題。</p>
+      <h3 id="changelogs">changelogs</h3>
+<ul>
+<li>07/22 rewrite the post in English, remove some outdated information.</li>
+</ul>
+<h1 id="summary">Summary</h1>
+<p>I got a Thinkpad X1 Carbon 5th Gen (X1C5) and running Arch Linux (4.11) on it.</p>
+<p>Most stuff works out of box,</p>
 <ul>
 <li>wifi</li>
-<li>鍵盤背光</li>
-<li>鍵盤上的指示燈(caps lock/mute/mic mute等)</li>
-<li>TrackPoint/TouchPad</li>
+<li>backlit keyboard</li>
+<li>LEDs on keyboard (caps lock/mute/mic mute)</li>
+<li>TrackPoint - slow speed but works.</li>
+<li>TrackPad - not so precise but works.</li>
+<li>Thunderbolt 3 - USB-C to HDMI / USB-C Hub works.</li>
+<li>Bluetooth - works with a FC30 game controller.</li>
 </ul>
-<p>還沒試的：</p>
+<p>I haven’t tried,</p>
 <ul>
 <li>WWAN</li>
-<li>USB type-c</li>
-<li>mini-ethernet</li>
-<li>hibernate</li>
+<li>micro SD reader</li>
+<li>mini-Ethernet - I don’t have the adapter.</li>
+<li>hibernation - I don’t setup a swap partition.</li>
 </ul>
 <h1 id="trackpoint">TrackPoint</h1>
-<p>這次的 X1 Carbon 的 TrackPoint 分成兩種不同的版本<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>： ALPS 跟 Elantech。<br />
-用官方的<a href="http://pcsupport.lenovo.com/tw/zh/products/laptops-and-netbooks/thinkpad-x-series-laptops/thinkpad-x1-carbon-type-20hr-20hq/downloads/ds122148">工具程式(TrackPointDetect.exe)</a>確認我手邊的是 Elantech 的</p>
+<p>X1C5 have two versions of TrackPoint: ALPS and Elantech<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>.</p>
+<p>I confirmed mine has an Elantech one using <a href="http://pcsupport.lenovo.com/tw/zh/products/laptops-and-netbooks/thinkpad-x-series-laptops/thinkpad-x1-carbon-type-20hr-20hq/downloads/ds122148">TrackPointDetect.exe</a>.</p>
 <pre><code>TouchPad-Flash Utility
 2017-06-08 20:42:27
 Command Line: &quot;C:\Users\alexlu\Desktop\FW_Updater_1.0.0.9\TrackPointDetect.exe&quot; 
 OS: 64-bit
 Pst Vendor : Elan
 [ERROR]: This TrackPoint is Elan (ID:03)</code></pre>
-<p>Arch Linux 2017.06 (linux-4.11.3) 的版本裝上去是可以正常運作， 但是會被辨識成為「ImPS/2 Generic Wheel Mouse」， 原因是新的 TrackPoint Firmware ID 跟以前的不相容。<br />
-打上這個<a href="https://patchwork.kernel.org/patch/9565965/">patch</a>就會辨識成以前的「TPPS/2 IBM TrackPoint」， 但是 sysfs 下的 speed 跟 sensitivity 都不能正常運作 (但是至少 libinput 的 Palm detection during trackpoint use 還是會正常運作)。</p>
-<p>但是，打了這個 patch 之後，trackpoint 的中鍵就辨識不到了。 原因是新 firmware 無法正確取得按鈕資訊，用這個<a href="https://patchwork.kernel.org/patch/9753099/">patch</a>解決。</p>
-<p><strong>06/21更新</strong></p>
-<del>
-因為 speed / sensitivity 都不能設定，libinput 的 Accel Speed 改了也沒效果，先暫時已改「Coordinate Transformation Matrix」的方法來調整小紅點的速度
-</del>
-<p>這個<a href="https://bugs.freedesktop.org/show_bug.cgi?id=91369">libinput issue</a>裡面給了一個可以調整小紅點靈敏度(?)的<a href="https://github.com/whot/libinput/tree/wip/trackpoint-accel-v5">fork</a>， 這個版本<a href="https://bugs.freedesktop.org/show_bug.cgi?id=91369#c4://bugs.freedesktop.org/show_bug.cgi?id=91369#c48">新增</a>一個裝置屬性「LIBINPUT_ATTR_TRACKPOINT_RANGE」及工具「libinput-measure-trackpoint-range」</p>
-<p>用上述工具找出LIBINPUT_ATTR_TRACKPOINT_RANGE的設定（目前還沒辦法分開設定X/Y的range），</p>
-<pre><code>* LIBINPUT_ATTR_TRACKPOINT_RANGE=10
-* xinput set-prop 12 &quot;Accel Speed&quot; -0.25</code></pre>
-<p>這個結果明顯比剛開始的好很多</p>
-<h1 id="新-hotkey">新 hotkey</h1>
-<p>新一代的 Thinkpad 多了幾個 hotkey 分別是：</p>
+<h2 id="problems">Problems</h2>
+<p>The trackpoint works out of box, but it got recognized as a “PS/2 Generic Mouse”. Since kernel driver doesn’t support the new trackpoint, I can’t adjust sensitivity and speed. The default speed/sensitivity is too slow to use. I can get middle button scrolling works, but palm-detection won’t work.</p>
+<h2 id="workaround">Workaround</h2>
+<p>I found I can making libinput treat the “PS/2 Generic Mouse” as a trackpoint using a custom udev hwdb entry.</p>
+<pre><code>evdev:name:PS/2 Generic Mouse:dmi:*svnLENOVO*:pvrThinkPadX1Carbon5th*
+  ID_INPUT_POINTINGSTICK=1</code></pre>
+<p>Also, there is a <a href="https://bugs.freedesktop.org/show_bug.cgi?id=91369#c48">patch</a> which solves speed issue.</p>
+<p>I get my trackpoint much usable by setting up:</p>
 <ul>
-<li><kbd>fn</kbd>+<kbd>F9</kbd> 設定工具</li>
-<li><kbd>fn</kbd>+<kbd>F10</kbd> 藍芽開關</li>
-<li><kbd>fn</kbd>+<kbd>F11</kbd> 鍵盤設定</li>
-<li><kbd>fn</kbd>+<kbd>F12</kbd> 我的最愛(?)</li>
-<li><kbd>fn</kbd>+<kbd>PrtSc</kbd> 螢幕擷取工具</li>
+<li><code>LIBINPUT_ATTR_TRACKPOINT_RANGE=10</code> in hwdb</li>
+<li><code>xinput set-prop &quot;PS/2 Generic Mouse&quot; &quot;libinput Accel Speed&quot; -0.25</code> in my .xinitrc</li>
 </ul>
-<p>打上這<a href="https://patchwork.kernel.org/patch/9596129/">兩個</a> <a href="https://patchwork.kernel.org/patch/9596131/">patch</a>即可， 不過「我的最愛」跟「螢幕擷取」沒有綁定，需要的話要改 patch，就先擱置了。</p>
-<p>順帶一提，這兩個patch已經進linux-4.12，<del>可以坐等更新就好</del></p>
-<h1 id="指紋辨識">指紋辨識</h1>
-<p>機子上裝的是 Validity Sensor 138a:0097， 目前還沒有驅動程式能用。</p>
-<p>可以追蹤這幾個討論：</p>
+<h1 id="new-hotkeys">New Hotkeys</h1>
+<p>Before linux-4.12, You needs <a href="https://patchwork.kernel.org/patch/9596129/">these</a> <a href="https://patchwork.kernel.org/patch/9596131/">patches</a> to get these buttons works.</p>
+<h1 id="fingerprint-reader">Fingerprint Reader</h1>
+<p>X1C5 have a Validity Sensor 138a:0097. There is no driver for it.</p>
+<p>Furthermore,</p>
 <ul>
-<li><a href="https://github.com/nmikhailov/Validity90">逆向工程的驅動(施工中)</a></li>
-<li><a href="https://bugs.freedesktop.org/show_bug.cgi?id=94536">libfprint 的 bug report</a></li>
+<li><a href="https://github.com/nmikhailov/Validity90">Validity90</a> - an open source reverse engineered driver (WIP).</li>
+<li><a href="https://bugs.freedesktop.org/show_bug.cgi?id=94536">a bug report of libfprint</a></li>
 </ul>
 <h1 id="references">References</h1>
 <ul>
-<li><a href="https://gist.github.com/gdamjan/141bb0def5f80257fae2b233ec16f3c2">gdamjan 的筆記</a></li>
-<li><a href="http://fredrik.wendt.se/2017/04/26/lenovo-thinkpad-x1-carbon-5th-generation/">Fredrik 的筆記</a>，他比較慘，連 TrackPoint/TouchPad 都沒法用</li>
-<li><a href="https://forums.lenovo.com/t5/forums/v3_1/forumtopicpage/board-id/tp02_en/thread-id/75464/page/29">關於觸控板的討論</a></li>
-<li><a href="https://patchwork.kernel.org/patch/9768231/">關於TrackPoint的patch</a>，但是我沒有試出什麼結果…</li>
-<li><a href="https://gist.github.com/ursm/6d1007f44a1d6beeb670b3c3a6a78ea4">另一個TrackPoint的patch</a>，還沒試過</li>
+<li><a href="https://gist.github.com/gdamjan/141bb0def5f80257fae2b233ec16f3c2">gdamjan’s Note</a></li>
+<li><a href="http://fredrik.wendt.se/2017/04/26/lenovo-thinkpad-x1-carbon-5th-generation/">Fredrik’s Note</a></li>
+<li><a href="https://forums.lenovo.com/t5/forums/v3_1/forumtopicpage/board-id/tp02_en/thread-id/75464/page/29">discussion about TrackPad</a></li>
 </ul>
 <div class="footnotes">
 <hr />
