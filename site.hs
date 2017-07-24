@@ -55,7 +55,7 @@ main =
         match "posts/*" $ do
             route $ setExtension "html"
             compile $
-                pandocCompiler >>=
+                pandocCompiler >>= saveSnapshot "content" >>=
                 loadAndApplyTemplate "templates/post.html" (postCtx tags) >>=
                 loadAndApplyTemplate "templates/default.html" (postCtx tags) >>=
                 relativizeUrls
@@ -72,6 +72,26 @@ main =
                     loadAndApplyTemplate "templates/default.html" indexCtx >>=
                     relativizeUrls
         match "templates/*" $ compile templateBodyCompiler
+        -- RSS Feed
+        create ["feed.xml"] $ do
+            route idRoute
+            compile $ do
+                posts <-
+                    fmap (take 10) $
+                    recentFirst =<< loadAllSnapshots "posts/*" "content"
+                renderRss feedConfig feedCtx posts
+
+feedConfig =
+    FeedConfiguration
+    { feedTitle = "Alex Lu's Blog Feed"
+    , feedDescription = "Alex Lu's Blog Feed"
+    , feedAuthorName = "Alex Lu"
+    , feedAuthorEmail = "b3A4ODY3NTU1K2Jsb2dAZ21haWwuY29t"
+    , feedRoot = "https://op8867555.github.io"
+    }
+
+feedCtx :: Context String
+feedCtx = mconcat [bodyField "description", defaultContext]
 
 --------------------------------------------------------------------------------
 filenameField =
