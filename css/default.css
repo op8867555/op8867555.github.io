@@ -8,15 +8,18 @@ body {
   padding-top: 10px;
 }
 
-.mdl-card__supporting-text {
-  width: initial;
+#post-body {
+  margin: 0 auto;
 }
 
 pre {
+  margin: 14px auto;
+  max-width: 100ch;
   overflow: auto;
-  padding: 0 5px;
+  padding: 5px 5px;
   background-color: #dddddd;
 }
+
 
 .half-page {
   height: 50vh;
@@ -48,4 +51,9 @@ img {
   background-size: cover;
   background-repeat: no-repeat;
   color: white;
+}
+
+pre.example {
+  background-color: rgba(46, 159, 255, 0.3);
+  color: black;
 }
