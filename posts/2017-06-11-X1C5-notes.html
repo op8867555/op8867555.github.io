@@ -52,7 +52,7 @@
     <div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
       <div>
         
-        <span>July 22, 2017</span>
+        <span>August 22, 2017</span>
       </div>
       
       <div>
@@ -63,29 +63,32 @@
     <div class="mdl-color-text--grey-700 mdl-card__supporting-text" id="post-body">
       <h3 id="changelogs">changelogs</h3>
 <ul>
+<li>08/22 update kernel to 4.12; add a WWAN section.</li>
 <li>07/22 rewrite the post in English, remove some outdated information.</li>
 </ul>
-<h1 id="summary">Summary</h1>
-<p>I got a Thinkpad X1 Carbon 5th Gen (X1C5) and running Arch Linux (4.11) on it.</p>
+<h1 id="quick-summary">Quick Summary</h1>
+<p>I got a Thinkpad X1 Carbon 5th Gen (X1C5) and running Arch Linux (4.12) on it.</p>
 <p>Most stuff works out of box,</p>
 <ul>
 <li>wifi</li>
 <li>backlit keyboard</li>
 <li>LEDs on keyboard (caps lock/mute/mic mute)</li>
-<li>TrackPoint - slow speed but works.</li>
-<li>TrackPad - not so precise but works.</li>
+<li><a href="#trackpoint">TrackPoint</a> - slow speed but works.</li>
+<li><a href="#trackpad">TrackPad</a> - not so precise but works.</li>
 <li>Thunderbolt 3 - USB-C to HDMI / USB-C Hub works.</li>
 <li>Bluetooth - works with a FC30 game controller.</li>
+<li><a href="#wwan">WWAN</a> - works with ModemManager.</li>
 </ul>
 <p>I haven’t tried,</p>
 <ul>
-<li>WWAN</li>
 <li>micro SD reader</li>
 <li>mini-Ethernet - I don’t have the adapter.</li>
 <li>hibernation - I don’t setup a swap partition.</li>
 </ul>
-<h1 id="trackpoint">TrackPoint</h1>
-<p>X1C5 have two versions of TrackPoint: ALPS and Elantech<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>.</p>
+<h1 id="topics">Topics</h1>
+<h2 id="trackpoint">TrackPoint</h2>
+<h3 id="alps-or-elantech">ALPS or Elantech</h3>
+<p>X1C5 comes with two versions of TrackPoint: ALPS and Elantech<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>.</p>
 <p>I confirmed mine has an Elantech one using <a href="http://pcsupport.lenovo.com/tw/zh/products/laptops-and-netbooks/thinkpad-x-series-laptops/thinkpad-x1-carbon-type-20hr-20hq/downloads/ds122148">TrackPointDetect.exe</a>.</p>
 <pre><code>TouchPad-Flash Utility
 2017-06-08 20:42:27
@@ -93,26 +96,67 @@ Command Line: &quot;C:\Users\alexlu\Desktop\FW_Updater_1.0.0.9\TrackPointDetect.
 OS: 64-bit
 Pst Vendor : Elan
 [ERROR]: This TrackPoint is Elan (ID:03)</code></pre>
-<h2 id="problems">Problems</h2>
-<p>The trackpoint works out of box, but it got recognized as a “PS/2 Generic Mouse”. Since kernel driver doesn’t support the new trackpoint, I can’t adjust sensitivity and speed. The default speed/sensitivity is too slow to use. I can get middle button scrolling works, but palm-detection won’t work.</p>
-<h2 id="workaround">Workaround</h2>
+<h3 id="issues">Issues</h3>
+<ul>
+<li><p>Recognized as a “PS/2 Generic Mouse”<br />
+⇒ No palm-detection during trackpoint use</p></li>
+<li><p>Since kernel driver doesn’t support the new trackpoint, both of sensitivity and speed aren’t adjustable.<br />
+⇒ The default speed/sensitivity is too slow to use.</p></li>
+</ul>
+<h3 id="mark-it-as-a-pointing-stick">Mark it as a pointing stick</h3>
 <p>I found I can making libinput treat the “PS/2 Generic Mouse” as a trackpoint using a custom udev hwdb entry.</p>
+<p><em>Note: this should not be used anymore once trackpoint gets kernel driver supports</em></p>
 <pre><code>evdev:name:PS/2 Generic Mouse:dmi:*svnLENOVO*:pvrThinkPadX1Carbon5th*
   ID_INPUT_POINTINGSTICK=1</code></pre>
-<p>Also, there is a <a href="https://bugs.freedesktop.org/show_bug.cgi?id=91369#c48">patch</a> which solves speed issue.</p>
+<h3 id="better-trackpoint-acceleration">Better TrackPoint Acceleration</h3>
+<p>There is a <a href="https://bugs.freedesktop.org/show_bug.cgi?id=91369#c48">patch</a> which solves speed issue.</p>
 <p>I get my trackpoint much usable by setting up:</p>
 <ul>
 <li><code>LIBINPUT_ATTR_TRACKPOINT_RANGE=10</code> in hwdb</li>
 <li><code>xinput set-prop &quot;PS/2 Generic Mouse&quot; &quot;libinput Accel Speed&quot; -0.25</code> in my .xinitrc</li>
 </ul>
-<h1 id="new-hotkeys">New Hotkeys</h1>
+<h2 id="trackpad">TrackPad</h2>
+<p>The trackpad is <ins>able to</ins> use rmi4 over smbus for now(4.12).</p>
+<p>Turn it on by creating a <code>psmouse.conf</code> in <code>/etc/modprobe.d/</code></p>
+<pre><code>options psmouse synaptics_intertouch=1</code></pre>
+<h3 id="palm-detection">Palm Detection</h3>
+<ul>
+<li>pressure-based palm-detection works great (libinput ≥ 1.8)</li>
+<li>palm-detection during trackpoint use requires <a href="#mark-it-as-a-pointing-stick">mark it as a pointing stick</a>.</li>
+</ul>
+<h2 id="new-hotkeys">New Hotkeys</h2>
 <p>Before linux-4.12, You needs <a href="https://patchwork.kernel.org/patch/9596129/">these</a> <a href="https://patchwork.kernel.org/patch/9596131/">patches</a> to get these buttons works.</p>
-<h1 id="fingerprint-reader">Fingerprint Reader</h1>
+<h2 id="fingerprint-reader">Fingerprint Reader</h2>
 <p>X1C5 have a Validity Sensor 138a:0097. There is no driver for it.</p>
 <p>Furthermore,</p>
 <ul>
 <li><a href="https://github.com/nmikhailov/Validity90">Validity90</a> - an open source reverse engineered driver (WIP).</li>
 <li><a href="https://bugs.freedesktop.org/show_bug.cgi?id=94536">a bug report of libfprint</a></li>
+</ul>
+<h2 id="wwan">WWAN</h2>
+<p>X1C5 (WWAN) comes with a Sierra EM7455 LTE Modem (1199:9079).</p>
+<p>It works out of box using latest ModemManager.</p>
+<h3 id="connecting-without-networkmanager">connecting without NetworkManager</h3>
+<p>I’m wondering if there is a better way to do this…</p>
+<h4 id="connecting">connecting</h4>
+<ul>
+<li>find modem id: <code>mmcli -L</code></li>
+<li>connect: <code>mmcli -m $MODEM --simple-connect=&quot;apn=internet&quot;</code></li>
+<li>after a successful connect, find ip from bearer info
+<ul>
+<li><code>mmcli -m $MODEM</code> will show bearer id</li>
+<li><code>mmcli -b $BEARER_ID</code> will show ip/gateway/broadcast…</li>
+</ul></li>
+<li>bring up the interface <code>ip link set $INTERFACE up</code></li>
+<li>assign a static IP: <code>ip addr add $IP_ADDR/$PREFIX broadcast $BROADCAST_ADDR dev $IFACE</code></li>
+<li>add a route: <code>ip route add default via $GATEWAY</code></li>
+</ul>
+<h4 id="disconnecting">disconnecting</h4>
+<ul>
+<li>bring the interface down</li>
+<li>remove route for it</li>
+<li>remove static IP assignment</li>
+<li><code>mmcli -m $MODEM --simple-disconnect</code></li>
 </ul>
 <h1 id="references">References</h1>
 <ul>
