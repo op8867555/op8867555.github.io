@@ -17,7 +17,7 @@ pre {
   max-width: 100ch;
   overflow: auto;
   padding: 5px 5px;
-  background-color: #dddddd;
+  background-color: #f0f0f0;
 }
 
 
@@ -67,4 +67,26 @@ pre.example {
 
 blockquote p {
   display: inline;
+}
+
+.mdl-card__supporting-text h1:before {
+  content: '# ';
+  opacity: 0.5;
+  font-size: 2rem;
+  vertical-align: middle;
+  padding-left: 1rem;
+}
+
+.mdl-card__supporting-text h2:before {
+  content: '## ';
+  opacity: 0.5;
+  font-size: 1.75rem;
+  vertical-align: middle;
+}
+
+.mdl-card__supporting-text h3:before {
+  content: '### ';
+  opacity: 0.5;
+  font-size: 1.25rem;
+  vertical-align: middle;
 }
