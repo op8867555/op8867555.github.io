@@ -61,32 +61,10 @@ img {
 }
 
 pre.example {
-  background-color: rgba(46, 159, 255, 0.3);
+  background-color: rgba(46, 159, 255, 0.15);
   color: black;
 }
 
 blockquote p {
   display: inline;
-}
-
-.mdl-card__supporting-text h1:before {
-  content: '# ';
-  opacity: 0.5;
-  font-size: 2rem;
-  vertical-align: middle;
-  padding-left: 1rem;
-}
-
-.mdl-card__supporting-text h2:before {
-  content: '## ';
-  opacity: 0.5;
-  font-size: 1.75rem;
-  vertical-align: middle;
-}
-
-.mdl-card__supporting-text h3:before {
-  content: '### ';
-  opacity: 0.5;
-  font-size: 1.25rem;
-  vertical-align: middle;
 }
