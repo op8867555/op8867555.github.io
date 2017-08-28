@@ -7,8 +7,106 @@
         <description><![CDATA[Alex Lu's Blog Feed]]></description>
         <atom:link href="https://op8867555.github.io/feed.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Tue, 22 Aug 2017 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Sun, 27 Aug 2017 00:00:00 UT</lastBuildDate>
         <item>
+    <title>筆記： DS216j 安裝 shadowsocks server</title>
+    <link>https://op8867555.github.io/posts/2017-08-27-ds216j-shadowsocks.html</link>
+    <description><![CDATA[<p>最近親戚弄了台 Synology DS216j 想拿來架 shadowsocks 的 server，這篇文章筆記我架這個 server 所走的路。</p>
+<h1 id="折騰過程">折騰過程</h1>
+<p>提到在 NAS 上架 shadowsocks，可以查到很多用 docker 的解決方法，不過網路上的幾篇文章都說這台機器不能用 docker，所以我直接往 binary 的方法前進。</p>
+<p>一開始看到的是這篇 <a href="http://jexbat.com/2016/NAS-Shadowsocks/">Synology DS216Play 安装 ShadowSocks</a>，從這篇文章中得出：</p>
+<ul>
+<li>原來有 package manager 可以用</li>
+<li>shadowsocks 有用 python 跟 libev 的實作可以選</li>
+</ul>
+<h2 id="安裝package-manager">安裝package manager</h2>
+<p>朝著安裝 package manager 的方向前進後找到了這篇<a href="https://ky0n.xyz/synology-ds216j-optware-ipkg-init/">Synology DS216j Optware IPKG 介紹</a>。<br />
+看了看發現這是篇翻譯文，而原文有了更新的<a href="http://jasmin.sakura.ne.jp/blog/0245">版本🇯🇵</a>，發現到有 <a href="https://github.com/Entware-ng/Entware-ng/">entware-ng</a> 這個比 ipkg 更新的 package manager 能用， 而且已經有 shadowsocks 的<a href="pkg.entware.net/binaries/armv7/Packages.html">套件能用</a>。</p>
+<h2 id="安裝-entware-ng">安裝 entware-ng</h2>
+<p>安裝的過程不難，大致上就是開好SSH、照著<a href="https://github.com/Entware-ng/Entware-ng/wiki/Install-on-Synology-NAS">其 wiki 上寫的步驟</a>就行。</p>
+<p>筆記一下步驟：</p>
+<ul>
+<li><p>建立一個套件管理用的目錄，因為韌體更新會清 /opt ，所以要在外面建並 symlink 回去：</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="fu">mkdir</span> -p /volume1/@entware-ng/opt
+<span class="fu">rm</span> -rf /opt
+<span class="fu">ln</span> -sf /volume1/@entware-ng/opt /opt</code></pre></div></li>
+<li><p>安裝 entware</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="fu">wget</span> -O - http://pkg.entware.net/binaries/armv7/installer/entware_install.sh <span class="kw">|</span> <span class="ex">/bin/sh</span></code></pre></div></li>
+<li><p>設定啟動腳本（重開機時把 entware 裝的服務也帶起來）<br />
+編輯 /usr/local/etc/rc.d/entware-startup.sh （教學上沒有，但是我有順便做 <code>chmod +x</code>）</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="co">#!/bin/sh</span>
+
+<span class="kw">case</span> <span class="va">$1</span><span class="kw"> in</span>
+    start<span class="kw">)</span>
+    <span class="fu">mkdir</span> -p /opt
+    <span class="fu">mount</span> -o bind /volume1/@entware-ng/opt /opt
+    <span class="ex">/opt/etc/init.d/rc.unslung</span> start
+    <span class="kw">;;</span>
+    stop<span class="kw">)</span>
+    <span class="kw">;;</span>
+<span class="kw">esac</span></code></pre></div></li>
+<li><p>在登入時自動把 <code>/opt/bin</code> <code>/opt/sbin</code>加到 <code>PATH</code> 裡面：在 /etc/profile 內加上一行</p>
+<pre><code>. /opt/etc/profile</code></pre></li>
+</ul>
+<p>裝完之後就是開心地來裝 shadowsocks</p>
+<pre><code>opkg update
+opkg install shadowsocks-libev</code></pre>
+<p>但是裝完卻發現沒有 <code>ss-server</code> 這個執行檔！ 原因似乎是因為 entware-ng 沒有跟上流的 openwrt 同步 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>，而不知為何的明明就有新的 Makefile ，除了 mipsel 以外卻沒有新的 binary package 能用。</p>
+<h2 id="手動編譯">手動編譯</h2>
+<p>沒辦法，只好來自己編。幸好 entware 的 wiki 頁上也有<a href="https://github.com/Entware-ng/Entware-ng/wiki/Compile-packages-from-sources">教學</a>，也是照著做就好。</p>
+<p>Entware-ng 用的是 OpenWrt Buildroot，所以需要先裝好<a href="http://wiki.openwrt.org/doc/howto/buildroot.exigence#install_procedure_on_linux">它依賴的套件</a>。</p>
+<p>為了不把主力機的 Arch Linux 給搞髒了，我決定用找 docker 的方式來解決。<br />
+網路上可以找到一個用 arch 為底的 Dockerfile(<a href="https://github.com/jannispinter/arch-openwrt-buildroot">arch-docker-buildroot</a>)，但是實際編譯時會出先一些版本上的不相容問題，所以我還是乖乖的用 ubuntu 的 image 來做。</p>
+<div class="sourceCode"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span class="kw">FROM</span> ubuntu
+<span class="kw">RUN</span> apt-get update
+<span class="kw">RUN</span> DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential subversion libncurses5-dev zlib1g-dev gawk gcc-multilib flex git-core gettext libssl-dev unzip python-dev python file wget sudo
+
+<span class="co"># 編譯時需要非 root 帳號</span>
+<span class="kw">RUN</span> useradd -m openwrt &amp;&amp;\
+echo <span class="st">&#39;openwrt ALL=NOPASSWD: ALL&#39;</span> &gt; /etc/sudoers.d/openwrt
+<span class="kw">USER</span> openwrt
+<span class="kw">WORKDIR</span> /home/openwrt
+<span class="kw">CMD</span> [<span class="st">&quot;/bin/bash&quot;</span>]</code></pre></div>
+<p>docker 環境準備好、進入其 shell 之後</p>
+<ul>
+<li><p>準備 entware 跟更新其 package feeds：</p>
+<div class="sourceCode"><pre class="sourceCode bash example"><code class="sourceCode bash"><span class="fu">git</span> clone https://github.com/Entware-ng/Entware-ng.git
+<span class="bu">cd</span> Entware-ng
+<span class="fu">make</span> package/symlinks
+<span class="fu">cp</span> configs/armv7.config .config</code></pre></div></li>
+<li><p>安裝編譯需要 tools/toolchain，這一步驟需要很長一段時間，我就跑去打 Splatoon 的 Salmon Run 了。</p>
+<div class="sourceCode"><pre class="sourceCode bash example"><code class="sourceCode bash"><span class="fu">make</span> -j4 tools/install
+<span class="fu">make</span> -j4 toolchain/install</code></pre></div></li>
+<li><p><strong>確認 .config 裡面有啟用 <code>shadowsocks-libev</code> 跟 <code>shadowsocks-libev-ss-server</code> 兩個套件</strong>， 我在編的時候沒確認到這點，花了好一段時間研究為什麼編完沒有 binary 檔。</p>
+<div class="sourceCode"><pre class="sourceCode bash example"><code class="sourceCode bash"><span class="fu">make</span> menuconfig <span class="co"># 選好 shadowsocks （Network 的 Web Servers/Proxies 底下）</span></code></pre></div>
+<p>或是直接在 .config 加上</p>
+<div class="sourceCode"><pre class="sourceCode bash example"><code class="sourceCode bash"><span class="ex">CONFIG_PACKAGE_shadowsocks-libev-config</span>=m
+<span class="ex">CONFIG_PACKAGE_shadowsocks-libev-ss-server</span>=m</code></pre></div></li>
+<li><p>然後編譯需要的套件</p>
+<div class="sourceCode"><pre class="sourceCode bash example"><code class="sourceCode bash"><span class="fu">make</span> -j4 package/shadowsocks-libev/compile</code></pre></div></li>
+</ul>
+<p>編譯完之後會在 bin 下面找到對應的 .ipkg 檔，接著就是傳到 NAS 上</p>
+<ul>
+<li><p>用 opkg 安裝：</p>
+<pre><code>opkg install shadowsocks-libev-config_3.0.6-2_armv7soft.ipk
+opkg install shadowsocks-libev-ss-server_3.0.6-2_armv7soft.ipk</code></pre></li>
+<li><p>設定好 <code>/opt/etc/shadowsocks.json</code> 跟 <code>/opt/etc/init.d/S22shadowsocks</code>：</p>
+<pre><code>sed -ir &#39;s/PROCS=ss-local/PROCS=ss-server/&#39; /opt/etc/init.d/S22shadowsocks</code></pre></li>
+<li><p>確認 shadowsocks-libev 可以啟動</p>
+<pre><code>/opt/etc/init.d/S22shadowsocks start</code></pre></li>
+</ul>
+<p>設定好 router 的 NAT，然後用手機之類的測試會動之後，收工。</p>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://github.com/Entware-ng/entware-packages/commit/e3793bbbde8b907842f84731bfec292ccb069114" class="uri">https://github.com/Entware-ng/entware-packages/commit/e3793bbbde8b907842f84731bfec292ccb069114</a><a href="#fnref1">↩</a></p></li>
+</ol>
+</div>]]></description>
+    <pubDate>Sun, 27 Aug 2017 00:00:00 UT</pubDate>
+    <guid>https://op8867555.github.io/posts/2017-08-27-ds216j-shadowsocks.html</guid>
+    <dc:creator>Alex Lu</dc:creator>
+</item>
+<item>
     <title>[en] Notes on Thinkpad X1 Carbon 2017 + Arch Linux</title>
     <link>https://op8867555.github.io/posts/2017-06-11-X1C5-notes.html</link>
     <description><![CDATA[<h3 id="changelogs">changelogs</h3>
