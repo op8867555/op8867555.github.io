@@ -68,3 +68,7 @@ pre.example {
 blockquote p {
   display: inline;
 }
+
+table {
+  min-width: 50vw;
+}
