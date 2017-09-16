@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="google-site-verification" content="CLMtF1JkUEd-jPZ3RQateLLiKyn729kaOHg9Hnu_TSo" />
+    <title>Alex's Blog - 用 Python 計算經緯度對應的鄉鎮市區</title>
+    <meta name="robots" content="index, follow" />
+    <link rel="alternate" href="../feed.xml" title="Alex Lu's Blog" type="application/atom+xml">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.blue_grey-indigo.min.css" />
+    <link rel="stylesheet" href="../css/default.css" />
+    <link rel="stylesheet" href="../css/syntax.css" />
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <script defer src="../js/toc.js"></script>
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-40612089-3', 'auto');
+    ga('send', 'pageview');
+    </script>
+  </head>
+  <body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header mdl-layout--fixed-drawer ">
+      <header class="mdl-layout__header">
+        <div class="mdl-layout__header-row">
+          <!-- Title -->
+          <span class="mdl-layout-title">Alex's Blog</span>
+          <a class="mdl-navigation__link" href="../">Home</a>
+          <a class="mdl-navigation__link" href="../archive.html">Archive</a>
+        </div>
+      </header>
+      <div class="mdl-layout__drawer">
+        <nav class="mdl-navigation" id="drawer">
+          <a class="mdl-navigation__link" href="../">
+            <i class="material-icons">home</i> Home
+          </a>
+          <a class="mdl-navigation__link" href="../archive.html">
+            <i class="material-icons">folder</i> Archive
+          </a>
+        </nav>
+      </div>
+      <main class="mdl-layout__content">
+      <div class="page-content">
+        <div class="content-grid mdl-grid">
+  <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
+    <div class="mdl-card__title mdl-card--expand">
+      <h2 class="mdl-card__title-text">用 Python 計算經緯度對應的鄉鎮市區</h2>
+    </div>
+    <div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
+      <div>
+        
+        <span>September 16, 2017</span>
+      </div>
+      
+      <div>
+      <span>Tags: <a href="../tags/python.html">python</a>, <a href="../tags/gis.html">gis</a></span>
+      </div>
+      
+    </div>
+    <div class="mdl-color-text--grey-700 mdl-card__supporting-text" id="post-body">
+      <h3 id="tdlr">TD;LR</h3>
+<p>這篇文章筆記最近朋友問的一個問題： 如何不靠外部 API 取得一個經緯度座標落在哪一個鄉鎮市區。</p>
+<p>這邊應用政府 open data 的 <a href="https://data.gov.tw/dataset/7441">鄉鎮市區界線</a> 資料，加上 python 的 shapely 做範圍判斷、用 rtree 建立索引加速查詢。</p>
+<h1 id="實作筆記">實作筆記</h1>
+<p>想法很單純，就是透過判斷座標(輸入的經緯度)有沒有落在多邊形(鄉鎮邊界)的範圍內。</p>
+<h2 id="資料來源">資料來源</h2>
+<p>政府有提供<a href="https://data.gov.tw/dataset/7441">鄉鎮市區界線</a>資料，是一個 <a href="https://en.wikipedia.org/wiki/Shapefile">Shapefile</a>。 Python 要讀取 .shp 檔不難，有很多 library 可以做到，可以參考<a href="https://gis.stackexchange.com/questions/113799/how-to-read-a-shapefile-in-python">這篇</a>。</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> fiona
+<span class="im">from</span> shapely.geometry <span class="im">import</span> shape, Point
+
+collection <span class="op">=</span> fiona.<span class="bu">open</span>(<span class="st">'./TOWN_MOI_1060525.shp'</span>)</code></pre></div>
+<h2 id="查詢">查詢</h2>
+<p>這邊我使用的是 <code>shapely</code> 這個套件來計算座標有無座落於某個多邊形。 所以先將 .shp 內的 geometry 建立成 shapely 的 Polygon 物件：</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">shapes <span class="op">=</span> {}
+properties <span class="op">=</span> {}
+
+<span class="cf">for</span> f <span class="kw">in</span> collection:
+    town_id <span class="op">=</span> <span class="bu">int</span>(f[<span class="st">'properties'</span>][<span class="st">'TOWNCODE'</span>])
+    shapes[town_id] <span class="op">=</span> shape(f[<span class="st">'geometry'</span>])
+    properties[town_id] <span class="op">=</span> f[<span class="st">'properties'</span>]</code></pre></div>
+<p>這樣就可以用 <code class="sourceCode python">polygon.contains(Point(x, y))</code> 判斷一個點有沒有座落於其中。對這所有的多邊形走訪一遍就可以知道座落於哪裡：</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> search(x, y):
+    <span class="cf">return</span> <span class="bu">next</span>((town_id
+                 <span class="cf">for</span> town_id <span class="kw">in</span> shapes
+                 <span class="cf">if</span> shapes[town_id].contains(Point(x, y))), <span class="va">None</span>)</code></pre></div>
+<h2 id="加速查詢">加速查詢</h2>
+<p>上面的查詢很單純地測試全台灣 368 個鄉鎮市的多邊形了一遍，如果是小量的輸入資料應該還算是可以接受， 不過如果需要更細的比對（計算到村里）、或是有大量資料要計算的話，這樣的方法還是不夠有效率。</p>
+<p>因為在查詢一個台北的座標時，其實不用考慮離他太遠的台中、台南…等其他鄉鎮市區。 基於這樣的想法，這邊用 R-Tree 這個<a href="https://en.wikipedia.org/wiki/R-tree">資料結構</a> 來幫這些 bounding box 做索引：</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">from</span> rtree <span class="im">import</span> index
+idx <span class="op">=</span> index.Index()
+<span class="cf">for</span> town_id, shape <span class="kw">in</span> shapes.items():
+    idx.insert(town_id, shape.bounds)</code></pre></div>
+<p>這樣就可以透過 <code class="sourceCode python">idx.intersection((x, y))</code> 來找出跟座標有交集的 bounding box。 我們只需要檢查座標落在其中的哪一個的多邊形即可：</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> search(x, y):
+    <span class="cf">return</span> <span class="bu">next</span>((town_id
+                 <span class="cf">for</span> town_id <span class="kw">in</span> idx.intersection((x, y))
+                 <span class="cf">if</span> shapes[town_id].contains(Point(x, y))), <span class="va">None</span>)</code></pre></div>
+<p>這樣查詢的時間就可以從 <span class="math inline"><em>O</em>(<em>N</em>)</span> 加快到 <span class="math inline"><em>O</em>(<em>l</em><em>o</em><em>g</em><sub><em>M</em></sub><em>N</em> + <em>M</em>)</span> 了。 以鄉鎮市區來說，在我的筆電上，從本來每次平均需要 3.95ms 提升到每次平均 223 µs，至少快了 16 倍。</p>
+<div class="figure">
+<img src="https://i.imgur.com/MDrOi7i.png" alt="以🇹🇼總統府來舉例，它落在萬華區跟中正區兩個 bounding boxes 裡面" />
+<p class="caption">以🇹🇼總統府來舉例，它落在萬華區跟中正區兩個 bounding boxes 裡面</p>
+</div>
+    </div>
+  </div>
+  <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
+    <div class="mdl-card__title mdl-card--expand">
+      <h2 class="mdl-card__title-text">Comments</h2>
+    </div>
+    <div class="mdl-color-text--grey-700 mdl-card__supporting-text" id="disqus_thread">
+      <script>
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+var disqus_config = function () {
+this.page.url = "https://op8867555.github.io/posts/2017-09-16-python-getting-town-from-gps-coord.html";
+this.page.identifier = "2017-09-16-python-getting-town-from-gps-coord.md";
+};
+  (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+    s.src = 'https://alex-lu-blog.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+  })();
+      </script>
+      <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  </div>
+</div>
+
+
+      </div>
+      </main>
+    </div>
+  </body>
+</html>

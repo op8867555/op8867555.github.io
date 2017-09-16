@@ -7,8 +7,57 @@
         <description><![CDATA[Alex Lu's Blog Feed]]></description>
         <atom:link href="https://op8867555.github.io/feed.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Sat, 09 Sep 2017 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Sat, 16 Sep 2017 00:00:00 UT</lastBuildDate>
         <item>
+    <title>用 Python 計算經緯度對應的鄉鎮市區</title>
+    <link>https://op8867555.github.io/posts/2017-09-16-python-getting-town-from-gps-coord.html</link>
+    <description><![CDATA[<h3 id="tdlr">TD;LR</h3>
+<p>這篇文章筆記最近朋友問的一個問題： 如何不靠外部 API 取得一個經緯度座標落在哪一個鄉鎮市區。</p>
+<p>這邊應用政府 open data 的 <a href="https://data.gov.tw/dataset/7441">鄉鎮市區界線</a> 資料，加上 python 的 shapely 做範圍判斷、用 rtree 建立索引加速查詢。</p>
+<h1 id="實作筆記">實作筆記</h1>
+<p>想法很單純，就是透過判斷座標(輸入的經緯度)有沒有落在多邊形(鄉鎮邊界)的範圍內。</p>
+<h2 id="資料來源">資料來源</h2>
+<p>政府有提供<a href="https://data.gov.tw/dataset/7441">鄉鎮市區界線</a>資料，是一個 <a href="https://en.wikipedia.org/wiki/Shapefile">Shapefile</a>。 Python 要讀取 .shp 檔不難，有很多 library 可以做到，可以參考<a href="https://gis.stackexchange.com/questions/113799/how-to-read-a-shapefile-in-python">這篇</a>。</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> fiona
+<span class="im">from</span> shapely.geometry <span class="im">import</span> shape, Point
+
+collection <span class="op">=</span> fiona.<span class="bu">open</span>(<span class="st">&#39;./TOWN_MOI_1060525.shp&#39;</span>)</code></pre></div>
+<h2 id="查詢">查詢</h2>
+<p>這邊我使用的是 <code>shapely</code> 這個套件來計算座標有無座落於某個多邊形。 所以先將 .shp 內的 geometry 建立成 shapely 的 Polygon 物件：</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">shapes <span class="op">=</span> {}
+properties <span class="op">=</span> {}
+
+<span class="cf">for</span> f <span class="kw">in</span> collection:
+    town_id <span class="op">=</span> <span class="bu">int</span>(f[<span class="st">&#39;properties&#39;</span>][<span class="st">&#39;TOWNCODE&#39;</span>])
+    shapes[town_id] <span class="op">=</span> shape(f[<span class="st">&#39;geometry&#39;</span>])
+    properties[town_id] <span class="op">=</span> f[<span class="st">&#39;properties&#39;</span>]</code></pre></div>
+<p>這樣就可以用 <code class="sourceCode python">polygon.contains(Point(x, y))</code> 判斷一個點有沒有座落於其中。對這所有的多邊形走訪一遍就可以知道座落於哪裡：</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> search(x, y):
+    <span class="cf">return</span> <span class="bu">next</span>((town_id
+                 <span class="cf">for</span> town_id <span class="kw">in</span> shapes
+                 <span class="cf">if</span> shapes[town_id].contains(Point(x, y))), <span class="va">None</span>)</code></pre></div>
+<h2 id="加速查詢">加速查詢</h2>
+<p>上面的查詢很單純地測試全台灣 368 個鄉鎮市的多邊形了一遍，如果是小量的輸入資料應該還算是可以接受， 不過如果需要更細的比對（計算到村里）、或是有大量資料要計算的話，這樣的方法還是不夠有效率。</p>
+<p>因為在查詢一個台北的座標時，其實不用考慮離他太遠的台中、台南…等其他鄉鎮市區。 基於這樣的想法，這邊用 R-Tree 這個<a href="https://en.wikipedia.org/wiki/R-tree">資料結構</a> 來幫這些 bounding box 做索引：</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">from</span> rtree <span class="im">import</span> index
+idx <span class="op">=</span> index.Index()
+<span class="cf">for</span> town_id, shape <span class="kw">in</span> shapes.items():
+    idx.insert(town_id, shape.bounds)</code></pre></div>
+<p>這樣就可以透過 <code class="sourceCode python">idx.intersection((x, y))</code> 來找出跟座標有交集的 bounding box。 我們只需要檢查座標落在其中的哪一個的多邊形即可：</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> search(x, y):
+    <span class="cf">return</span> <span class="bu">next</span>((town_id
+                 <span class="cf">for</span> town_id <span class="kw">in</span> idx.intersection((x, y))
+                 <span class="cf">if</span> shapes[town_id].contains(Point(x, y))), <span class="va">None</span>)</code></pre></div>
+<p>這樣查詢的時間就可以從 <span class="math inline"><em>O</em>(<em>N</em>)</span> 加快到 <span class="math inline"><em>O</em>(<em>l</em><em>o</em><em>g</em><sub><em>M</em></sub><em>N</em> + <em>M</em>)</span> 了。 以鄉鎮市區來說，在我的筆電上，從本來每次平均需要 3.95ms 提升到每次平均 223 µs，至少快了 16 倍。</p>
+<div class="figure">
+<img src="https://i.imgur.com/MDrOi7i.png" alt="以🇹🇼總統府來舉例，它落在萬華區跟中正區兩個 bounding boxes 裡面" />
+<p class="caption">以🇹🇼總統府來舉例，它落在萬華區跟中正區兩個 bounding boxes 裡面</p>
+</div>]]></description>
+    <pubDate>Sat, 16 Sep 2017 00:00:00 UT</pubDate>
+    <guid>https://op8867555.github.io/posts/2017-09-16-python-getting-town-from-gps-coord.html</guid>
+    <dc:creator>Alex Lu</dc:creator>
+</item>
+<item>
     <title>手動編譯 vs 編譯好的 tensorflow</title>
     <link>https://op8867555.github.io/posts/2017-09-09-tensorflow-prebuilt-vs-built-from-source.html</link>
     <description><![CDATA[<p>亂看文章時發現到 tensorflow prebuilt 版跟自己 build 效能有落差（現在想想這也是理所當然的事），於是就來自己編編看到底差多少了。</p>
