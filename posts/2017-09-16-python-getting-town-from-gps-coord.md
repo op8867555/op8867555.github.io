@@ -4,7 +4,7 @@ tags: python, gis
 image: https://i.imgur.com/MDrOi7ih.png
 ---
 
-### TD;LR
+### TL;DR
 
 這篇文章筆記最近朋友問的一個問題： 如何不靠外部 API 取得一個經緯度座標落在哪一個鄉鎮市區。
 
@@ -58,7 +58,8 @@ def search(x, y):
 不過如果需要更細的比對（計算到村里）、或是有大量資料要計算的話，這樣的方法還是不夠有效率。
 
 因為在查詢一個台北的座標時，其實不用考慮離他太遠的台中、台南…等其他鄉鎮市區。
-基於這樣的想法，這邊用 R-Tree 這個[資料結構][rtree-ds] 來幫這些 bounding box 做索引：
+
+基於這樣的想法，這邊用 R-Tree 這個[資料結構][rtree-ds]來幫這些多邊形的 bounding box（多邊形的最小外接矩形）做索引：
 
 ~~~~python
 from rtree import index
