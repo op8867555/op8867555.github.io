@@ -11,7 +11,7 @@
         <item>
     <title>用 Python 計算經緯度對應的鄉鎮市區</title>
     <link>https://op8867555.github.io/posts/2017-09-16-python-getting-town-from-gps-coord.html</link>
-    <description><![CDATA[<h3 id="tdlr">TD;LR</h3>
+    <description><![CDATA[<h3 id="tldr">TL;DR</h3>
 <p>這篇文章筆記最近朋友問的一個問題： 如何不靠外部 API 取得一個經緯度座標落在哪一個鄉鎮市區。</p>
 <p>這邊應用政府 open data 的 <a href="https://data.gov.tw/dataset/7441">鄉鎮市區界線</a> 資料，加上 python 的 shapely 做範圍判斷、用 rtree 建立索引加速查詢。</p>
 <h1 id="實作筆記">實作筆記</h1>
@@ -38,7 +38,8 @@ properties <span class="op">=</span> {}
                  <span class="cf">if</span> shapes[town_id].contains(Point(x, y))), <span class="va">None</span>)</code></pre></div>
 <h2 id="加速查詢">加速查詢</h2>
 <p>上面的查詢很單純地測試全台灣 368 個鄉鎮市的多邊形了一遍，如果是小量的輸入資料應該還算是可以接受， 不過如果需要更細的比對（計算到村里）、或是有大量資料要計算的話，這樣的方法還是不夠有效率。</p>
-<p>因為在查詢一個台北的座標時，其實不用考慮離他太遠的台中、台南…等其他鄉鎮市區。 基於這樣的想法，這邊用 R-Tree 這個<a href="https://en.wikipedia.org/wiki/R-tree">資料結構</a> 來幫這些 bounding box 做索引：</p>
+<p>因為在查詢一個台北的座標時，其實不用考慮離他太遠的台中、台南…等其他鄉鎮市區。</p>
+<p>基於這樣的想法，這邊用 R-Tree 這個<a href="https://en.wikipedia.org/wiki/R-tree">資料結構</a>來幫這些多邊形的 bounding box（多邊形的最小外接矩形）做索引：</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">from</span> rtree <span class="im">import</span> index
 idx <span class="op">=</span> index.Index()
 <span class="cf">for</span> town_id, shape <span class="kw">in</span> shapes.items():
