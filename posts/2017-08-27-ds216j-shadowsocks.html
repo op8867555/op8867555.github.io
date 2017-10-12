@@ -64,6 +64,10 @@
     </div>
     <div class="mdl-color-text--grey-700 mdl-card__supporting-text" id="post-body">
       <p>最近親戚弄了台 Synology DS216j 想拿來架 shadowsocks 的 server，這篇文章筆記我架這個 server 所走的路。</p>
+<h3 id="changelogs">changelogs</h3>
+<ul>
+<li>2017-10-12 紀錄一下，現在上游有編好的 package 能用了</li>
+</ul>
 <h1 id="折騰過程">折騰過程</h1>
 <p>提到在 NAS 上架 shadowsocks，可以查到很多用 docker 的解決方法，不過網路上的幾篇文章都說這台機器不能用 docker，所以我直接往 binary 的方法前進。</p>
 <p>一開始看到的是這篇 <a href="http://jexbat.com/2016/NAS-Shadowsocks/">Synology DS216Play 安装 ShadowSocks</a>，從這篇文章中得出：</p>
@@ -73,7 +77,7 @@
 </ul>
 <h2 id="安裝package-manager">安裝package manager</h2>
 <p>朝著安裝 package manager 的方向前進後找到了這篇<a href="https://ky0n.xyz/synology-ds216j-optware-ipkg-init/">Synology DS216j Optware IPKG 介紹</a>。<br />
-看了看發現這是篇翻譯文，而原文有了更新的<a href="http://jasmin.sakura.ne.jp/blog/0245">版本🇯🇵</a>，發現到有 <a href="https://github.com/Entware-ng/Entware-ng/">entware-ng</a> 這個比 ipkg 更新的 package manager 能用， 而且已經有 shadowsocks 的<a href="pkg.entware.net/binaries/armv7/Packages.html">套件能用</a>。</p>
+看了看發現這是篇翻譯文，而原文有了更新的<a href="http://jasmin.sakura.ne.jp/blog/0245">版本🇯🇵</a>，發現到有 <a href="https://github.com/Entware-ng/Entware-ng/">entware-ng</a> 這個比 ipkg 更新的 package manager 能用， 而且已經有 shadowsocks 的<a href="http://pkg.entware.net/binaries/armv7/Packages.html">套件能用</a>。</p>
 <h2 id="安裝-entware-ng">安裝 entware-ng</h2>
 <p>安裝的過程不難，大致上就是開好SSH、照著<a href="https://github.com/Entware-ng/Entware-ng/wiki/Install-on-Synology-NAS">其 wiki 上寫的步驟</a>就行。</p>
 <p>筆記一下步驟：</p>
@@ -104,6 +108,10 @@
 <pre><code>opkg update
 opkg install shadowsocks-libev</code></pre>
 <p>但是裝完卻發現沒有 <code>ss-server</code> 這個執行檔！ 原因似乎是因為 entware-ng 沒有跟上流的 openwrt 同步 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>，而不知為何的明明就有新的 Makefile ，除了 mipsel 以外卻沒有新的 binary package 能用。</p>
+<h3 id="更新">2017/10/12 更新</h3>
+<p>前一陣子 entware 有跟上游同步過，所以直接安裝 <code>shadowsocks-libev-ss-server</code> 跟 <code>shadowsocks-libev-config</code> 就行了</p>
+<pre><code>opkg install shadowsocks-libev-config
+opkg install shadowsocks-libev-ss-server</code></pre>
 <h2 id="手動編譯">手動編譯</h2>
 <p>沒辦法，只好來自己編。幸好 entware 的 wiki 頁上也有<a href="https://github.com/Entware-ng/Entware-ng/wiki/Compile-packages-from-sources">教學</a>，也是照著做就好。</p>
 <p>Entware-ng 用的是 OpenWrt Buildroot，所以需要先裝好<a href="http://wiki.openwrt.org/doc/howto/buildroot.exigence#install_procedure_on_linux">它依賴的套件</a>。</p>
