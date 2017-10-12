@@ -5,6 +5,10 @@ tags: shadowsocks, openwrt, nas
 
 最近親戚弄了台 Synology DS216j 想拿來架 shadowsocks 的 server，這篇文章筆記我架這個 server 所走的路。
 
+### changelogs
+
+* 2017-10-12 紀錄一下，現在上游有編好的 package 能用了
+
 # 折騰過程
 
 提到在 NAS 上架 shadowsocks，可以查到很多用 docker 的解決方法，不過網路上的幾篇文章都說這台機器不能用 docker，所以我直接往 binary 的方法前進。
@@ -18,7 +22,7 @@ tags: shadowsocks, openwrt, nas
 
 朝著安裝 package manager 的方向前進後找到了這篇[Synology DS216j Optware IPKG 介紹][]。  
 看了看發現這是篇翻譯文，而原文有了更新的[版本🇯🇵][Synology DS216j Entware-ng 導入]，發現到有 [entware-ng][] 這個比 ipkg 更新的 package manager 能用，
-而且已經有 shadowsocks 的[套件能用](pkg.entware.net/binaries/armv7/Packages.html)。
+而且已經有 shadowsocks 的[套件能用](http://pkg.entware.net/binaries/armv7/Packages.html)。
 
 ## 安裝 entware-ng
 
@@ -68,6 +72,13 @@ tags: shadowsocks, openwrt, nas
 
 但是裝完卻發現沒有 `ss-server` 這個執行檔！
 原因似乎是因為 entware-ng 沒有跟上流的 openwrt 同步 [^entware-ng-e3793bbb]，而不知為何的明明就有新的 Makefile ，除了 mipsel 以外卻沒有新的 binary package 能用。
+
+### 2017/10/12 更新
+
+前一陣子 entware 有跟上游同步過，所以直接安裝 `shadowsocks-libev-ss-server` 跟 `shadowsocks-libev-config` 就行了
+
+    opkg install shadowsocks-libev-config
+    opkg install shadowsocks-libev-ss-server
 
 
 ## 手動編譯
