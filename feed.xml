@@ -7,8 +7,45 @@
         <description><![CDATA[Alex Lu's Blog Feed]]></description>
         <atom:link href="https://op8867555.github.io/feed.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Thu, 05 Oct 2017 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Fri, 13 Oct 2017 00:00:00 UT</lastBuildDate>
         <item>
+    <title>[EN] Use your UNIX toolbox with pandas</title>
+    <link>https://op8867555.github.io/posts/2017-10-13-use-your-unix-toolbox-with-pandas.html</link>
+    <description><![CDATA[<p>I do analysis on log / csv / json files with a Python + Pandas + Jupyter Notebook stack at work. These files are so large that I usually need to do some pre-processing before loading them into memory.</p>
+<p>UNIX tools are powerful to stream processing files: concatenation, filtering, transforming…, but it is annoying to “context-switch” between Jupyter Notebook and shell. Also, It’s generate immediate files that need to remove later manually, quite annoying.</p>
+<p>After some stackoverflow-ing, I found a solution<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> says you can read files in chunks:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">df <span class="op">=</span> pd.concat(process(chunk_df) <span class="co"># do processing in python</span>
+               <span class="cf">for</span> chunk_df <span class="kw">in</span> pd.read_csv(<span class="st">&#39;bigdata.csv&#39;</span>, chunksize<span class="op">=</span><span class="dv">10000</span>))</code></pre></div>
+<p>But there is a big overhead to create/process immediate data-frames.</p>
+<p>Another solution<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> says you can use <code>subprocess</code> with PIPE, a clever idea. So I end up with this:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> pandas <span class="im">as</span> pd
+<span class="im">from</span> subprocess <span class="im">import</span> Popen, PIPE
+
+<span class="cf">with</span> Popen(<span class="st">&#39;cat bigdata.csv | grep WHAT_I_CARE_ABOUT | some_transformations&#39;</span>,
+           shell<span class="op">=</span><span class="va">True</span>,
+           stdout<span class="op">=</span>PIPE) <span class="im">as</span> process:
+    df <span class="op">=</span> pd.read_csv(process.stdout)</code></pre></div>
+<p>With this trick, I can now do some bash-fu with pandas in Jupyter-Notebook easily.</p>
+<p><strong>Reading multiples files</strong></p>
+<pre class="shell"><code>cat stats/2017/*/*.csv</code></pre>
+<p><strong>JSON query with jq</strong></p>
+<pre class="shell"><code>cat data.json | jq &#39;{.loc = .loc}&#39;</code></pre>
+<p><strong>filter lines with awk or grep</strong></p>
+<pre class="shell"><code>zcat data.csv.gz | grep &#39;SOME_TAG&#39; | awk &#39;$1 == 2017&#39;</code></pre>
+<p><strong>pipe over files in .tar</strong></p>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash"><span class="fu">tar</span> -xOf bigdatas.tar.gz --wildcards <span class="st">&quot;*.data.csv&quot;</span></code></pre></div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://stackoverflow.com/questions/13651117/pandas-filter-lines-on-load-in-read-csv/13653490#13653490">pandas: filter lines on load in read_csv</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p><a href="https://stackoverflow.com/questions/39864304/how-to-use-subprocess-and-cat-to-read-in-data-line-by-line/39864368#39864368">How to use subprocess and ‘cat’ to read in data line by line?</a><a href="#fnref2">↩</a></p></li>
+</ol>
+</div>]]></description>
+    <pubDate>Fri, 13 Oct 2017 00:00:00 UT</pubDate>
+    <guid>https://op8867555.github.io/posts/2017-10-13-use-your-unix-toolbox-with-pandas.html</guid>
+    <dc:creator>Alex Lu</dc:creator>
+</item>
+<item>
     <title>應用 git bisect 找出 linux kernel 中出現問題的 commit</title>
     <link>https://op8867555.github.io/posts/2017-10-05-bisecting-linux-kernel-bug.html</link>
     <description><![CDATA[<h3 id="tldr">TL;DR</h3>
