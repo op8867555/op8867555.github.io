@@ -7,8 +7,104 @@
         <description><![CDATA[Alex Lu's Blog Feed]]></description>
         <atom:link href="https://op8867555.github.io/feed.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Fri, 13 Oct 2017 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Mon, 27 Nov 2017 00:00:00 UT</lastBuildDate>
         <item>
+    <title>筆記：幾個 CLI 實用工具: ag, fzf, fd, ripgrep</title>
+    <link>https://op8867555.github.io/posts/2017-11-27-cli-tools-ag-rg-fzf-fd.html</link>
+    <description><![CDATA[<p>筆記最近用的幾個 CLI 工具。</p>
+<h1 id="the-silver-searcher">The Silver Searcher</h1>
+<p><a href="https://github.com/ggreer/the_silver_searcher">The Silver Searcher</a> 是一個類似 ack 的搜尋工具，也就是找出出現某字串的所有檔案。</p>
+<ul>
+<li>飛天快</li>
+<li>預設排除 <code>.gitignore</code> <code>.hgignore</code> 裡的 pattern</li>
+<li>其他不想要的 pattern 可以寫在 <code>.ignore</code></li>
+<li>用 c 實作</li>
+<li>直到 <span class="citation">@caasih</span> 提到之前我都沒發現執行檔名稱 <code>ag</code> 是水銀的元素符號</li>
+</ul>
+<h1 id="ripgrep">ripgrep</h1>
+<p><a href="https://github.com/BurntSushi/ripgrep">Ripgrep</a> 跟前述的 The Silver Searcher 功能差不多</p>
+<ul>
+<li>但是比飛天快還快</li>
+<li>對於 ignore 檔案的實作更正確，ag 會多吐一些不應該出現的結果</li>
+<li>regexp 的功能比較少（比方說我從來沒用過的 lookaround 跟 backreference 就沒有實作）</li>
+<li>用 rust 實作</li>
+</ul>
+<h1 id="fd">fd</h1>
+<p><a href="https://github.com/sharkdp/fd">fd</a> 是一個類似 find 的檔案搜尋工具</p>
+<ul>
+<li>也會預設排除 <code>.gitignore</code></li>
+<li>預設排除隱藏檔案</li>
+<li>也是飛天快</li>
+<li>也是 rust 實作</li>
+</ul>
+<h2 id="範例">範例</h2>
+<ul>
+<li><p>用 regexp 搜尋</p>
+<pre><code>fd &#39;[0-9]\.jpg$&#39;</code></pre></li>
+<li><p>搜尋隱藏檔案跟被 ignore 的檔案</p>
+<pre><code>fd -H -I &#39;[0-9]\.jpg$&#39;</code></pre></li>
+<li><p>搜尋特定副檔名</p>
+<pre><code>fd -e jpg</code></pre></li>
+<li><p>對搜尋結果下指令<strong>平行執行</strong></p>
+<pre><code>fd -e jpg -x convert {} {.}.png</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th>variable</th>
+<th align="left">example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>{}</td>
+<td align="left">documents/images/party.jpg</td>
+</tr>
+<tr class="even">
+<td>{.}</td>
+<td align="left">documents/images/party</td>
+</tr>
+<tr class="odd">
+<td>{/}</td>
+<td align="left">party.jpg</td>
+</tr>
+<tr class="even">
+<td>{//}</td>
+<td align="left">documents/images</td>
+</tr>
+<tr class="odd">
+<td>{/.}</td>
+<td align="left">party</td>
+</tr>
+</tbody>
+</table></li>
+</ul>
+<h1 id="fzf">fzf</h1>
+<p><a href="https://github.com/junegunn/fzf">fzf</a> 是一個 fuzzy finder，就是 cmd+T 或是 ctrl+p 或是任何一個 文字編輯器/IDE 裡面不用打全名就可以找檔案的那個功能</p>
+<ul>
+<li>用 go 寫的</li>
+<li><p>預設用 find ，所以很慢，用環境變數可以換用 fd</p>
+<p>export FZF_DEFAULT_COMMAND=‘fd –type f –follow –exclude .git’</p></li>
+<li><p>ctrl+r 來搜尋歷史</p>
+<blockquote class="imgur-embed-pub" lang="en" data-id="IwjCK2l">
+<a href="//imgur.com/IwjCK2l">View post on imgur.com</a>
+</blockquote>
+<script async src="//s.imgur.com/min/embed.js" charset="utf-8"></script></li>
+<li><p><code>**&lt;tab&gt;</code> 可以選取多個檔案</p>
+<blockquote class="imgur-embed-pub" lang="en" data-id="ocxqb0C">
+<a href="//imgur.com/ocxqb0C">View post on imgur.com</a>
+</blockquote>
+<script async src="//s.imgur.com/min/embed.js" charset="utf-8"></script></li>
+<li><p>ctrl+t 來搜尋檔案</p>
+<blockquote class="imgur-embed-pub" lang="en" data-id="SfiGWjD">
+<a href="//imgur.com/SfiGWjD">View post on imgur.com</a>
+</blockquote>
+<script async src="//s.imgur.com/min/embed.js" charset="utf-8"></script></li>
+</ul>]]></description>
+    <pubDate>Mon, 27 Nov 2017 00:00:00 UT</pubDate>
+    <guid>https://op8867555.github.io/posts/2017-11-27-cli-tools-ag-rg-fzf-fd.html</guid>
+    <dc:creator>Alex Lu</dc:creator>
+</item>
+<item>
     <title>[EN] Use your UNIX toolbox with pandas</title>
     <link>https://op8867555.github.io/posts/2017-10-13-use-your-unix-toolbox-with-pandas.html</link>
     <description><![CDATA[<p>I do analysis on log / csv / json files with a Python + Pandas + Jupyter Notebook stack at work. These files are so large that I usually need to do some pre-processing before loading them into memory.</p>

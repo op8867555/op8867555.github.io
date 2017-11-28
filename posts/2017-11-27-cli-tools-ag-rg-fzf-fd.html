@@ -1,0 +1,187 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="google-site-verification" content="CLMtF1JkUEd-jPZ3RQateLLiKyn729kaOHg9Hnu_TSo" />
+    <title>Alex's Blog - 筆記：幾個 CLI 實用工具: ag, fzf, fd, ripgrep</title>
+    <meta name="robots" content="index, follow" />
+    <link rel="alternate" href="../feed.xml" title="Alex Lu's Blog" type="application/atom+xml">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.blue_grey-indigo.min.css" />
+    <link rel="stylesheet" href="../css/default.css" />
+    <link rel="stylesheet" href="../css/syntax.css" />
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <script defer src="../js/toc.js"></script>
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-40612089-3', 'auto');
+    ga('send', 'pageview');
+    </script>
+  </head>
+  <body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header mdl-layout--fixed-drawer ">
+      <header class="mdl-layout__header">
+        <div class="mdl-layout__header-row">
+          <!-- Title -->
+          <span class="mdl-layout-title">Alex's Blog</span>
+          <a class="mdl-navigation__link" href="../">Home</a>
+          <a class="mdl-navigation__link" href="../archive.html">Archive</a>
+        </div>
+      </header>
+      <div class="mdl-layout__drawer">
+        <nav class="mdl-navigation" id="drawer">
+          <a class="mdl-navigation__link" href="../">
+            <i class="material-icons">home</i> Home
+          </a>
+          <a class="mdl-navigation__link" href="../archive.html">
+            <i class="material-icons">folder</i> Archive
+          </a>
+        </nav>
+      </div>
+      <main class="mdl-layout__content">
+      <div class="page-content">
+        <div class="content-grid mdl-grid">
+  <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
+    <div class="mdl-card__title mdl-card--expand">
+      <h2 class="mdl-card__title-text">筆記：幾個 CLI 實用工具: ag, fzf, fd, ripgrep</h2>
+    </div>
+    <div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
+      <div>
+        
+        <span>November 27, 2017</span>
+      </div>
+      
+      <div>
+      <span>Tags: <a href="../tags/cli.html">cli</a>, <a href="../tags/find.html">find</a>, <a href="../tags/grep.html">grep</a>, <a href="../tags/linux.html">linux</a></span>
+      </div>
+      
+    </div>
+    <div class="mdl-color-text--grey-700 mdl-card__supporting-text" id="post-body">
+      <p>筆記最近用的幾個 CLI 工具。</p>
+<h1 id="the-silver-searcher">The Silver Searcher</h1>
+<p><a href="https://github.com/ggreer/the_silver_searcher">The Silver Searcher</a> 是一個類似 ack 的搜尋工具，也就是找出出現某字串的所有檔案。</p>
+<ul>
+<li>飛天快</li>
+<li>預設排除 <code>.gitignore</code> <code>.hgignore</code> 裡的 pattern</li>
+<li>其他不想要的 pattern 可以寫在 <code>.ignore</code></li>
+<li>用 c 實作</li>
+<li>直到 <span class="citation">@caasih</span> 提到之前我都沒發現執行檔名稱 <code>ag</code> 是水銀的元素符號</li>
+</ul>
+<h1 id="ripgrep">ripgrep</h1>
+<p><a href="https://github.com/BurntSushi/ripgrep">Ripgrep</a> 跟前述的 The Silver Searcher 功能差不多</p>
+<ul>
+<li>但是比飛天快還快</li>
+<li>對於 ignore 檔案的實作更正確，ag 會多吐一些不應該出現的結果</li>
+<li>regexp 的功能比較少（比方說我從來沒用過的 lookaround 跟 backreference 就沒有實作）</li>
+<li>用 rust 實作</li>
+</ul>
+<h1 id="fd">fd</h1>
+<p><a href="https://github.com/sharkdp/fd">fd</a> 是一個類似 find 的檔案搜尋工具</p>
+<ul>
+<li>也會預設排除 <code>.gitignore</code></li>
+<li>預設排除隱藏檔案</li>
+<li>也是飛天快</li>
+<li>也是 rust 實作</li>
+</ul>
+<h2 id="範例">範例</h2>
+<ul>
+<li><p>用 regexp 搜尋</p>
+<pre><code>fd '[0-9]\.jpg$'</code></pre></li>
+<li><p>搜尋隱藏檔案跟被 ignore 的檔案</p>
+<pre><code>fd -H -I '[0-9]\.jpg$'</code></pre></li>
+<li><p>搜尋特定副檔名</p>
+<pre><code>fd -e jpg</code></pre></li>
+<li><p>對搜尋結果下指令<strong>平行執行</strong></p>
+<pre><code>fd -e jpg -x convert {} {.}.png</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th>variable</th>
+<th align="left">example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>{}</td>
+<td align="left">documents/images/party.jpg</td>
+</tr>
+<tr class="even">
+<td>{.}</td>
+<td align="left">documents/images/party</td>
+</tr>
+<tr class="odd">
+<td>{/}</td>
+<td align="left">party.jpg</td>
+</tr>
+<tr class="even">
+<td>{//}</td>
+<td align="left">documents/images</td>
+</tr>
+<tr class="odd">
+<td>{/.}</td>
+<td align="left">party</td>
+</tr>
+</tbody>
+</table></li>
+</ul>
+<h1 id="fzf">fzf</h1>
+<p><a href="https://github.com/junegunn/fzf">fzf</a> 是一個 fuzzy finder，就是 cmd+T 或是 ctrl+p 或是任何一個 文字編輯器/IDE 裡面不用打全名就可以找檔案的那個功能</p>
+<ul>
+<li>用 go 寫的</li>
+<li><p>預設用 find ，所以很慢，用環境變數可以換用 fd</p>
+<p>export FZF_DEFAULT_COMMAND=‘fd –type f –follow –exclude .git’</p></li>
+<li><p>ctrl+r 來搜尋歷史</p>
+<blockquote class="imgur-embed-pub" lang="en" data-id="IwjCK2l">
+<a href="//imgur.com/IwjCK2l">View post on imgur.com</a>
+</blockquote>
+<script async src="//s.imgur.com/min/embed.js" charset="utf-8"></script></li>
+<li><p><code>**&lt;tab&gt;</code> 可以選取多個檔案</p>
+<blockquote class="imgur-embed-pub" lang="en" data-id="ocxqb0C">
+<a href="//imgur.com/ocxqb0C">View post on imgur.com</a>
+</blockquote>
+<script async src="//s.imgur.com/min/embed.js" charset="utf-8"></script></li>
+<li><p>ctrl+t 來搜尋檔案</p>
+<blockquote class="imgur-embed-pub" lang="en" data-id="SfiGWjD">
+<a href="//imgur.com/SfiGWjD">View post on imgur.com</a>
+</blockquote>
+<script async src="//s.imgur.com/min/embed.js" charset="utf-8"></script></li>
+</ul>
+    </div>
+  </div>
+  <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
+    <div class="mdl-card__title mdl-card--expand">
+      <h2 class="mdl-card__title-text">Comments</h2>
+    </div>
+    <div class="mdl-color-text--grey-700 mdl-card__supporting-text" id="disqus_thread">
+      <script>
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+var disqus_config = function () {
+this.page.url = "https://op8867555.github.io/posts/2017-11-27-cli-tools-ag-rg-fzf-fd.html";
+this.page.identifier = "2017-11-27-cli-tools-ag-rg-fzf-fd.md";
+};
+  (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+    s.src = 'https://alex-lu-blog.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+  })();
+      </script>
+      <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  </div>
+</div>
+
+
+      </div>
+      </main>
+    </div>
+  </body>
+</html>
