@@ -2,9 +2,14 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 import Data.Monoid (mappend)
+import qualified Data.Set as S
+
 import Hakyll
 
 import System.FilePath
+import Text.Pandoc.Options
+import Text.Pandoc.Shared (eastAsianLineBreakFilter)
+import Text.Pandoc.SideNote (usingSideNotes)
 
 --------------------------------------------------------------------------------
 main :: IO ()
@@ -55,22 +60,26 @@ main =
         match "posts/*" $ do
             route $ setExtension "html"
             compile $
-                pandocCompiler >>= saveSnapshot "content" >>=
-                loadAndApplyTemplate "templates/post.html" (postCtx tags) >>=
-                loadAndApplyTemplate "templates/default.html" (postCtx tags) >>=
-                relativizeUrls
-        match "index.html" $ do
-            route idRoute
+                myCompiler
+                >>= saveSnapshot "content"
+                >>= loadAndApplyTemplate "templates/post.html" (postCtx tags)
+                >>= relativizeUrls
+                >>= loadAndApplyTemplate "templates/default.html" (postCtx tags)
+        match "index.md" $ do
+            route $ setExtension "html"
             compile $ do
-                posts <- fmap (take 3) $ recentFirst =<< loadAll "posts/*"
-                let indexCtx =
-                        listField "posts" (postCtx tags) (return posts) `mappend`
-                        constField "title" "Home" `mappend`
-                        tagCloudField "tagcloud" 50 200 tags `mappend`
-                        defaultContext
-                getResourceBody >>= applyAsTemplate indexCtx >>=
-                    loadAndApplyTemplate "templates/default.html" indexCtx >>=
-                    relativizeUrls
+                posts <- fmap (take 10) $ recentFirst =<< loadAll "posts/*"
+                tagslist <- renderTagList tags
+                let indexCtx = mconcat [ listField "posts" (postCtx tags) (return posts)
+                                       , constField "title" "Home"
+                                       , constField "taglist" tagslist
+                                       , defaultContext
+                                       ]
+                getResourceBody
+                    >>= applyAsTemplate indexCtx
+                    >>= renderPandoc
+                    >>= loadAndApplyTemplate "templates/default.html" indexCtx
+                    >>= relativizeUrls
         match "templates/*" $ compile templateBodyCompiler
         -- RSS Feed
         create ["feed.xml"] $ do
@@ -78,8 +87,17 @@ main =
             compile $ do
                 posts <-
                     fmap (take 10) $
-                    recentFirst =<< loadAllSnapshots "posts/*" "content"
+                        recentFirst =<< loadAllSnapshots "posts/*" "content"
                 renderRss feedConfig feedCtx posts
+
+myCompiler =
+    pandocCompilerWithTransform
+        defaultHakyllReaderOptions -- { readerExtensions = foldr enableExtension oldExts newExts}
+        defaultHakyllWriterOptions { writerHTMLMathMethod = KaTeX ""}
+        (eastAsianLineBreakFilter . usingSideNotes)
+    where oldExts = readerExtensions defaultHakyllReaderOptions
+          newExts = [ Ext_tex_math_double_backslash
+                    , Ext_tex_math_single_backslash]
 
 feedConfig =
     FeedConfiguration

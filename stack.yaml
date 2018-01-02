@@ -15,12 +15,12 @@
 # resolver:
 #  name: custom-snapshot
 #  location: "./custom-snapshot.yaml"
-resolver: lts-8.17
+resolver: lts-10.1
 
 # User packages to be built.
 # Various formats can be used as shown in the example below.
 #
-# packages:
+#packages:
 # - some-directory
 # - https://example.com/foo/bar/baz-0.0.2.tar.gz
 # - location:
@@ -39,8 +39,9 @@ packages:
 - .
 # Dependency packages to be pulled from upstream that are not in the resolver
 # (e.g., acme-missiles-0.3)
-extra-deps: []
-
+extra-deps:
+- pandoc-sidenote-0.19.0.0
+- monad-gen-0.3.0.1
 # Override default flag values for local packages and extra-deps
 flags: {}
 

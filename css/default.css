@@ -1,15 +1,9 @@
-body {
-  background-color: #fafafa;
-}
-.content-grid {
-  max-width: 960px;
-}
-.mdl-layout__content {
-  padding-top: 10px;
+span.article-date {
+  color: gray;
 }
 
-#post-body {
-  margin: 0 auto;
+ul {
+  max-width: 600px;
 }
 
 pre {
@@ -17,33 +11,12 @@ pre {
   max-width: 100ch;
   overflow: auto;
   padding: 5px 5px;
-  background-color: #f0f0f0;
 }
 
 
 .half-page {
   height: 50vh;
 }
-
-img {
-  max-width: 100%;
-}
-
-div.figure {
-  margin-bottom: 1rem;
-}
-div.figure img {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
-div.figure p.caption {
-  width: fit-content;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
-
 
 .center {
   display: block;
@@ -52,7 +25,7 @@ div.figure p.caption {
 }
 
 #disqus_thread {
-  width: initial;
+  max-width: 960px;
 }
 
 #avatar {
@@ -76,14 +49,6 @@ div.figure p.caption {
 }
 
 pre.example {
-  background-color: rgba(46, 159, 255, 0.15);
+  background-color: #ffffdf;
   color: black;
-}
-
-blockquote p {
-  display: inline;
-}
-
-table {
-  min-width: 50vw;
 }

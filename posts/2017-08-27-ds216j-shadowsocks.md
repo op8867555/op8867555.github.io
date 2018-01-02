@@ -70,8 +70,8 @@ tags: shadowsocks, openwrt, nas
     opkg update
     opkg install shadowsocks-libev
 
-但是裝完卻發現沒有 `ss-server` 這個執行檔！
-原因似乎是因為 entware-ng 沒有跟上流的 openwrt 同步 [^entware-ng-e3793bbb]，而不知為何的明明就有新的 Makefile ，除了 mipsel 以外卻沒有新的 binary package 能用。
+~~但是裝完卻發現沒有 `ss-server` 這個執行檔！
+原因似乎是因為 entware-ng 沒有跟上流的 openwrt 同步 [^entware-ng-e3793bbb]，而不知為何的明明就有新的 Makefile ，除了 mipsel 以外卻沒有新的 binary package 能用。~~
 
 ### 2017/10/12 更新
 
@@ -103,7 +103,7 @@ WORKDIR /home/openwrt
 CMD ["/bin/bash"]
 ~~~~
 
-docker 環境準備好、進入其 shell 之後
+docker 環境準備好、進入其 shell 之後^[我用不同的顏色來區別 docker 環境內的操作]
 
   * 準備 entware 跟更新其 package feeds：
 
