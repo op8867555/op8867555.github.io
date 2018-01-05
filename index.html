@@ -8,12 +8,10 @@
     <title>Alex's Blog - Home</title>
     <meta name="robots" content="index, follow" />
     <link rel="alternate" href="./feed.xml" title="Alex Lu's Blog" type="application/atom+xml">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.blue_grey-indigo.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tufte-css/1.3/tufte.min.css" integrity="sha256-RB2fOyr8UMnkP7bVbAtAqgocMxqG+TDqly7ZEjmRJRY=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="./css/pandoc.css" />
     <link rel="stylesheet" href="./css/default.css" />
     <link rel="stylesheet" href="./css/syntax.css" />
-    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-    <script defer src="./js/toc.js"></script>
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -23,121 +21,71 @@
     ga('create', 'UA-40612089-3', 'auto');
     ga('send', 'pageview');
     </script>
+    <!-- katex -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/contrib/auto-render.js" "></script>
   </head>
   <body>
-    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header mdl-layout--fixed-drawer ">
-      <header class="mdl-layout__header">
-        <div class="mdl-layout__header-row">
-          <!-- Title -->
-          <span class="mdl-layout-title">Alex's Blog</span>
-          <a class="mdl-navigation__link" href="./">Home</a>
-          <a class="mdl-navigation__link" href="./archive.html">Archive</a>
-        </div>
-      </header>
-      <div class="mdl-layout__drawer">
-        <nav class="mdl-navigation" id="drawer">
-          <a class="mdl-navigation__link" href="./">
-            <i class="material-icons">home</i> Home
-          </a>
-          <a class="mdl-navigation__link" href="./archive.html">
-            <i class="material-icons">folder</i> Archive
-          </a>
-        </nav>
-      </div>
-      <main class="mdl-layout__content">
-      <div class="page-content">
-        <div class="content-grid mdl-grid">
-  <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--4-col" id="avatar">
-  </div>
-  <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--4-col">
-    <div class="mdl-card__title">
-      <h3 class="mdl-card__title-text">
-        Intro
-      </h3>
-    </div>
-    <div class="mdl-card__supporting-text" class="intro">
-      Hi, I'm Alex Lu.
-      <hr />
-      #Taiwanese🇹🇼
-      #Programmer
-      #ArchLinuxUser
-      #AnimeOtaku
-      #ProgLangAmateur
-      #FunctionalProgramingHobbyist
-    </div>
-  </div>
-  <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--4-col-desktop">
-    <div class="mdl-card__title">
-      <h2 class="mdl-card__title-text">Tag Cloud</h2>
-    </div>
-    <div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
-      <a style="font-size: 50%" href="./tags/arch.html">arch</a> <a style="font-size: 50%" href="./tags/cli.html">cli</a> <a style="font-size: 50%" href="./tags/d3js.html">d3js</a> <a style="font-size: 50%" href="./tags/data-analysis.html">data-analysis</a> <a style="font-size: 50%" href="./tags/dataviz.html">dataviz</a> <a style="font-size: 50%" href="./tags/drm-tip.html">drm-tip</a> <a style="font-size: 50%" href="./tags/find.html">find</a> <a style="font-size: 50%" href="./tags/gis.html">gis</a> <a style="font-size: 50%" href="./tags/git.html">git</a> <a style="font-size: 50%" href="./tags/grep.html">grep</a> <a style="font-size: 50%" href="./tags/hardware.html">hardware</a> <a style="font-size: 50%" href="./tags/laptop.html">laptop</a> <a style="font-size: 162%" href="./tags/linux.html">linux</a> <a style="font-size: 50%" href="./tags/nas.html">nas</a> <a style="font-size: 50%" href="./tags/note.html">note</a> <a style="font-size: 50%" href="./tags/openwrt.html">openwrt</a> <a style="font-size: 50%" href="./tags/pandas.html">pandas</a> <a style="font-size: 87%" href="./tags/python.html">python</a> <a style="font-size: 50%" href="./tags/shadowsocks.html">shadowsocks</a> <a style="font-size: 50%" href="./tags/tensorflow.html">tensorflow</a> <a style="font-size: 50%" href="./tags/vegajs.html">vegajs</a>
-    </div>
-  </div>
+    <h1 id=" alex-lus-blog">Alex Lu’s Blog</h1>
+<h1 id="about-me">About me</h1>
+<p>Hi, I’m Alex Lu, a programmer living in Taichung, Taiwan 🇹🇼. I play around with data, machine learning techniques using Python at work. Also, I’m a Functional Programming/Programming Language amateur and an open source software user.</p>
+<h1 id="recent-posts">Recent Posts</h1>
+<ul>
+<li>
+<div>
+<span><a href="/posts/2018-01-05-new-style.html">更換 blog 主題以迎接 2018 年</a></span> <span class="article-date"> - January 5, 2018</span>
 </div>
-
-<div class="content-grid mdl-grid">
-  <div class="mdl-cell mdl-cell--12-col content-grid mdl-grid" style="background-color:#dddddd">
-    <div class="mdl-cell mdl-cell--12-col ">
-      <h1 class="mdl-typography--headline"> Recent Posts </h1>
-    </div>
-    
-<div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--4-col">
-  <div class="mdl-card__title
-              
-              mdl-card--expand">
-    <h2 class="mdl-card__title-text">筆記：幾個 CLI 實用工具: ag, fzf, fd, ripgrep</h2>
-  </div>
-
-  <div class="mdl-card__actions mdl-card--border">
-    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" href="./posts/2017-11-27-cli-tools-ag-rg-fzf-fd.html">
-     continue
-      <i class="material-icons">navigate_next</i>
-    </a>
-  </div>
+</li>
+<li>
+<div>
+<span><a href="/posts/2017-11-27-cli-tools-ag-rg-fzf-fd.html">筆記：幾個 CLI 實用工具: ag, fzf, fd, ripgrep</a></span> <span class="article-date"> - November 27, 2017</span>
 </div>
-
-<div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--4-col">
-  <div class="mdl-card__title
-              
-              mdl-card--expand">
-    <h2 class="mdl-card__title-text">[EN] Use your UNIX toolbox with pandas</h2>
-  </div>
-
-  <div class="mdl-card__actions mdl-card--border">
-    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" href="./posts/2017-10-13-use-your-unix-toolbox-with-pandas.html">
-     continue
-      <i class="material-icons">navigate_next</i>
-    </a>
-  </div>
+</li>
+<li>
+<div>
+<span><a href="/posts/2017-10-13-use-your-unix-toolbox-with-pandas.html">[EN] Use your UNIX toolbox with pandas</a></span> <span class="article-date"> - October 13, 2017</span>
 </div>
-
-<div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--4-col">
-  <div class="mdl-card__title
-              
-              mdl-card--expand">
-    <h2 class="mdl-card__title-text">應用 git bisect 找出 linux kernel 中出現問題的 commit</h2>
-  </div>
-
-  <div class="mdl-card__actions mdl-card--border">
-    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" href="./posts/2017-10-05-bisecting-linux-kernel-bug.html">
-     continue
-      <i class="material-icons">navigate_next</i>
-    </a>
-  </div>
+</li>
+<li>
+<div>
+<span><a href="/posts/2017-10-05-bisecting-linux-kernel-bug.html">應用 git bisect 找出 linux kernel 中出現問題的 commit</a></span> <span class="article-date"> - October 5, 2017</span>
 </div>
-
-
-    <div class="mdl-cell mdl-cell--12-col ">
-      <a class="mdl-button mdl-js-button mdl-js-ripple-effect" href="./archive.html">
-       read more
-      </a>
-    </div>
-  </div>
+</li>
+<li>
+<div>
+<span><a href="/posts/2017-09-16-python-getting-town-from-gps-coord.html">用 Python 計算經緯度對應的鄉鎮市區</a></span> <span class="article-date"> - September 16, 2017</span>
 </div>
-
-      </div>
-      </main>
-    </div>
+</li>
+<li>
+<div>
+<span><a href="/posts/2017-09-09-tensorflow-prebuilt-vs-built-from-source.html">手動編譯 vs 編譯好的 tensorflow</a></span> <span class="article-date"> - September 9, 2017</span>
+</div>
+</li>
+<li>
+<div>
+<span><a href="/posts/2017-08-27-ds216j-shadowsocks.html">筆記： DS216j 安裝 shadowsocks server</a></span> <span class="article-date"> - August 27, 2017</span>
+</div>
+</li>
+<li>
+<div>
+<span><a href="/posts/2017-06-11-X1C5-notes.html">[en] Notes on Thinkpad X1 Carbon 2017 + Arch Linux</a></span> <span class="article-date"> - August 22, 2017</span>
+</div>
+</li>
+<li>
+<div>
+<span><a href="/posts/2017-08-11-vega.html">用 VEGA 資料視覺化</a></span> <span class="article-date"> - August 11, 2017</span>
+</div>
+</li>
+<li>
+<div>
+<span><a href="/posts/2017-07-21-adam-usb-c-dock.html">ADAM CASA Hub A01 在 Linux 使用狀況＆個人心得</a></span> <span class="article-date"> - July 21, 2017</span>
+</div>
+</li>
+</ul>
+<p><a href="/archive.html">read more</a></p>
+<h1 id="tags">Tags</h1>
+<p><a href="/tags/arch.html">arch (1)</a>, <a href="/tags/blog.html">blog (1)</a>, <a href="/tags/cli.html">cli (1)</a>, <a href="/tags/css.html">css (1)</a>, <a href="/tags/d3js.html">d3js (1)</a>, <a href="/tags/data-analysis.html">data-analysis (1)</a>, <a href="/tags/dataviz.html">dataviz (1)</a>, <a href="/tags/drm-tip.html">drm-tip (1)</a>, <a href="/tags/find.html">find (1)</a>, <a href="/tags/gis.html">gis (1)</a>, <a href="/tags/git.html">git (1)</a>, <a href="/tags/grep.html">grep (1)</a>, <a href="/tags/hakyll.html">hakyll (1)</a>, <a href="/tags/hardware.html">hardware (1)</a>, <a href="/tags/laptop.html">laptop (1)</a>, <a href="/tags/linux.html">linux (4)</a>, <a href="/tags/nas.html">nas (1)</a>, <a href="/tags/note.html">note (1)</a>, <a href="/tags/openwrt.html">openwrt (1)</a>, <a href="/tags/pandas.html">pandas (1)</a>, <a href="/tags/python.html">python (2)</a>, <a href="/tags/shadowsocks.html">shadowsocks (1)</a>, <a href="/tags/tensorflow.html">tensorflow (1)</a>, <a href="/tags/vegajs.html">vegajs (1)</a></p>
+  <script> renderMathInElement(document.body); </script>
   </body>
 </html>

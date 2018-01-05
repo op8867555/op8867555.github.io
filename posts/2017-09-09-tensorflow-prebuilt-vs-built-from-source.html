@@ -7,13 +7,11 @@
     <meta name="google-site-verification" content="CLMtF1JkUEd-jPZ3RQateLLiKyn729kaOHg9Hnu_TSo" />
     <title>Alex's Blog - 手動編譯 vs 編譯好的 tensorflow</title>
     <meta name="robots" content="index, follow" />
-    <link rel="alternate" href="../feed.xml" title="Alex Lu's Blog" type="application/atom+xml">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.blue_grey-indigo.min.css" />
-    <link rel="stylesheet" href="../css/default.css" />
-    <link rel="stylesheet" href="../css/syntax.css" />
-    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-    <script defer src="../js/toc.js"></script>
+    <link rel="alternate" href="/feed.xml" title="Alex Lu's Blog" type="application/atom+xml">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tufte-css/1.3/tufte.min.css" integrity="sha256-RB2fOyr8UMnkP7bVbAtAqgocMxqG+TDqly7ZEjmRJRY=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="/css/pandoc.css" />
+    <link rel="stylesheet" href="/css/default.css" />
+    <link rel="stylesheet" href="/css/syntax.css" />
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -23,54 +21,39 @@
     ga('create', 'UA-40612089-3', 'auto');
     ga('send', 'pageview');
     </script>
+    <!-- katex -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/contrib/auto-render.js" "></script>
   </head>
   <body>
-    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header mdl-layout--fixed-drawer ">
-      <header class="mdl-layout__header">
-        <div class="mdl-layout__header-row">
-          <!-- Title -->
-          <span class="mdl-layout-title">Alex's Blog</span>
-          <a class="mdl-navigation__link" href="../">Home</a>
-          <a class="mdl-navigation__link" href="../archive.html">Archive</a>
-        </div>
-      </header>
-      <div class="mdl-layout__drawer">
-        <nav class="mdl-navigation" id="drawer">
-          <a class="mdl-navigation__link" href="../">
-            <i class="material-icons">home</i> Home
-          </a>
-          <a class="mdl-navigation__link" href="../archive.html">
-            <i class="material-icons">folder</i> Archive
-          </a>
-        </nav>
-      </div>
-      <main class="mdl-layout__content">
-      <div class="page-content">
-        <div class="content-grid mdl-grid">
-  <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
-    <div class="mdl-card__title mdl-card--expand">
-      <h2 class="mdl-card__title-text">手動編譯 vs 編譯好的 tensorflow</h2>
-    </div>
-    <div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
-      <div>
-        
-        <span>September  9, 2017</span>
-      </div>
-      
-      <div>
-      <span>Tags: <a href="../tags/tensorflow.html">tensorflow</a></span>
-      </div>
-      
-    </div>
-    <div class="mdl-color-text--grey-700 mdl-card__supporting-text" id="post-body">
-      <p>亂看文章時發現到 tensorflow prebuilt 版跟自己 build 效能有落差（現在想想這也是理所當然的事），於是就來自己編編看到底差多少了。</p>
+    <nav>
+<a href="../">Home</a>
+</nav>
+<article>
+
+<header>
+<h1 class="title">手動編譯 vs 編譯好的 tensorflow</h1>
+
+
+<p class="byline">September  9, 2017</p>
+
+
+<p class="byline">Tags: <a href="../tags/tensorflow.html">tensorflow</a></p>
+
+</header>
+
+
+<p>亂看文章時發現到 tensorflow prebuilt 版跟自己 build 效能有落差（現在想想這也是理所當然的事），於是就來自己編編看到底差多少了。</p>
 <h1 id="實驗">實驗</h1>
 <h2 id="使用的機器">使用的機器</h2>
 <p>Thinkpad X1 Carbon 2017，它的 CPU 是 Intel 的 i7-7500U（對，這顆絕對不適合拿來算這個）</p>
 <h2 id="使用的不同版本">使用的不同版本</h2>
 <ul>
 <li><p><a href="https://pypi.python.org/pypi/tensorflow">PyPI 上的版本</a>，沒有機器相關的最佳化。</p></li>
-<li><p><a href="https://software.intel.com/en-us/articles/tensorflow-optimizations-on-modern-intel-architecture">intel 提供的版本</a> 使用 intel 的 Math Kernel library，但是沒有機器相關的最佳化<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>。</p></li>
+<li><p><a href="https://software.intel.com/en-us/articles/tensorflow-optimizations-on-modern-intel-architecture">intel 提供的版本</a> 使用 intel 的 Math Kernel library，但是沒有機器相關的最佳化<span><label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle" /><span class="sidenote">沒有做機器相關的最佳化時會有提醒<br />
+<br />
+</span></span>。</p></li>
 <li><p>自己 build ，用的是 tensorflow 官方 github repo 的 <a href="https://github.com/tensorflow/tensorflow/tree/32ffc5a81eee8c39bbe71536212a773b1ffd4eb2">32ffc5a81</a></p>
 <ul>
 <li><code>./configure</code> 都用預設值 (<code>-march=native</code> 開啟當下機器架構的最佳化）</li>
@@ -78,7 +61,9 @@
 </ul></li>
 </ul>
 <h2 id="使用的測試案例">使用的測試案例</h2>
-<p>使用了 keras 的幾個 <a href="https://github.com/fchollet/keras/tree/master/examples">example</a> 來測試<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>，分別是：</p>
+<p>使用了 keras 的幾個 <a href="https://github.com/fchollet/keras/tree/master/examples">example</a> 來測試<span><label for="sn-2" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-2" class="margin-toggle" /><span class="sidenote">問我為什麼要用 keras 而不用 tensorflow 就好？因為我還想測 theano 啊…<br />
+<br />
+</span></span>，分別是：</p>
 <ul>
 <li>mnist-mlp</li>
 <li>mnist-cnn</li>
@@ -89,33 +74,36 @@
 <caption>實驗結果（數值是每次 epoch 所花的時間，越小越好）</caption>
 <thead>
 <tr class="header">
-<th align="left">testcase</th>
-<th align="right">pip</th>
-<th align="right">intel</th>
-<th align="right">built</th>
+<th style="text-align: left;">testcase</th>
+<th style="text-align: right;">pip</th>
+<th style="text-align: right;">intel</th>
+<th style="text-align: right;">built</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">mnist-mlp</td>
-<td align="right">9.5s</td>
-<td align="right">10.5s</td>
-<td align="right">10.5s</td>
+<td style="text-align: left;">mnist-mlp</td>
+<td style="text-align: right;">9.5s</td>
+<td style="text-align: right;">10.5s</td>
+<td style="text-align: right;">10.5s</td>
 </tr>
 <tr class="even">
-<td align="left">mnist-cnn</td>
-<td align="right">175.5s</td>
-<td align="right">63s</td>
-<td align="right">60s</td>
+<td style="text-align: left;">mnist-cnn</td>
+<td style="text-align: right;">175.5s</td>
+<td style="text-align: right;">63s</td>
+<td style="text-align: right;">60s</td>
 </tr>
 <tr class="odd">
-<td align="left">cifar10-cnn<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a></td>
-<td align="right">275s</td>
-<td align="right">200s</td>
-<td align="right">200s</td>
+<td style="text-align: left;">cifar10-cnn[^1]</td>
+<td style="text-align: right;">275s</td>
+<td style="text-align: right;">200s</td>
+<td style="text-align: right;">200s</td>
 </tr>
 </tbody>
 </table>
+<p><span><label for="sn-3" class="margin-toggle">⊕</label><input type="checkbox" id="sn-3" class="margin-toggle" /><span class="marginnote"> [^1] 因為有 200 個 epoch 要跑，實在要花很多時間，所以這邊就都只取大概 3~4 個 epoch 的時間來算<br />
+<br />
+</span></span></p>
 <h2 id="結論">結論</h2>
 <ul>
 <li>如果是真心想要用 Intel 的 CPU 跑 tensorflow …
@@ -129,28 +117,9 @@
 <li>用了 GTX 1060 6GB 的桌電跑 cifar10-cnn ，一個 epoch 只要 25s</li>
 </ul></li>
 </ul>
-<div class="footnotes">
-<hr />
-<ol>
-<li id="fn1"><p>沒有做機器相關的最佳化時會有提醒</p>
-<pre><code>The TensorFlow library wasn't compiled to use SSE4.1 instructions, but these are available on your machine and could speed up CPU computations.
-The TensorFlow library wasn't compiled to use SSE4.2 instructions, but these are available on your machine and could speed up CPU computations.
-The TensorFlow library wasn't compiled to use AVX instructions, but these are available on your machine and could speed up CPU computations.
-The TensorFlow library wasn't compiled to use AVX2 instructions, but these are available on your machine and could speed up CPU computations.
-The TensorFlow library wasn't compiled to use FMA instructions, but these are available on your machine and could speed up CPU computations.</code></pre>
-<a href="#fnref1">↩</a></li>
-<li id="fn2"><p>問我為什麼要用 keras 而不用 tensorflow 就好？因為我還想測 theano 啊…<a href="#fnref2">↩</a></p></li>
-<li id="fn3"><p>因為有 200 個 epoch 要跑，實在要花很多時間，所以這邊就都只取大概 3~4 個 epoch 的時間來算<a href="#fnref3">↩</a></p></li>
-</ol>
-</div>
-    </div>
-  </div>
-  <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
-    <div class="mdl-card__title mdl-card--expand">
-      <h2 class="mdl-card__title-text">Comments</h2>
-    </div>
-    <div class="mdl-color-text--grey-700 mdl-card__supporting-text" id="disqus_thread">
-      <script>
+</article>
+<div id="disqus_thread">
+<script>
 /**
 *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
@@ -158,21 +127,16 @@ var disqus_config = function () {
 this.page.url = "https://op8867555.github.io/posts/2017-09-09-tensorflow-prebuilt-vs-built-from-source.html";
 this.page.identifier = "2017-09-09-tensorflow-prebuilt-vs-built-from-source.md";
 };
-  (function() { // DON'T EDIT BELOW THIS LINE
-    var d = document, s = d.createElement('script');
-    s.src = 'https://alex-lu-blog.disqus.com/embed.js';
-    s.setAttribute('data-timestamp', +new Date());
-    (d.head || d.body).appendChild(s);
-  })();
-      </script>
-      <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-
-  </div>
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://alex-lu-blog.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 </div>
 
-
-      </div>
-      </main>
-    </div>
+  <script> renderMathInElement(document.body); </script>
   </body>
 </html>

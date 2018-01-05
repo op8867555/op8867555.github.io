@@ -7,13 +7,11 @@
     <meta name="google-site-verification" content="CLMtF1JkUEd-jPZ3RQateLLiKyn729kaOHg9Hnu_TSo" />
     <title>Alex's Blog - 用 VEGA 資料視覺化</title>
     <meta name="robots" content="index, follow" />
-    <link rel="alternate" href="../feed.xml" title="Alex Lu's Blog" type="application/atom+xml">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.blue_grey-indigo.min.css" />
-    <link rel="stylesheet" href="../css/default.css" />
-    <link rel="stylesheet" href="../css/syntax.css" />
-    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-    <script defer src="../js/toc.js"></script>
+    <link rel="alternate" href="/feed.xml" title="Alex Lu's Blog" type="application/atom+xml">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tufte-css/1.3/tufte.min.css" integrity="sha256-RB2fOyr8UMnkP7bVbAtAqgocMxqG+TDqly7ZEjmRJRY=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="/css/pandoc.css" />
+    <link rel="stylesheet" href="/css/default.css" />
+    <link rel="stylesheet" href="/css/syntax.css" />
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -23,48 +21,31 @@
     ga('create', 'UA-40612089-3', 'auto');
     ga('send', 'pageview');
     </script>
+    <!-- katex -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/contrib/auto-render.js" "></script>
   </head>
   <body>
-    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header mdl-layout--fixed-drawer ">
-      <header class="mdl-layout__header">
-        <div class="mdl-layout__header-row">
-          <!-- Title -->
-          <span class="mdl-layout-title">Alex's Blog</span>
-          <a class="mdl-navigation__link" href="../">Home</a>
-          <a class="mdl-navigation__link" href="../archive.html">Archive</a>
-        </div>
-      </header>
-      <div class="mdl-layout__drawer">
-        <nav class="mdl-navigation" id="drawer">
-          <a class="mdl-navigation__link" href="../">
-            <i class="material-icons">home</i> Home
-          </a>
-          <a class="mdl-navigation__link" href="../archive.html">
-            <i class="material-icons">folder</i> Archive
-          </a>
-        </nav>
-      </div>
-      <main class="mdl-layout__content">
-      <div class="page-content">
-        <div class="content-grid mdl-grid">
-  <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
-    <div class="mdl-card__title mdl-card--expand">
-      <h2 class="mdl-card__title-text">用 VEGA 資料視覺化</h2>
-    </div>
-    <div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
-      <div>
-        
-        <span>August 11, 2017</span>
-      </div>
-      
-      <div>
-      <span>Tags: <a href="../tags/vegajs.html">vegajs</a>, <a href="../tags/d3js.html">d3js</a>, <a href="../tags/dataviz.html">dataviz</a></span>
-      </div>
-      
-    </div>
-    <div class="mdl-color-text--grey-700 mdl-card__supporting-text" id="post-body">
-      <h3 id="tldr">tl;dr</h3>
-<p><a href="https://vega.github.io/vega/">Vega</a> 是一個種描述互動視覺化的文法(JSON 規格)，相對於低階的 <a href="https://d3js.org/">d3.js</a>，提供了一個不用碰太多 JavaScript 就能編寫圖表的高階宣告式語法。 這篇文章簡述 <a href="https://vega.github.io/vega/">Vega</a> 的概念，然後以 COSCUP 2017 的議程表為題寫了一個 tutorial（<a href="https://vega.github.io/editor/#/gist/vega/op8867555/5af6189b957373bf0ff9969c8e3d426a">完成品</a>）。</p>
+    <nav>
+<a href="../">Home</a>
+</nav>
+<article>
+
+<header>
+<h1 class="title">用 VEGA 資料視覺化</h1>
+
+
+<p class="byline">August 11, 2017</p>
+
+
+<p class="byline">Tags: <a href="../tags/vegajs.html">vegajs</a>, <a href="../tags/d3js.html">d3js</a>, <a href="../tags/dataviz.html">dataviz</a></p>
+
+</header>
+
+
+<h3 id="tldr">tl;dr</h3>
+<p><a href="https://vega.github.io/vega/">Vega</a> 是一個種描述互動視覺化的文法(JSON 規格)，相對於低階的 <a href="https://d3js.org/">d3.js</a>，提供了一個不用碰太多 JavaScript 就能編寫圖表的高階宣告式語法。這篇文章簡述 <a href="https://vega.github.io/vega/">Vega</a> 的概念，然後以 COSCUP 2017 的議程表為題寫了一個 tutorial（<a href="https://vega.github.io/editor/#/gist/vega/op8867555/5af6189b957373bf0ff9969c8e3d426a">完成品</a>）。</p>
 <p>另外，如果只有簡單的資料（csv, json…等），又只需要基本的幾種圖，可以考慮使用 <a href="https://vega.github.io/vega-lite/">vega-lite</a> 這個比 vega 還要高階的語言來做。</p>
 <h1 id="vega">VEGA</h1>
 <blockquote>
@@ -75,8 +56,12 @@
 <p>雖然不太一樣，但是可以先看看兩者實作 bar chart 的方式： <a href="https://bl.ocks.org/mbostock/3885304">d3</a>, <a href="https://vega.github.io/vega/examples/bar-chart/">vega</a>。</p>
 <p>可以看到幾點：</p>
 <ul>
-<li>vega 的寫法少了很多來自 js 語法的雜訊，也不用讓變數名稱佔掉大腦可貴的記憶空間<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></li>
-<li>vega 用了一個 json 敘述來描述視覺化，但是 d3.js 的版本需要從 html/svg/canvas 等低階的實作細節開始考慮</li>
+<li>vega 的寫法少了很多來自 js 語法的雜訊，<br />
+也不用讓變數名稱佔掉大腦可貴的記憶空間<span><label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle" /><span class="sidenote"><a href="https://www.kernel.org/doc/html/v4.10/process/coding-style.html#functions" class="uri">https://www.kernel.org/doc/html/v4.10/process/coding-style.html#functions</a><br />
+<br />
+</span></span></li>
+<li>vega 用了一個 json 敘述來描述視覺化，<br />
+但是 d3.js 的版本需要從 html/svg/canvas 等低階的實作細節開始考慮</li>
 <li>比起 js ， JSON 格式更好自動生成，也就是更好串接在其他應用</li>
 </ul>
 <p>Vega 團隊<a href="https://github.com/vega/vega/wiki/Vega-and-D3">有講明</a> Vega 的目的並不是要取代 d3.js ，而是在 d3.js 的基礎上，建立更高層度的視覺化。</p>
@@ -87,22 +72,22 @@
 <li>上半部是除了 <code>$schema</code> 之外，是一些關於整張圖的 top-level 設定</li>
 <li>下半部 <code class="sourceCode javascript">[]</code> 分別還需要填入適當的內容。</li>
 </ul>
-<div class="sourceCode"><pre class="sourceCode json"><code class="sourceCode json"><span class="fu">{</span>
-  <span class="dt">&quot;$schema&quot;</span><span class="fu">:</span> <span class="st">&quot;https://vega.github.io/schema/vega/v3.0.json&quot;</span><span class="fu">,</span>
-  <span class="dt">&quot;description&quot;</span><span class="fu">:</span> <span class="st">&quot;A specification outline example.&quot;</span><span class="fu">,</span>
-  <span class="dt">&quot;width&quot;</span><span class="fu">:</span> <span class="dv">500</span><span class="fu">,</span>
-  <span class="dt">&quot;height&quot;</span><span class="fu">:</span> <span class="dv">200</span><span class="fu">,</span>
-  <span class="dt">&quot;padding&quot;</span><span class="fu">:</span> <span class="dv">5</span><span class="fu">,</span>
-  <span class="dt">&quot;autosize&quot;</span><span class="fu">:</span> <span class="st">&quot;pad&quot;</span><span class="fu">,</span>
-
-  <span class="dt">&quot;signals&quot;</span><span class="fu">:</span> <span class="ot">[]</span><span class="fu">,</span>
-  <span class="dt">&quot;data&quot;</span><span class="fu">:</span> <span class="ot">[]</span><span class="fu">,</span>
-  <span class="dt">&quot;scales&quot;</span><span class="fu">:</span> <span class="ot">[]</span><span class="fu">,</span>
-  <span class="dt">&quot;projections&quot;</span><span class="fu">:</span> <span class="ot">[]</span><span class="fu">,</span>
-  <span class="dt">&quot;axes&quot;</span><span class="fu">:</span> <span class="ot">[]</span><span class="fu">,</span>
-  <span class="dt">&quot;legends&quot;</span><span class="fu">:</span> <span class="ot">[]</span><span class="fu">,</span>
-  <span class="dt">&quot;marks&quot;</span><span class="fu">:</span> <span class="ot">[]</span>
-<span class="fu">}</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode json"><code class="sourceCode json"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="fu">{</span></a>
+<a class="sourceLine" id="cb1-2" data-line-number="2">  <span class="dt">&quot;$schema&quot;</span><span class="fu">:</span> <span class="st">&quot;https://vega.github.io/schema/vega/v3.0.json&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">  <span class="dt">&quot;description&quot;</span><span class="fu">:</span> <span class="st">&quot;A specification outline example.&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4">  <span class="dt">&quot;width&quot;</span><span class="fu">:</span> <span class="dv">500</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb1-5" data-line-number="5">  <span class="dt">&quot;height&quot;</span><span class="fu">:</span> <span class="dv">200</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6">  <span class="dt">&quot;padding&quot;</span><span class="fu">:</span> <span class="dv">5</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb1-7" data-line-number="7">  <span class="dt">&quot;autosize&quot;</span><span class="fu">:</span> <span class="st">&quot;pad&quot;</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9">  <span class="dt">&quot;signals&quot;</span><span class="fu">:</span> <span class="ot">[]</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10">  <span class="dt">&quot;data&quot;</span><span class="fu">:</span> <span class="ot">[]</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb1-11" data-line-number="11">  <span class="dt">&quot;scales&quot;</span><span class="fu">:</span> <span class="ot">[]</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb1-12" data-line-number="12">  <span class="dt">&quot;projections&quot;</span><span class="fu">:</span> <span class="ot">[]</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb1-13" data-line-number="13">  <span class="dt">&quot;axes&quot;</span><span class="fu">:</span> <span class="ot">[]</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb1-14" data-line-number="14">  <span class="dt">&quot;legends&quot;</span><span class="fu">:</span> <span class="ot">[]</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb1-15" data-line-number="15">  <span class="dt">&quot;marks&quot;</span><span class="fu">:</span> <span class="ot">[]</span></a>
+<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="fu">}</span></a></code></pre></div>
 <ul>
 <li><code>signals</code> 提供一個 reactive 的方法來做互動事件： 滑鼠移動、內建的按鈕、範圍選擇器之類的</li>
 <li><code>data</code> 用來載入、parse、轉換，一些簡單的資料處理 (filter, aggregation 之類的都可以在這裡做掉)。</li>
@@ -124,75 +109,72 @@
 <h1 id="tutorial">tutorial</h1>
 <p>因為這次 COSCUP 2017 官網最早沒有釋出時間線形式的議程表，但是有給足自幹需要的資料， 就發現<a href="https://docs.google.com/spreadsheets/d/1gVQtWEqOZLsDtk1j-_TrPqq_nWN5VcTtWLpme3yl3Zc/edit#gid=98295178">大家都自幹了一份</a>，於是我就用 vega 也兜了一個簡單的版本，也就順便以此為原形，寫了這篇 tutorial。</p>
 <p><em>這篇 tutorial 會簡述怎麼從零開始到做出一個這樣議程表</em></p>
-<div class="figure">
-<img src="http://i.imgur.com/HUAwF8k.png" class="half-page center" />
-
-</div>
+<p><img src="http://i.imgur.com/HUAwF8k.png" class="half-page center" /></p>
 <h2 id="準備">準備</h2>
 <p>打開 <a href="https://vega.github.io/editor">Vega Editor</a>，就可以開始了。</p>
 <h2 id="top-level">top-level</h2>
 <p>首先要先有個最簡單的雛型，宣告 schema 版本、圖的大小等</p>
-<div class="sourceCode"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">// vg.json</span>
-<span class="op">{</span>
-  <span class="st">&quot;$schema&quot;</span><span class="op">:</span> <span class="st">&quot;https://vega.github.io/schema/vega/v3.0.json&quot;</span><span class="op">,</span>
-  <span class="st">&quot;width&quot;</span><span class="op">:</span> <span class="dv">480</span><span class="op">,</span>
-  <span class="st">&quot;height&quot;</span><span class="op">:</span> <span class="dv">1600</span><span class="op">,</span>
-  <span class="st">&quot;padding&quot;</span><span class="op">:</span> <span class="dv">50</span>
-<span class="op">}</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co">// vg.json</span></a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="op">{</span></a>
+<a class="sourceLine" id="cb2-3" data-line-number="3">  <span class="st">&quot;$schema&quot;</span><span class="op">:</span> <span class="st">&quot;https://vega.github.io/schema/vega/v3.0.json&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4">  <span class="st">&quot;width&quot;</span><span class="op">:</span> <span class="dv">480</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb2-5" data-line-number="5">  <span class="st">&quot;height&quot;</span><span class="op">:</span> <span class="dv">1600</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb2-6" data-line-number="6">  <span class="st">&quot;padding&quot;</span><span class="op">:</span> <span class="dv">50</span></a>
+<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="op">}</span></a></code></pre></div>
 <h2 id="data">Data</h2>
 <p>這次的資料是 COSCUP 2017 官網所使用的 <a href="https://coscup.org/2017-assets/json/submissions.json">submissions.json</a>，是一個 array of records ，如下：</p>
-<div class="sourceCode"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">// submissions.json</span>
-[
-<span class="co">// 我隨便節錄了一個議程，兩天所有的議程都在這個 array 裡面</span>
-  <span class="op">{</span>
-    <span class="st">&quot;room&quot;</span><span class="op">:</span> <span class="st">&quot;202&quot;</span><span class="op">,</span>
-    <span class="st">&quot;community&quot;</span><span class="op">:</span> <span class="st">&quot;Chinese 中文&quot;</span><span class="op">,</span>
-    <span class="st">&quot;subject&quot;</span><span class="op">:</span> <span class="st">&quot;Unicode 不是年年更新嗎，2017 怎麼還在缺字？&quot;</span><span class="op">,</span>
-    <span class="st">&quot;summary&quot;</span><span class="op">:</span> <span class="st">&quot;維基文庫是維基媒體基金會所屬計畫中有關原始文獻典藏的網站，而中文的維基文庫因此遇到其他維基計畫不曾遇到的問題–暴量的古籍缺字。台灣的維基分會在經手吳守禮國臺對 照活用辭典的現代數位化之計畫中，也遇到了嚴重的缺字問題，好在現在開源動態組字技術已經發展成熟，可以整合到維基網站裡，本議題將分享該專案運用此新式缺字處理技術的點滴、目前瓶頸、未來的展望。&quot;</span><span class="op">,</span>
-    <span class="st">&quot;start&quot;</span><span class="op">:</span> <span class="st">&quot;2017-08-05T16:20:00+08:00&quot;</span><span class="op">,</span>
-    <span class="st">&quot;end&quot;</span><span class="op">:</span> <span class="st">&quot;2017-08-05T17:00:00+08:00&quot;</span><span class="op">,</span>
-    <span class="st">&quot;original_speakerpic&quot;</span><span class="op">:</span> <span class="st">&quot;http://imgur.com/q0j6fda&quot;</span><span class="op">,</span>
-    <span class="st">&quot;lang&quot;</span><span class="op">:</span> <span class="st">&quot;ZH&quot;</span><span class="op">,</span>
-    <span class="st">&quot;speaker&quot;</span><span class="op">:</span> <span class="op">{</span>
-      <span class="st">&quot;name&quot;</span><span class="op">:</span> <span class="st">&quot;張正一&quot;</span><span class="op">,</span>
-      <span class="st">&quot;avatar&quot;</span><span class="op">:</span> <span class="st">&quot;https://coscup.org/2017-assets/images/program/202-2017-08-05T1515.jpg&quot;</span><span class="op">,</span>
-      <span class="st">&quot;bio&quot;</span><span class="op">:</span> <span class="st">&quot;維基協會理事，維基吳守禮台語辭典現代數位化計畫 PM，動態組字技術開發長期參與者&quot;</span>
-    <span class="op">}</span>
-  <span class="op">},</span>
-<span class="co">// 還有更多...</span>
-]</code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="co">// submissions.json</span></a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">[</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co">// 我隨便節錄了一個議程，兩天所有的議程都在這個 array 裡面</span></a>
+<a class="sourceLine" id="cb3-4" data-line-number="4">  <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-5" data-line-number="5">    <span class="st">&quot;room&quot;</span><span class="op">:</span> <span class="st">&quot;202&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-6" data-line-number="6">    <span class="st">&quot;community&quot;</span><span class="op">:</span> <span class="st">&quot;Chinese 中文&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-7" data-line-number="7">    <span class="st">&quot;subject&quot;</span><span class="op">:</span> <span class="st">&quot;Unicode 不是年年更新嗎，2017 怎麼還在缺字？&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-8" data-line-number="8">    <span class="st">&quot;summary&quot;</span><span class="op">:</span> <span class="st">&quot;維基文庫是維基媒體基金會所屬計畫中有關原始文獻典藏的網站，而中文的維基文庫因此遇到其他維基計畫不曾遇到的問題–暴量的古籍缺字。台灣的維基分會在經手吳守禮國臺對 照活用辭典的現代數位化之計畫中，也遇到了嚴重的缺字問題，好在現在開源動態組字技術已經發展成熟，可以整合到維基網站裡，本議題將分享該專案運用此新式缺字處理技術的點滴、目前瓶頸、未來的展望。&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-9" data-line-number="9">    <span class="st">&quot;start&quot;</span><span class="op">:</span> <span class="st">&quot;2017-08-05T16:20:00+08:00&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-10" data-line-number="10">    <span class="st">&quot;end&quot;</span><span class="op">:</span> <span class="st">&quot;2017-08-05T17:00:00+08:00&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-11" data-line-number="11">    <span class="st">&quot;original_speakerpic&quot;</span><span class="op">:</span> <span class="st">&quot;http://imgur.com/q0j6fda&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-12" data-line-number="12">    <span class="st">&quot;lang&quot;</span><span class="op">:</span> <span class="st">&quot;ZH&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-13" data-line-number="13">    <span class="st">&quot;speaker&quot;</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-14" data-line-number="14">      <span class="st">&quot;name&quot;</span><span class="op">:</span> <span class="st">&quot;張正一&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-15" data-line-number="15">      <span class="st">&quot;avatar&quot;</span><span class="op">:</span> <span class="st">&quot;https://coscup.org/2017-assets/images/program/202-2017-08-05T1515.jpg&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb3-16" data-line-number="16">      <span class="st">&quot;bio&quot;</span><span class="op">:</span> <span class="st">&quot;維基協會理事，維基吳守禮台語辭典現代數位化計畫 PM，動態組字技術開發長期參與者&quot;</span></a>
+<a class="sourceLine" id="cb3-17" data-line-number="17">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb3-18" data-line-number="18">  <span class="op">},</span></a>
+<a class="sourceLine" id="cb3-19" data-line-number="19"><span class="co">// 還有更多...</span></a>
+<a class="sourceLine" id="cb3-20" data-line-number="20">]</a></code></pre></div>
 <p>Vega 支援讀取 array of records 的資料，我們可以直接將他讀進來，然後順便對時間欄位做 parse ：</p>
-<div class="sourceCode"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">// vg.json</span>
-<span class="op">{</span> <span class="co">// 前略</span>
-  <span class="st">&quot;data&quot;</span><span class="op">:</span>[
-    <span class="op">{</span> <span class="st">&quot;name&quot;</span><span class="op">:</span> <span class="st">&quot;table&quot;</span><span class="op">,</span>
-       <span class="st">&quot;url&quot;</span><span class="op">:</span> <span class="st">&quot;https://coscup.org/2017-assets/json/submissions.json&quot;</span><span class="op">,</span>
-       <span class="st">&quot;format&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;type&quot;</span><span class="op">:</span><span class="st">&quot;json&quot;</span><span class="op">,</span> <span class="st">&quot;parse&quot;</span><span class="op">:{</span><span class="st">&quot;start&quot;</span><span class="op">:</span><span class="st">&quot;date&quot;</span><span class="op">,</span> <span class="st">&quot;end&quot;</span><span class="op">:</span> <span class="st">&quot;date&quot;</span><span class="op">}}</span>
-    <span class="op">}</span>
-  ]
-<span class="op">}</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="co">// vg.json</span></a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="op">{</span> <span class="co">// 前略</span></a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">  <span class="st">&quot;data&quot;</span><span class="op">:</span>[</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4">    <span class="op">{</span> <span class="st">&quot;name&quot;</span><span class="op">:</span> <span class="st">&quot;table&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-5" data-line-number="5">       <span class="st">&quot;url&quot;</span><span class="op">:</span> <span class="st">&quot;https://coscup.org/2017-assets/json/submissions.json&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb4-6" data-line-number="6">       <span class="st">&quot;format&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;type&quot;</span><span class="op">:</span><span class="st">&quot;json&quot;</span><span class="op">,</span> <span class="st">&quot;parse&quot;</span><span class="op">:{</span><span class="st">&quot;start&quot;</span><span class="op">:</span><span class="st">&quot;date&quot;</span><span class="op">,</span> <span class="st">&quot;end&quot;</span><span class="op">:</span> <span class="st">&quot;date&quot;</span><span class="op">}}</span></a>
+<a class="sourceLine" id="cb4-7" data-line-number="7">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb4-8" data-line-number="8">  ]</a>
+<a class="sourceLine" id="cb4-9" data-line-number="9"><span class="op">}</span></a></code></pre></div>
 <p>如果用的是 Vega Editor 的話，可以打開 developer console (chrome 的話按 <key>Ctrl</key> + <key>Shift</key> + <key>J</key>) 執行：</p>
-<div class="sourceCode"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="va">VEGA_DEBUG</span>.<span class="va">view</span>.<span class="at">data</span>(<span class="st">'table'</span>)
-<span class="co">// (141) [Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, …]</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="va">VEGA_DEBUG</span>.<span class="va">view</span>.<span class="at">data</span>(<span class="st">'table'</span>)</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="co">// (141) [Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, …]</span></a></code></pre></div>
 <p>可以觀察到資料有正確載入。</p>
 <h2 id="scale-axes">Scale, Axes</h2>
 <p>載入資料之後、把圖畫出來之前，需要先將資料的範圍映射圖的X/Y座標：</p>
-<div class="sourceCode"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">// vg.json 的片段</span>
-  <span class="st">&quot;scales&quot;</span><span class="op">:</span> [
-    <span class="op">{</span>
-      <span class="st">&quot;name&quot;</span><span class="op">:</span> <span class="st">&quot;xscale&quot;</span><span class="op">,</span>
-      <span class="st">&quot;type&quot;</span><span class="op">:</span> <span class="st">&quot;band&quot;</span><span class="op">,</span>
-      <span class="st">&quot;domain&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;data&quot;</span><span class="op">:</span> <span class="st">&quot;table&quot;</span><span class="op">,</span> <span class="st">&quot;field&quot;</span><span class="op">:</span> <span class="st">&quot;room&quot;</span><span class="op">,</span> <span class="st">&quot;sort&quot;</span><span class="op">:</span> <span class="kw">true</span><span class="op">},</span>
-      <span class="st">&quot;range&quot;</span><span class="op">:</span> <span class="st">&quot;width&quot;</span>
-    <span class="op">},</span>
-    <span class="op">{</span>
-      <span class="st">&quot;name&quot;</span><span class="op">:</span> <span class="st">&quot;yscale&quot;</span><span class="op">,</span>
-      <span class="st">&quot;type&quot;</span><span class="op">:</span> <span class="st">&quot;time&quot;</span><span class="op">,</span>
-      <span class="st">&quot;domain&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;data&quot;</span><span class="op">:</span> <span class="st">&quot;table&quot;</span><span class="op">,</span> <span class="st">&quot;fields&quot;</span><span class="op">:</span> [<span class="st">&quot;start&quot;</span><span class="op">,</span> <span class="st">&quot;end&quot;</span>]<span class="op">},</span>
-      <span class="st">&quot;range&quot;</span><span class="op">:</span> <span class="st">&quot;height&quot;</span><span class="op">,</span>
-      <span class="st">&quot;reverse&quot;</span><span class="op">:</span> <span class="kw">true</span>
-    <span class="op">}</span>
-  ]</code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="co">// vg.json 的片段</span></a>
+<a class="sourceLine" id="cb6-2" data-line-number="2">  <span class="st">&quot;scales&quot;</span><span class="op">:</span> [</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3">    <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-4" data-line-number="4">      <span class="st">&quot;name&quot;</span><span class="op">:</span> <span class="st">&quot;xscale&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb6-5" data-line-number="5">      <span class="st">&quot;type&quot;</span><span class="op">:</span> <span class="st">&quot;band&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb6-6" data-line-number="6">      <span class="st">&quot;domain&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;data&quot;</span><span class="op">:</span> <span class="st">&quot;table&quot;</span><span class="op">,</span> <span class="st">&quot;field&quot;</span><span class="op">:</span> <span class="st">&quot;room&quot;</span><span class="op">,</span> <span class="st">&quot;sort&quot;</span><span class="op">:</span> <span class="kw">true</span><span class="op">},</span></a>
+<a class="sourceLine" id="cb6-7" data-line-number="7">      <span class="st">&quot;range&quot;</span><span class="op">:</span> <span class="st">&quot;width&quot;</span></a>
+<a class="sourceLine" id="cb6-8" data-line-number="8">    <span class="op">},</span></a>
+<a class="sourceLine" id="cb6-9" data-line-number="9">    <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-10" data-line-number="10">      <span class="st">&quot;name&quot;</span><span class="op">:</span> <span class="st">&quot;yscale&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb6-11" data-line-number="11">      <span class="st">&quot;type&quot;</span><span class="op">:</span> <span class="st">&quot;time&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb6-12" data-line-number="12">      <span class="st">&quot;domain&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;data&quot;</span><span class="op">:</span> <span class="st">&quot;table&quot;</span><span class="op">,</span> <span class="st">&quot;fields&quot;</span><span class="op">:</span> [<span class="st">&quot;start&quot;</span><span class="op">,</span> <span class="st">&quot;end&quot;</span>]<span class="op">},</span></a>
+<a class="sourceLine" id="cb6-13" data-line-number="13">      <span class="st">&quot;range&quot;</span><span class="op">:</span> <span class="st">&quot;height&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb6-14" data-line-number="14">      <span class="st">&quot;reverse&quot;</span><span class="op">:</span> <span class="kw">true</span></a>
+<a class="sourceLine" id="cb6-15" data-line-number="15">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb6-16" data-line-number="16">  ]</a></code></pre></div>
 <p>每個 scale 都要有對應的名字 <code>name</code> 跟類型 <code>type</code> ，這邊我分別定義了：</p>
 <p><code>xscale</code></p>
 <ul>
@@ -207,29 +189,29 @@
 <li><code>reverse</code> 用來反轉軸的大小，讓先發生的有比較高的值，顯示在圖的上方</li>
 </ul>
 <p>我們可以畫幾個座標軸（使用前面定義的scale）來觀察：</p>
-<div class="sourceCode"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">// vg.json 的片段</span>
-  <span class="st">&quot;axes&quot;</span><span class="op">:</span> [
-    <span class="op">{</span> <span class="st">&quot;orient&quot;</span><span class="op">:</span> <span class="st">&quot;top&quot;</span><span class="op">,</span> <span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;xscale&quot;</span> <span class="op">},</span>
-    <span class="op">{</span> <span class="st">&quot;orient&quot;</span><span class="op">:</span> <span class="st">&quot;bottom&quot;</span><span class="op">,</span> <span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;xscale&quot;</span> <span class="op">},</span>
-    <span class="op">{</span> <span class="st">&quot;orient&quot;</span><span class="op">:</span> <span class="st">&quot;left&quot;</span><span class="op">,</span> <span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;yscale&quot;</span> <span class="op">}</span>
-  ]</code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="co">// vg.json 的片段</span></a>
+<a class="sourceLine" id="cb7-2" data-line-number="2">  <span class="st">&quot;axes&quot;</span><span class="op">:</span> [</a>
+<a class="sourceLine" id="cb7-3" data-line-number="3">    <span class="op">{</span> <span class="st">&quot;orient&quot;</span><span class="op">:</span> <span class="st">&quot;top&quot;</span><span class="op">,</span> <span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;xscale&quot;</span> <span class="op">},</span></a>
+<a class="sourceLine" id="cb7-4" data-line-number="4">    <span class="op">{</span> <span class="st">&quot;orient&quot;</span><span class="op">:</span> <span class="st">&quot;bottom&quot;</span><span class="op">,</span> <span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;xscale&quot;</span> <span class="op">},</span></a>
+<a class="sourceLine" id="cb7-5" data-line-number="5">    <span class="op">{</span> <span class="st">&quot;orient&quot;</span><span class="op">:</span> <span class="st">&quot;left&quot;</span><span class="op">,</span> <span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;yscale&quot;</span> <span class="op">}</span></a>
+<a class="sourceLine" id="cb7-6" data-line-number="6">  ]</a></code></pre></div>
 <h2 id="marks">Marks</h2>
 <p>我希望將每個議程用方塊的方式畫出來，做出時間表的的效果。</p>
-<div class="sourceCode"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">// vg.json 的片段</span>
-  <span class="st">&quot;marks&quot;</span><span class="op">:</span> [
-    <span class="op">{</span>
-      <span class="st">&quot;type&quot;</span><span class="op">:</span> <span class="st">&quot;rect&quot;</span><span class="op">,</span>
-      <span class="st">&quot;from&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;data&quot;</span><span class="op">:</span><span class="st">&quot;table&quot;</span><span class="op">},</span>
-      <span class="st">&quot;encode&quot;</span><span class="op">:</span> <span class="op">{</span>
-        <span class="st">&quot;update&quot;</span><span class="op">:</span> <span class="op">{</span>
-          <span class="st">&quot;xc&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;xscale&quot;</span><span class="op">,</span> <span class="st">&quot;field&quot;</span><span class="op">:</span> <span class="st">&quot;room&quot;</span><span class="op">,</span> <span class="st">&quot;band&quot;</span><span class="op">:</span><span class="fl">0.5</span><span class="op">},</span>
-          <span class="st">&quot;width&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;xscale&quot;</span><span class="op">,</span> <span class="st">&quot;band&quot;</span><span class="op">:</span> <span class="fl">0.5</span><span class="op">},</span>
-          <span class="st">&quot;y&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;yscale&quot;</span><span class="op">,</span> <span class="st">&quot;field&quot;</span><span class="op">:</span> <span class="st">&quot;start&quot;</span><span class="op">},</span>
-          <span class="st">&quot;y2&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;yscale&quot;</span><span class="op">,</span> <span class="st">&quot;field&quot;</span><span class="op">:</span> <span class="st">&quot;end&quot;</span><span class="op">}</span>
-        <span class="op">}</span>
-      <span class="op">}</span>
-    <span class="op">}</span>
-  ]</code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="co">// vg.json 的片段</span></a>
+<a class="sourceLine" id="cb8-2" data-line-number="2">  <span class="st">&quot;marks&quot;</span><span class="op">:</span> [</a>
+<a class="sourceLine" id="cb8-3" data-line-number="3">    <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-4" data-line-number="4">      <span class="st">&quot;type&quot;</span><span class="op">:</span> <span class="st">&quot;rect&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb8-5" data-line-number="5">      <span class="st">&quot;from&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;data&quot;</span><span class="op">:</span><span class="st">&quot;table&quot;</span><span class="op">},</span></a>
+<a class="sourceLine" id="cb8-6" data-line-number="6">      <span class="st">&quot;encode&quot;</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-7" data-line-number="7">        <span class="st">&quot;update&quot;</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-8" data-line-number="8">          <span class="st">&quot;xc&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;xscale&quot;</span><span class="op">,</span> <span class="st">&quot;field&quot;</span><span class="op">:</span> <span class="st">&quot;room&quot;</span><span class="op">,</span> <span class="st">&quot;band&quot;</span><span class="op">:</span><span class="fl">0.5</span><span class="op">},</span></a>
+<a class="sourceLine" id="cb8-9" data-line-number="9">          <span class="st">&quot;width&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;xscale&quot;</span><span class="op">,</span> <span class="st">&quot;band&quot;</span><span class="op">:</span> <span class="fl">0.5</span><span class="op">},</span></a>
+<a class="sourceLine" id="cb8-10" data-line-number="10">          <span class="st">&quot;y&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;yscale&quot;</span><span class="op">,</span> <span class="st">&quot;field&quot;</span><span class="op">:</span> <span class="st">&quot;start&quot;</span><span class="op">},</span></a>
+<a class="sourceLine" id="cb8-11" data-line-number="11">          <span class="st">&quot;y2&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;yscale&quot;</span><span class="op">,</span> <span class="st">&quot;field&quot;</span><span class="op">:</span> <span class="st">&quot;end&quot;</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb8-12" data-line-number="12">        <span class="op">}</span></a>
+<a class="sourceLine" id="cb8-13" data-line-number="13">      <span class="op">}</span></a>
+<a class="sourceLine" id="cb8-14" data-line-number="14">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb8-15" data-line-number="15">  ]</a></code></pre></div>
 <ul>
 <li>每個 mark 都要有對應的 <code>type</code>，這邊選用方塊(<code>rect</code>)</li>
 <li>用 <code>from</code> 來指定資料來源</li>
@@ -245,45 +227,45 @@
 <li>先建立一個 scale 從社群類型映射到顏色</li>
 <li>在 marks 裡面使用這個 scale</li>
 </ul>
-<div class="sourceCode"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">// vg.json 的片段，scale 底下</span>
-    <span class="op">{</span>
-      <span class="st">&quot;name&quot;</span><span class="op">:</span> <span class="st">&quot;color&quot;</span><span class="op">,</span>
-      <span class="st">&quot;type&quot;</span><span class="op">:</span> <span class="st">&quot;ordinal&quot;</span><span class="op">,</span>
-      <span class="st">&quot;domain&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;data&quot;</span><span class="op">:</span> <span class="st">&quot;table&quot;</span><span class="op">,</span> <span class="st">&quot;field&quot;</span><span class="op">:</span> <span class="st">&quot;community&quot;</span><span class="op">},</span>
-      <span class="st">&quot;range&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;scheme&quot;</span><span class="op">:</span> <span class="st">&quot;category20&quot;</span><span class="op">}</span>
-    <span class="op">}</span></code></pre></div>
-<div class="sourceCode"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">// vg.json 的片段，marks[0][&quot;encode&quot;] 底下</span>
-    <span class="st">&quot;enter&quot;</span><span class="op">:</span> <span class="op">{</span>
-      <span class="st">&quot;fill&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;color&quot;</span><span class="op">,</span> <span class="st">&quot;field&quot;</span><span class="op">:</span> <span class="st">&quot;community&quot;</span><span class="op">}</span>
-    <span class="op">}</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="co">// vg.json 的片段，scale 底下</span></a>
+<a class="sourceLine" id="cb9-2" data-line-number="2">    <span class="op">{</span></a>
+<a class="sourceLine" id="cb9-3" data-line-number="3">      <span class="st">&quot;name&quot;</span><span class="op">:</span> <span class="st">&quot;color&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb9-4" data-line-number="4">      <span class="st">&quot;type&quot;</span><span class="op">:</span> <span class="st">&quot;ordinal&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb9-5" data-line-number="5">      <span class="st">&quot;domain&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;data&quot;</span><span class="op">:</span> <span class="st">&quot;table&quot;</span><span class="op">,</span> <span class="st">&quot;field&quot;</span><span class="op">:</span> <span class="st">&quot;community&quot;</span><span class="op">},</span></a>
+<a class="sourceLine" id="cb9-6" data-line-number="6">      <span class="st">&quot;range&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;scheme&quot;</span><span class="op">:</span> <span class="st">&quot;category20&quot;</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb9-7" data-line-number="7">    <span class="op">}</span></a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="co">// vg.json 的片段，marks[0][&quot;encode&quot;] 底下</span></a>
+<a class="sourceLine" id="cb10-2" data-line-number="2">    <span class="st">&quot;enter&quot;</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb10-3" data-line-number="3">      <span class="st">&quot;fill&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;color&quot;</span><span class="op">,</span> <span class="st">&quot;field&quot;</span><span class="op">:</span> <span class="st">&quot;community&quot;</span><span class="op">}</span></a>
+<a class="sourceLine" id="cb10-4" data-line-number="4">    <span class="op">}</span></a></code></pre></div>
 <p>另外，可以用 <code>tooltip</code> 屬性來顯示議程的主題：</p>
-<div class="sourceCode"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">// vg.json 的片段，marks[0][&quot;encode&quot;][&quot;enter&quot;] 裡面</span>
-  <span class="st">&quot;tooltip&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;field&quot;</span><span class="op">:</span> <span class="st">&quot;subject&quot;</span><span class="op">}</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="co">// vg.json 的片段，marks[0][&quot;encode&quot;][&quot;enter&quot;] 裡面</span></a>
+<a class="sourceLine" id="cb11-2" data-line-number="2">  <span class="st">&quot;tooltip&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;field&quot;</span><span class="op">:</span> <span class="st">&quot;subject&quot;</span><span class="op">}</span></a></code></pre></div>
 <h2 id="transform">Transform</h2>
 <p>可以看到第一天議程結束到第二天議程結束有一大段空閒，可以用 transform 的 filter 來選擇只用哪一部分的資料。</p>
-<div class="sourceCode"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">// vg.json 的片段，data 底下</span>
-<span class="st">&quot;transform&quot;</span><span class="op">:</span> [
-  <span class="op">{</span>
-    <span class="st">&quot;type&quot;</span><span class="op">:</span> <span class="st">&quot;filter&quot;</span><span class="op">,</span>
-    <span class="st">&quot;expr&quot;</span><span class="op">:</span> <span class="st">&quot;datum.start &gt;= datetime(2017, 8-1, 5) &amp;&amp; datum.end &lt; datetime(2017, 8-1, 5+1)&quot;</span>
-  <span class="op">}</span>
-]</code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="co">// vg.json 的片段，data 底下</span></a>
+<a class="sourceLine" id="cb12-2" data-line-number="2"><span class="st">&quot;transform&quot;</span><span class="op">:</span> [</a>
+<a class="sourceLine" id="cb12-3" data-line-number="3">  <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-4" data-line-number="4">    <span class="st">&quot;type&quot;</span><span class="op">:</span> <span class="st">&quot;filter&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb12-5" data-line-number="5">    <span class="st">&quot;expr&quot;</span><span class="op">:</span> <span class="st">&quot;datum.start &gt;= datetime(2017, 8-1, 5) &amp;&amp; datum.end &lt; datetime(2017, 8-1, 5+1)&quot;</span></a>
+<a class="sourceLine" id="cb12-6" data-line-number="6">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb12-7" data-line-number="7">]</a></code></pre></div>
 <p><code>expr</code> 吃一個 vega 精簡過的 javascript subset，用來給 <code>filter</code> 決定保留與否。</p>
 <h2 id="signals">Signals</h2>
-<p>我不會永遠只想看其中一天，也不希望要看隔天的議程還要做修改這份 vega json。 好在 vega 提供了一些方便的 signal，我這邊選用了他現成的 radio input：會在圖上面加上一個互動的 radio button，然後綁定成一個 signal。</p>
-<div class="sourceCode"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">// vg.json 的片段</span>
-<span class="st">&quot;signals&quot;</span><span class="op">:</span> [
-    <span class="op">{</span>
-      <span class="st">&quot;name&quot;</span><span class="op">:</span> <span class="st">&quot;day&quot;</span><span class="op">,</span>
-      <span class="st">&quot;value&quot;</span><span class="op">:</span> <span class="dv">5</span><span class="op">,</span>
-      <span class="st">&quot;bind&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;input&quot;</span><span class="op">:</span> <span class="st">&quot;radio&quot;</span><span class="op">,</span> <span class="st">&quot;options&quot;</span><span class="op">:</span> [<span class="dv">5</span><span class="op">,</span> <span class="dv">6</span>]<span class="op">}</span>
-    <span class="op">}</span>
-]</code></pre></div>
+<p>我不會永遠只想看其中一天，也不希望要看隔天的議程還要做修改這份 vega json。好在 vega 提供了一些方便的 signal，我這邊選用了他現成的 radio input：會在圖上面加上一個互動的 radio button，然後綁定成一個 signal。</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="co">// vg.json 的片段</span></a>
+<a class="sourceLine" id="cb13-2" data-line-number="2"><span class="st">&quot;signals&quot;</span><span class="op">:</span> [</a>
+<a class="sourceLine" id="cb13-3" data-line-number="3">    <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-4" data-line-number="4">      <span class="st">&quot;name&quot;</span><span class="op">:</span> <span class="st">&quot;day&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb13-5" data-line-number="5">      <span class="st">&quot;value&quot;</span><span class="op">:</span> <span class="dv">5</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb13-6" data-line-number="6">      <span class="st">&quot;bind&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;input&quot;</span><span class="op">:</span> <span class="st">&quot;radio&quot;</span><span class="op">,</span> <span class="st">&quot;options&quot;</span><span class="op">:</span> [<span class="dv">5</span><span class="op">,</span> <span class="dv">6</span>]<span class="op">}</span></a>
+<a class="sourceLine" id="cb13-7" data-line-number="7">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb13-8" data-line-number="8">]</a></code></pre></div>
 <p>綁定過的 signal 可以作為 <code>expr</code> 內的變數使用</p>
-<div class="sourceCode"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">// vg.json 的片段，修改 data[&quot;transform&quot;][0][&quot;expr&quot;]</span>
-<span class="st">&quot;expr&quot;</span><span class="op">:</span> <span class="st">&quot;datum.start &gt;= datetime(2017, 8-1, day) &amp;&amp; datum.end &lt; datetime(2017, 8-1, day)&quot;</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="co">// vg.json 的片段，修改 data[&quot;transform&quot;][0][&quot;expr&quot;]</span></a>
+<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="st">&quot;expr&quot;</span><span class="op">:</span> <span class="st">&quot;datum.start &gt;= datetime(2017, 8-1, day) &amp;&amp; datum.end &lt; datetime(2017, 8-1, day)&quot;</span></a></code></pre></div>
 <h2 id="完成">完成</h2>
-<p>一個簡單的<a href="https://vega.github.io/editor/#/gist/vega/op8867555/5af6189b957373bf0ff9969c8e3d426a">議程時間表</a>就完成啦！ 當然還有很多可以增加/改進的地方，像是：</p>
+<p>一個簡單的<a href="https://vega.github.io/editor/#/gist/vega/op8867555/5af6189b957373bf0ff9969c8e3d426a">議程時間表</a>就完成啦！當然還有很多可以增加/改進的地方，像是：</p>
 <ul>
 <li>顯示更多情報：講者、議程摘要…</li>
 <li>讓圖更漂亮：調整滑鼠 hover 時的 style …</li>
@@ -295,20 +277,9 @@
 <p>我最後的成果放在<a href="https://op8867555.github.io/coscup2017-submissions/index.html">這邊</a>，雖然不完美，但是也讓我在很短的時間內完成了一個堪用的成品。</p>
 <p><em>利用 Vega 這個工具，可以迅速得做出簡單好讀寫（相對於 d3.js），但又不失彈性的視覺化成果。</em></p>
 <p>題外話，雖然 JSON 還算是好讀寫，但是實際還是不太適合人類直接編寫，要的話用 YAML 或是再幹一個 DSL 可能會比較方便。</p>
-<div class="footnotes">
-<hr />
-<ol>
-<li id="fn1"><p><a href="https://www.kernel.org/doc/html/v4.10/process/coding-style.html#functions" class="uri">https://www.kernel.org/doc/html/v4.10/process/coding-style.html#functions</a><a href="#fnref1">↩</a></p></li>
-</ol>
-</div>
-    </div>
-  </div>
-  <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
-    <div class="mdl-card__title mdl-card--expand">
-      <h2 class="mdl-card__title-text">Comments</h2>
-    </div>
-    <div class="mdl-color-text--grey-700 mdl-card__supporting-text" id="disqus_thread">
-      <script>
+</article>
+<div id="disqus_thread">
+<script>
 /**
 *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
@@ -316,21 +287,16 @@ var disqus_config = function () {
 this.page.url = "https://op8867555.github.io/posts/2017-08-11-vega.html";
 this.page.identifier = "2017-08-11-vega.md";
 };
-  (function() { // DON'T EDIT BELOW THIS LINE
-    var d = document, s = d.createElement('script');
-    s.src = 'https://alex-lu-blog.disqus.com/embed.js';
-    s.setAttribute('data-timestamp', +new Date());
-    (d.head || d.body).appendChild(s);
-  })();
-      </script>
-      <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-
-  </div>
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://alex-lu-blog.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 </div>
 
-
-      </div>
-      </main>
-    </div>
+  <script> renderMathInElement(document.body); </script>
   </body>
 </html>

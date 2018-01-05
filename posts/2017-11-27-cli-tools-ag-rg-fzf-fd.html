@@ -7,13 +7,11 @@
     <meta name="google-site-verification" content="CLMtF1JkUEd-jPZ3RQateLLiKyn729kaOHg9Hnu_TSo" />
     <title>Alex's Blog - 筆記：幾個 CLI 實用工具: ag, fzf, fd, ripgrep</title>
     <meta name="robots" content="index, follow" />
-    <link rel="alternate" href="../feed.xml" title="Alex Lu's Blog" type="application/atom+xml">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.blue_grey-indigo.min.css" />
-    <link rel="stylesheet" href="../css/default.css" />
-    <link rel="stylesheet" href="../css/syntax.css" />
-    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-    <script defer src="../js/toc.js"></script>
+    <link rel="alternate" href="/feed.xml" title="Alex Lu's Blog" type="application/atom+xml">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tufte-css/1.3/tufte.min.css" integrity="sha256-RB2fOyr8UMnkP7bVbAtAqgocMxqG+TDqly7ZEjmRJRY=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="/css/pandoc.css" />
+    <link rel="stylesheet" href="/css/default.css" />
+    <link rel="stylesheet" href="/css/syntax.css" />
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -23,47 +21,30 @@
     ga('create', 'UA-40612089-3', 'auto');
     ga('send', 'pageview');
     </script>
+    <!-- katex -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/contrib/auto-render.js" "></script>
   </head>
   <body>
-    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header mdl-layout--fixed-drawer ">
-      <header class="mdl-layout__header">
-        <div class="mdl-layout__header-row">
-          <!-- Title -->
-          <span class="mdl-layout-title">Alex's Blog</span>
-          <a class="mdl-navigation__link" href="../">Home</a>
-          <a class="mdl-navigation__link" href="../archive.html">Archive</a>
-        </div>
-      </header>
-      <div class="mdl-layout__drawer">
-        <nav class="mdl-navigation" id="drawer">
-          <a class="mdl-navigation__link" href="../">
-            <i class="material-icons">home</i> Home
-          </a>
-          <a class="mdl-navigation__link" href="../archive.html">
-            <i class="material-icons">folder</i> Archive
-          </a>
-        </nav>
-      </div>
-      <main class="mdl-layout__content">
-      <div class="page-content">
-        <div class="content-grid mdl-grid">
-  <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
-    <div class="mdl-card__title mdl-card--expand">
-      <h2 class="mdl-card__title-text">筆記：幾個 CLI 實用工具: ag, fzf, fd, ripgrep</h2>
-    </div>
-    <div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
-      <div>
-        
-        <span>November 27, 2017</span>
-      </div>
-      
-      <div>
-      <span>Tags: <a href="../tags/cli.html">cli</a>, <a href="../tags/find.html">find</a>, <a href="../tags/grep.html">grep</a>, <a href="../tags/linux.html">linux</a></span>
-      </div>
-      
-    </div>
-    <div class="mdl-color-text--grey-700 mdl-card__supporting-text" id="post-body">
-      <p>筆記最近用的幾個 CLI 工具。</p>
+    <nav>
+<a href="../">Home</a>
+</nav>
+<article>
+
+<header>
+<h1 class="title">筆記：幾個 CLI 實用工具: ag, fzf, fd, ripgrep</h1>
+
+
+<p class="byline">November 27, 2017</p>
+
+
+<p class="byline">Tags: <a href="../tags/cli.html">cli</a>, <a href="../tags/find.html">find</a>, <a href="../tags/grep.html">grep</a>, <a href="../tags/linux.html">linux</a></p>
+
+</header>
+
+
+<p>筆記最近用的幾個 CLI 工具。</p>
 <h1 id="the-silver-searcher">The Silver Searcher</h1>
 <p><a href="https://github.com/ggreer/the_silver_searcher">The Silver Searcher</a> 是一個類似 ack 的搜尋工具，也就是找出出現某字串的所有檔案。</p>
 <ul>
@@ -71,7 +52,7 @@
 <li>預設排除 <code>.gitignore</code> <code>.hgignore</code> 裡的 pattern</li>
 <li>其他不想要的 pattern 可以寫在 <code>.ignore</code></li>
 <li>用 c 實作</li>
-<li>直到 <span class="citation">@caasih</span> 提到之前我都沒發現執行檔名稱 <code>ag</code> 是水銀的元素符號</li>
+<li>直到 <span class="citation" data-cites="caasih">@caasih</span> 提到之前我都沒發現執行檔名稱 <code>ag</code> 是水銀的元素符號</li>
 </ul>
 <h1 id="ripgrep">ripgrep</h1>
 <p><a href="https://github.com/BurntSushi/ripgrep">Ripgrep</a> 跟前述的 The Silver Searcher 功能差不多</p>
@@ -103,29 +84,29 @@
 <thead>
 <tr class="header">
 <th>variable</th>
-<th align="left">example</th>
+<th style="text-align: left;">example</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>{}</td>
-<td align="left">documents/images/party.jpg</td>
+<td style="text-align: left;">documents/images/party.jpg</td>
 </tr>
 <tr class="even">
 <td>{.}</td>
-<td align="left">documents/images/party</td>
+<td style="text-align: left;">documents/images/party</td>
 </tr>
 <tr class="odd">
 <td>{/}</td>
-<td align="left">party.jpg</td>
+<td style="text-align: left;">party.jpg</td>
 </tr>
 <tr class="even">
 <td>{//}</td>
-<td align="left">documents/images</td>
+<td style="text-align: left;">documents/images</td>
 </tr>
 <tr class="odd">
 <td>{/.}</td>
-<td align="left">party</td>
+<td style="text-align: left;">party</td>
 </tr>
 </tbody>
 </table></li>
@@ -152,14 +133,9 @@
 </blockquote>
 <script async src="//s.imgur.com/min/embed.js" charset="utf-8"></script></li>
 </ul>
-    </div>
-  </div>
-  <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
-    <div class="mdl-card__title mdl-card--expand">
-      <h2 class="mdl-card__title-text">Comments</h2>
-    </div>
-    <div class="mdl-color-text--grey-700 mdl-card__supporting-text" id="disqus_thread">
-      <script>
+</article>
+<div id="disqus_thread">
+<script>
 /**
 *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
@@ -167,21 +143,16 @@ var disqus_config = function () {
 this.page.url = "https://op8867555.github.io/posts/2017-11-27-cli-tools-ag-rg-fzf-fd.html";
 this.page.identifier = "2017-11-27-cli-tools-ag-rg-fzf-fd.md";
 };
-  (function() { // DON'T EDIT BELOW THIS LINE
-    var d = document, s = d.createElement('script');
-    s.src = 'https://alex-lu-blog.disqus.com/embed.js';
-    s.setAttribute('data-timestamp', +new Date());
-    (d.head || d.body).appendChild(s);
-  })();
-      </script>
-      <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-
-  </div>
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://alex-lu-blog.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 </div>
 
-
-      </div>
-      </main>
-    </div>
+  <script> renderMathInElement(document.body); </script>
   </body>
 </html>

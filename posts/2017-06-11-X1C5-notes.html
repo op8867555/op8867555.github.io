@@ -7,13 +7,11 @@
     <meta name="google-site-verification" content="CLMtF1JkUEd-jPZ3RQateLLiKyn729kaOHg9Hnu_TSo" />
     <title>Alex's Blog - [en] Notes on Thinkpad X1 Carbon 2017 + Arch Linux</title>
     <meta name="robots" content="index, follow" />
-    <link rel="alternate" href="../feed.xml" title="Alex Lu's Blog" type="application/atom+xml">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.blue_grey-indigo.min.css" />
-    <link rel="stylesheet" href="../css/default.css" />
-    <link rel="stylesheet" href="../css/syntax.css" />
-    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-    <script defer src="../js/toc.js"></script>
+    <link rel="alternate" href="/feed.xml" title="Alex Lu's Blog" type="application/atom+xml">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tufte-css/1.3/tufte.min.css" integrity="sha256-RB2fOyr8UMnkP7bVbAtAqgocMxqG+TDqly7ZEjmRJRY=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="/css/pandoc.css" />
+    <link rel="stylesheet" href="/css/default.css" />
+    <link rel="stylesheet" href="/css/syntax.css" />
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -23,47 +21,30 @@
     ga('create', 'UA-40612089-3', 'auto');
     ga('send', 'pageview');
     </script>
+    <!-- katex -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/contrib/auto-render.js" "></script>
   </head>
   <body>
-    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header mdl-layout--fixed-drawer ">
-      <header class="mdl-layout__header">
-        <div class="mdl-layout__header-row">
-          <!-- Title -->
-          <span class="mdl-layout-title">Alex's Blog</span>
-          <a class="mdl-navigation__link" href="../">Home</a>
-          <a class="mdl-navigation__link" href="../archive.html">Archive</a>
-        </div>
-      </header>
-      <div class="mdl-layout__drawer">
-        <nav class="mdl-navigation" id="drawer">
-          <a class="mdl-navigation__link" href="../">
-            <i class="material-icons">home</i> Home
-          </a>
-          <a class="mdl-navigation__link" href="../archive.html">
-            <i class="material-icons">folder</i> Archive
-          </a>
-        </nav>
-      </div>
-      <main class="mdl-layout__content">
-      <div class="page-content">
-        <div class="content-grid mdl-grid">
-  <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
-    <div class="mdl-card__title mdl-card--expand">
-      <h2 class="mdl-card__title-text">[en] Notes on Thinkpad X1 Carbon 2017 + Arch Linux</h2>
-    </div>
-    <div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
-      <div>
-        
-        <span>August 22, 2017</span>
-      </div>
-      
-      <div>
-      <span>Tags: <a href="../tags/laptop.html">laptop</a>, <a href="../tags/linux.html">linux</a></span>
-      </div>
-      
-    </div>
-    <div class="mdl-color-text--grey-700 mdl-card__supporting-text" id="post-body">
-      <h3 id="changelogs">changelogs</h3>
+    <nav>
+<a href="../">Home</a>
+</nav>
+<article>
+
+<header>
+<h1 class="title">[en] Notes on Thinkpad X1 Carbon 2017 + Arch Linux</h1>
+
+
+<p class="byline">August 22, 2017</p>
+
+
+<p class="byline">Tags: <a href="../tags/laptop.html">laptop</a>, <a href="../tags/linux.html">linux</a></p>
+
+</header>
+
+
+<h3 id="changelogs">changelogs</h3>
 <ul>
 <li>08/22 update kernel to 4.12; add a WWAN section.</li>
 <li>07/22 rewrite the post in English, remove some outdated information.</li>
@@ -90,7 +71,9 @@
 <h1 id="topics">Topics</h1>
 <h2 id="trackpoint">TrackPoint</h2>
 <h3 id="alps-or-elantech">ALPS or Elantech</h3>
-<p>X1C5 comes with two versions of TrackPoint: ALPS and Elantech<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>.</p>
+<p>X1C5 comes with two versions of TrackPoint: ALPS and Elantech<span><label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle" /><span class="sidenote"><a href="https://patchwork.kernel.org/patch/9768231/" class="uri">https://patchwork.kernel.org/patch/9768231/</a><br />
+<br />
+</span></span>.</p>
 <p>I confirmed mine has an Elantech one using <a href="http://pcsupport.lenovo.com/tw/zh/products/laptops-and-netbooks/thinkpad-x-series-laptops/thinkpad-x1-carbon-type-20hr-20hq/downloads/ds122148">TrackPointDetect.exe</a>.</p>
 <pre><code>TouchPad-Flash Utility
 2017-06-08 20:42:27
@@ -166,20 +149,9 @@ Pst Vendor : Elan
 <li><a href="http://fredrik.wendt.se/2017/04/26/lenovo-thinkpad-x1-carbon-5th-generation/">Fredrik’s Note</a></li>
 <li><a href="https://forums.lenovo.com/t5/forums/v3_1/forumtopicpage/board-id/tp02_en/thread-id/75464/page/29">discussion about TrackPad</a></li>
 </ul>
-<div class="footnotes">
-<hr />
-<ol>
-<li id="fn1"><p><a href="https://patchwork.kernel.org/patch/9768231/" class="uri">https://patchwork.kernel.org/patch/9768231/</a><a href="#fnref1">↩</a></p></li>
-</ol>
-</div>
-    </div>
-  </div>
-  <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
-    <div class="mdl-card__title mdl-card--expand">
-      <h2 class="mdl-card__title-text">Comments</h2>
-    </div>
-    <div class="mdl-color-text--grey-700 mdl-card__supporting-text" id="disqus_thread">
-      <script>
+</article>
+<div id="disqus_thread">
+<script>
 /**
 *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
@@ -187,21 +159,16 @@ var disqus_config = function () {
 this.page.url = "https://op8867555.github.io/posts/2017-06-11-X1C5-notes.html";
 this.page.identifier = "2017-06-11-X1C5-notes.md";
 };
-  (function() { // DON'T EDIT BELOW THIS LINE
-    var d = document, s = d.createElement('script');
-    s.src = 'https://alex-lu-blog.disqus.com/embed.js';
-    s.setAttribute('data-timestamp', +new Date());
-    (d.head || d.body).appendChild(s);
-  })();
-      </script>
-      <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-
-  </div>
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://alex-lu-blog.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 </div>
 
-
-      </div>
-      </main>
-    </div>
+  <script> renderMathInElement(document.body); </script>
   </body>
 </html>
