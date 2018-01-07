@@ -2,10 +2,6 @@ span.article-date {
   color: gray;
 }
 
-ul {
-  max-width: 600px;
-}
-
 pre {
   margin: 14px auto;
   max-width: 100ch;

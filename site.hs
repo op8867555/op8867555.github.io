@@ -3,6 +3,7 @@
 
 import Data.Monoid (mappend)
 import qualified Data.Set as S
+import Control.Monad
 
 import Hakyll
 
@@ -21,6 +22,14 @@ main =
         match "js/*" $ do
             route idRoute
             compile copyFileCompiler
+
+        forM [ "vendor/tufte-css/et-book/**"
+             , "vendor/tufte-css/*.css" ] $ \pat -> do
+              match pat $ do
+                route $ customRoute $ \path ->
+                    "css" </> (joinPath . drop 2 . splitPath . toFilePath $ path)
+                compile copyFileCompiler
+
         match "css/*" $ do
             route idRoute
             compile compressCssCompiler
@@ -77,7 +86,7 @@ main =
                                        ]
                 getResourceBody
                     >>= applyAsTemplate indexCtx
-                    >>= renderPandoc
+                    >>= renderPandocWith myReaderOpts myWriterOpts
                     >>= loadAndApplyTemplate "templates/default.html" indexCtx
                     >>= relativizeUrls
         match "templates/*" $ compile templateBodyCompiler
@@ -90,14 +99,14 @@ main =
                         recentFirst =<< loadAllSnapshots "posts/*" "content"
                 renderRss feedConfig feedCtx posts
 
+myReaderOpts = defaultHakyllReaderOptions
+myWriterOpts = defaultHakyllWriterOptions { writerHTMLMathMethod = KaTeX "", writerSectionDivs = True}
+
 myCompiler =
     pandocCompilerWithTransform
-        defaultHakyllReaderOptions -- { readerExtensions = foldr enableExtension oldExts newExts}
-        defaultHakyllWriterOptions { writerHTMLMathMethod = KaTeX ""}
+        myReaderOpts
+        myWriterOpts
         (eastAsianLineBreakFilter . usingSideNotes)
-    where oldExts = readerExtensions defaultHakyllReaderOptions
-          newExts = [ Ext_tex_math_double_backslash
-                    , Ext_tex_math_single_backslash]
 
 feedConfig =
     FeedConfiguration
