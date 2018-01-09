@@ -7,11 +7,308 @@
         <description><![CDATA[Alex Lu's Blog Feed]]></description>
         <atom:link href="https://op8867555.github.io/feed.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Fri, 05 Jan 2018 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Tue, 09 Jan 2018 00:00:00 UT</lastBuildDate>
         <item>
+    <title>機器如何計算微分/偏微分（上）</title>
+    <link>https://op8867555.github.io/posts/2017-12-17-autodiff.html</link>
+    <description><![CDATA[<section>
+<p>提到近年來熱門的類神經網路模型，反傳導(back propagation)是一個相當重要的過程，其中應用的就是計算梯度（gradient，就是每個參數的偏微分）修正神經參數來達到「學習」的效果，類神經網路的結構越來越複雜，使得人工推導梯度公式越來越不可行，如何應用電腦計算微分變成了一個重要的問題。</p>
+</section>
+<div class="fullwidth">
+<figure>
+<img src="https://i.imgur.com/R5QzZY4.png" alt="這張圖簡單地解釋了計算微分的幾種作法。摘自“Automatic Differentiation of Algorithms for Machine Learning”" /><figcaption>這張圖簡單地解釋了計算微分的幾種作法。摘自“Automatic Differentiation of Algorithms for Machine Learning”</figcaption>
+</figure>
+</div>
+<section id="numerical-differential" class="level1">
+<h1>Numerical Differential</h1>
+<p><span><label for="sn-1" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="marginnote"> <img src="https://upload.wikimedia.org/wikipedia/commons/1/18/Derivative.svg" /> 數值微分， By Olivier Cleynen (Own work) [CC0], via Wikimedia Commons<br />
+<br />
+</span></span></p>
+<p>數值微分就是用 <span class="math inline">\(\frac{f(x + h) - f(x)}{h}\)</span> 跟一個很小的 <span class="math inline">\(h\)</span> 來<strong>近似</strong> <span class="math inline">\(\lim_{h \rightarrow 0}\frac{f(x + h) - f(x)}{h}\)</span>，實作上也只是計算用不同的參數來計算函數 <span class="math inline">\(f\)</span> 的差異，但是 <span class="math inline">\(f\)</span> 的計算成本可能不低，而且很容易遇到浮點數計算的 round-off error 跟 truncating error，所以實務上並不實用。</p>
+<section id="實作" class="level2">
+<h2>實作</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="im">from</span> math <span class="im">import</span> <span class="op">*</span></a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">def</span> diff(f, x, epilson<span class="op">=</span><span class="fl">0.00001</span>):</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">    <span class="cf">return</span> (f(x<span class="op">+</span>epilson) <span class="op">-</span> f(x))<span class="op">/</span>epilson</a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb1-5" data-line-number="5">diff(sin, pi) <span class="co"># -0.9999999999898844</span></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="kw">def</span> f(x, y):</a>
+<a class="sourceLine" id="cb1-8" data-line-number="8">    <span class="cf">return</span> sin(x) <span class="op">+</span> x <span class="op">*</span> y</a>
+<a class="sourceLine" id="cb1-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10"><span class="co"># 計算偏微分就是把不關心的參數視為常數</span></a>
+<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="im">from</span> functools <span class="im">import</span> partial</a>
+<a class="sourceLine" id="cb1-12" data-line-number="12">diff(partial(f, y<span class="op">=</span><span class="dv">2</span>), <span class="dv">3</span>) <span class="co"># 1.0100067978413563 (df(2,3)dx)</span></a></code></pre></div>
+</section>
+</section>
+<section id="symbolic-differential" class="level1">
+<h1>Symbolic Differential</h1>
+<p>符號微分是符號計算 (Symbolic Computing) 的一個經典例子：不去計算數值，而是 <em>跟人類一樣</em> 直接處理這些符號。<span><label for="sn-2" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-2" class="margin-toggle"/><span class="marginnote"> 我最早是在 SICP 一書看見這個作法，可以忍受很多括號的讀者可以去看一下 <a href="https://mitpress.mit.edu/sicp/full-text/book/book-Z-H-16.html#%_sec_2.3.2">§2.3.2</a> 的介紹。<br />
+<br />
+</span></span> 在修習微積分課程時，一定會提到如何利用 <a href="https://en.wikipedia.org/wiki/Differentiation_rules">Differentiation rules</a> 來求出導數，像是:</p>
+<ul>
+<li><span class="math inline">\((a \cdot f)&#39; = af&#39;\)</span></li>
+<li><span class="math inline">\((f + g)&#39; = f&#39; + g&#39;\)</span></li>
+<li><span class="math inline">\((f(x) \cdot g(x))&#39; = f&#39;(x)g(x) + f(x)g&#39;(x)\)</span></li>
+<li><span class="math inline">\((f(g(x)))&#39; = f&#39;(g(x)) g&#39;(x)\)</span></li>
+</ul>
+<p>而 Symbolic Differential 就是採用跟人類一樣的方法，對著 expression tree 不斷的做 pattern matching 跟 rewrite。這個方法很好實作，只需要照著 Differential rules 改寫便是，而且可以得到<strong>真正的</strong><span><label for="sn-3" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-3" class="margin-toggle"/><span class="sidenote">Exact Derivative，也就是跟手動推導的結果一致，Numerical Differential 因為浮點數的特性，會產生誤差而無法算出真正的導數/偏導數<br />
+<br />
+</span></span>導數/偏導數。</p>
+<p>但是這個方法最大的問題是在改寫的過程中，會出現很多冗於的式子： <span class="math inline">\(x \times 1\)</span>, <span class="math inline">\(x + 0\)</span> 之類的，因此很容易產生出巨大的（沒效率）的結果。<span><label for="sn-4" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-4" class="margin-toggle"/><span class="sidenote">“Automatic Differentiation in Machine Learning: a Survey” 一文中舉例到： <span class="math display">\[f(x) = 64x(1 - x)(1 - 2x)^2(1 - 8x + 8x^2)^2\]</span> 在沒有化簡的情況做符號微分會得到 <span class="math display">\[\begin{gathered}
+  128x(1 - x)(-8 + 16x)(1 - 2x)^2(1 - 8x+8x^2) \\
+  + 64(1-x)(1-2x)^2 (1-8x+ 8x^2)^2\\
+  - 64x(1-2x)^2 (1-8x+8x^2)^2 \\
+  - 256x(1 - x)(1 - 2x)(1 - 8x + 8x^2)^2
+  \end{gathered} \]</span> 這條很複雜的式子，但是經過化簡則只剩下 <span class="math display">\[\begin{gathered}
+  64(1 - 42x + 504x^2 - 2640x^3  \\
+  + 7040x^4 -9984x^5 + 7168x^6 -2048x^7)
+  \end{gathered}\]</span>，而隨著原式<span class="math inline">\(f\)</span>的複雜度上升，沒做好簡化的符號微分會膨脹非常快。<br />
+<br />
+</span></span></p>
+<p>以 Python 來說，SymPy 就實作了符號積分，可以看到 <code>diff</code> 會產出一個新的運算式。</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="im">from</span> sympy <span class="im">import</span> <span class="op">*</span></a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">x <span class="op">=</span> var(<span class="st">&#39;x&#39;</span>)</a>
+<a class="sourceLine" id="cb2-3" data-line-number="3">expr <span class="op">=</span> diff(sin(x)) <span class="co"># cos(x)</span></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4">expr.evalf(subs<span class="op">=</span>{<span class="st">&#39;x&#39;</span>: pi}) <span class="co"># -1.000000000000</span></a>
+<a class="sourceLine" id="cb2-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb2-6" data-line-number="6">expr2 <span class="op">=</span> diff(sin(x)<span class="op">+</span> x <span class="op">*</span> y, x)</a>
+<a class="sourceLine" id="cb2-7" data-line-number="7">expr2.evalf(subs<span class="op">=</span>{<span class="st">&#39;x&#39;</span>: <span class="dv">3</span>, <span class="st">&#39;y&#39;</span>: <span class="dv">2</span>}) <span class="co"># 1.0100075033995546</span></a></code></pre></div>
+<!--
+
+左圖為$f(x, y) = sin(x) + x*y$的示意圖，右圖為以符號計算$\frac{df}{dx}$的示意圖：
+
+
+~~~~
+        f(x, y)    |         dfdx
+          +-+      |         +-+
+          |+|      |         |+|
+          +-+      |         +-+
+         /  \      |        /  \
+        /    \     |       /    \
+    +---+     +-+  |   +---+     +-+
+    |sin|     |×|  |   |cos|     |0|
+    +---+     +-+  |   +---+     +-+
+      |       /|   |     |
+      | _____/ |   |     |
+      |/       |   |     |
+     +-+      +-+  |    +-+
+     |x|      |y|  |    |x|
+     +-+      +-+  |    +-+
+~~~~~
+-->
+</section>
+<section id="forward-mode-automatic-differential" class="level1">
+<h1>Forward-Mode Automatic Differential</h1>
+<p>自動微分（AD）的名稱取得很容易讓人誤解，其實就是應用 chain rule 跟一些語言特性或是原始碼轉換工具，來達成不用手寫導數的程式，而可以在計算函數的同時（也就是 overhead 不大）得出<strong>真正的</strong>導數/偏導數。</p>
+<p>自動微分根據計算的順序，可以分為 Forward Mode 跟 Reverse Mode，這次先介紹比較簡單的 Forward Mode。</p>
+<p><span><label for="sn-5" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-5" class="margin-toggle"/><span class="marginnote"> Forward Mode AD 將一個函數 <span class="math inline">\(y = f(... , x, ...) = (w_m \circ w_{m-1} ... \circ w_1)(..., x, ...)\)</span> 對 <span class="math inline">\(x\)</span> 的微分，拆解成 <span class="math display">\[
+  \begin{aligned}
+  \frac {\partial y}{\partial x} =&amp;\frac {\partial y}{\partial w_{m-1}}{\frac {\partial w_{m-1}}{\partial x}} \\
+  =&amp;\frac {\partial y}{\partial w_{m-1}}\left({\frac {\partial w_{m-1}}{\partial w_{m-2}}}{\frac {\partial w_{m-2}}{\partial x}}\right) \\
+  =&amp;\frac {\partial y}{\partial w_{m-1}}\left({\frac {\partial w_{m-1}}{\partial w_{m-2}}}\left({\frac {\partial w_{m-2}}{\partial w_{m-3}}}{\frac {\partial w_{m-3}}{\partial x}}\right)\right) \\
+  =&amp;{\frac {\partial y}{\partial w_{m-1}}} \left( \frac {\partial w_{m-1}}{\partial w_{m-2}} \cdots
+  \left(\frac {\partial w_{2}}{\partial w_{1}}  \frac {\partial w_{1}}{\partial x} \right)\right)\\
+  \end{aligned}
+  \]</span> 然後從 <span class="math inline">\(\frac{\partial x}{\partial x} = 1\)</span> 開始， 由 <span class="math inline">\(\frac{\partial w_1}{\partial x}\)</span> 開始計算到 <span class="math inline">\(\frac{\partial w_m}{x}\)</span>（由內而外）。<br />
+<br />
+</span></span></p>
+<p>這邊繼續使用上面的 <span class="math inline">\(Y = f(x, y) = sin(x) + x × y\)</span> 的例子，</p>
+<p>我們可以把 <span class="math inline">\(Y\)</span> 拆解成下圖（左）</p>
+<p><span class="math display">\[
+\begin{array}{rl|rl}
+  Y &amp; =  w_5       &amp; \dot{Y} &amp; = \dot{w_5} \\
+w_5 &amp; =  w_3 + w_4 &amp; \dot{w_5} &amp; = \dot{w_3} + \dot{w_4} \\
+w_4 &amp; =  w_1 × w_2 &amp; \dot{w_4} &amp; = w_2 × \dot{w_1} + w_1 × \dot{w_2}\\
+w_3 &amp; =  sin(w_1)  &amp; \dot{w_3} &amp; = cos(w_1) \\
+w_2 &amp; =  y         &amp; \dot{w_2} &amp; = 0\\
+w_1 &amp; =  x         &amp; \dot{w_1} &amp; = 1\\
+\end{array}
+\]</span></p>
+<p>然後我們就可以從 <span class="math inline">\(\frac{\partial x}{\partial x} = 1, \frac{\partial y}{\partial x} = 0\)</span> 開始，求出 <span class="math inline">\(\frac{\partial w_i}{\partial x} \big \vert_{i = 1 \cdots 5}\)</span>，最後求出<span class="math inline">\(\frac{\partial Y}{\partial x}\)</span> （如上圖（右），這邊用 <span class="math inline">\(\dot{X}\)</span> 來表示 <span class="math inline">\(\frac{\partial X}{\partial x}\)</span>）。</p>
+<p>從計算順序上，Forward-Mode AD 跟原先函數是一樣的，所以被稱為 Forward Mode。</p>
+<section id="實作-1" class="level2">
+<h2>實作</h2>
+<p>一個常見的實作方法是定義一個新的資料結構 Dual Number，跟利用 operator overloading 來實作其算術系統。下面使用 Python 舉例<span><label for="sn-6" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-6" class="margin-toggle"/><span class="sidenote">較完整的 Dual Number 定義可以在 <a href="https://en.wikipedia.org/wiki/Automatic_differentiation#Automatic_differentiation_using_dual_numbers">Wikipedia</a> 找到。如同文中寫到，我們可以使用 <span class="math inline">\(g(\langle u,u&#39; \rangle , \langle v,v&#39; \rangle )  = \langle g(u,v) , g_u(u,v) u&#39; + g_v(u,v) v&#39; \rangle\)</span> 來定義這些 primitive functions(<span class="math inline">\(sin, cos, \cdots\)</span>)。<br />
+<br />
+</span></span><span><label for="sn-7" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-7" class="margin-toggle"/><span class="sidenote">為了可以寫出像是 <code class="sourceCode python"><span class="dv">4</span> <span class="op">*</span> Dual(<span class="dv">1</span>, <span class="dv">1</span>)</code> 這樣混合著 <code>float</code> 跟 <code>Dual</code> 的程式，可以參考 <a href="https://docs.python.org/3/reference/datamodel.html#emulating-numeric-types">Python Reference §3.3.7</a> 使用 <code>__radd__</code> 系列的 method 來實作。<br />
+<br />
+</span></span>：</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="im">from</span> collections <span class="im">import</span> namedtuple</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="im">import</span> math</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="kw">class</span> Dual(namedtuple(<span class="st">&quot;Dual&quot;</span>, [<span class="st">&quot;x&quot;</span>, <span class="st">&quot;dx&quot;</span>])):</a>
+<a class="sourceLine" id="cb3-5" data-line-number="5">    <span class="co">&#39;&#39;&#39;dx 追蹤 x 的變化對當下輸出的影響&#39;&#39;&#39;</span></a>
+<a class="sourceLine" id="cb3-6" data-line-number="6">    <span class="kw">def</span> <span class="fu">__add__</span>(<span class="va">self</span>, other):</a>
+<a class="sourceLine" id="cb3-7" data-line-number="7">        <span class="cf">return</span> Dual(<span class="va">self</span>.x <span class="op">+</span> other.x, <span class="va">self</span>.dx <span class="op">+</span> other.dx)</a>
+<a class="sourceLine" id="cb3-8" data-line-number="8">    <span class="kw">def</span> <span class="fu">__mul__</span>(<span class="va">self</span>, other):</a>
+<a class="sourceLine" id="cb3-9" data-line-number="9">        <span class="cf">return</span> Dual(<span class="va">self</span>.x <span class="op">*</span> other.x, other.x <span class="op">*</span> <span class="va">self</span>.dx <span class="op">+</span> <span class="va">self</span>.x <span class="op">*</span> other.dx)</a>
+<a class="sourceLine" id="cb3-10" data-line-number="10">    <span class="co"># 下略</span></a>
+<a class="sourceLine" id="cb3-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb3-12" data-line-number="12"><span class="kw">def</span> sin(dual):</a>
+<a class="sourceLine" id="cb3-13" data-line-number="13">    <span class="co"># inline chain rule here</span></a>
+<a class="sourceLine" id="cb3-14" data-line-number="14">    <span class="cf">return</span> Dual(math.sin(dual.x), dual.dx <span class="op">*</span> math.cos(dual.x))</a>
+<a class="sourceLine" id="cb3-15" data-line-number="15"><span class="co"># 這邊省略其他函數</span></a></code></pre></div>
+<p>舉例來說，我們可以透過控制<code>Dual(x, dx)</code>的<code>dx</code>來分別計算 <span class="math inline">\(\frac{\partial f}{\partial x}\)</span> 跟 <span class="math inline">\(\frac{\partial f}{\partial y}\)</span></p>
+<p><span><label for="sn-8" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-8" class="margin-toggle"/><span class="marginnote"> <a href="https://upload.wikimedia.org/wikipedia/commons/a/a4/ForwardAccumulationAutomaticDifferentiation.png"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/ForwardAccumulationAutomaticDifferentiation.png/512px-ForwardAccumulationAutomaticDifferentiation.png" /></a> 這是 Wikipedia 上面對 <span class="math inline">\(Y = f(x,y) = sin(x) + x × y\)</span> 做 forward-mode AD 的示意圖。<br />
+By Berland at English Wikipedia [Public domain], via Wikimedia Commons<br />
+<br />
+</span></span></p>
+<p><span class="math display">\[f(x,y) = sin(x) + x*y\]</span></p>
+<p>（<code class="sourceCode python">Dual(x, <span class="dv">1</span>)</code> 對應到 <span class="math inline">\(\frac{dx}{dx} = 1\)</span>；<code class="sourceCode python">Dual(c, <span class="dv">0</span>)</code> 對應到 <span class="math inline">\(\frac{dc}{dx} = 0\)</span>）</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="co"># 要計算偏導數的函數可以用本來的寫法，而不用自幹，有沒有感覺到「自動」？</span></a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="kw">def</span> f(x, y):</a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">  <span class="cf">return</span> sin(x) <span class="op">+</span> x<span class="op">*</span>y</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb4-5" data-line-number="5">f(Dual(<span class="dv">3</span>, <span class="dv">1</span>), Dual(<span class="dv">2</span>, <span class="dv">0</span>))</a>
+<a class="sourceLine" id="cb4-6" data-line-number="6"><span class="co"># Dual(x=6.141120008059867, dx=1.0100075033995546)</span></a>
+<a class="sourceLine" id="cb4-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb4-8" data-line-number="8">f(Dual(<span class="dv">3</span>, <span class="dv">0</span>), Dual(<span class="dv">2</span>, <span class="dv">1</span>))</a>
+<a class="sourceLine" id="cb4-9" data-line-number="9"><span class="co"># Dual(x=6.141120008059867, dx=3.0)</span></a></code></pre></div>
+<p>這是怎麼辦到的？我們可以用類似 Equational Reasoning<span><label for="sn-9" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-9" class="margin-toggle"/><span class="sidenote">Equational Reasoning 就像數學證明一樣，比較常用在 Pure Functional 的程式語言上，不過既然這個例子也幾乎是 Pure Functional 的，在這邊就使用這個技巧來說明。<br />
+<br />
+</span></span> 的方式來展開：</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" data-line-number="1">(  f(Dual(<span class="dv">3</span>, <span class="dv">1</span>), Dual(<span class="dv">2</span>,<span class="dv">0</span>))</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="op">==</span> sin(Dual(<span class="dv">3</span>, <span class="dv">1</span>)) <span class="op">+</span> Dual(<span class="dv">3</span>, <span class="dv">1</span>) <span class="op">*</span> Dual(<span class="dv">2</span>,<span class="dv">0</span>)                        <span class="co"># definition of f</span></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="op">==</span> Dual(math.sin(<span class="dv">3</span>), <span class="dv">1</span> <span class="op">*</span> math.cos(<span class="dv">3</span>)) <span class="op">+</span> Dual(<span class="dv">3</span>, <span class="dv">1</span>) <span class="op">*</span> Dual(<span class="dv">2</span>,<span class="dv">0</span>)     <span class="co"># definition of sin</span></a>
+<a class="sourceLine" id="cb5-4" data-line-number="4"><span class="op">==</span> Dual(math.sin(<span class="dv">3</span>), <span class="dv">1</span> <span class="op">*</span> math.cos(<span class="dv">3</span>)) <span class="op">+</span> Dual(<span class="dv">3</span> <span class="op">*</span> <span class="dv">2</span>, <span class="dv">2</span> <span class="op">*</span> <span class="dv">1</span> <span class="op">+</span> <span class="dv">3</span> <span class="op">*</span> <span class="dv">0</span>) <span class="co"># definition of __mul__</span></a>
+<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="op">==</span> Dual(math.sin(<span class="dv">3</span>) <span class="op">+</span> <span class="dv">3</span> <span class="op">*</span> <span class="dv">2</span>, <span class="dv">1</span> <span class="op">*</span> math.cos(<span class="dv">3</span>) <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> <span class="dv">1</span> <span class="op">+</span> <span class="dv">3</span> <span class="op">*</span> <span class="dv">0</span>)      <span class="co"># definition of __add__</span></a>
+<a class="sourceLine" id="cb5-6" data-line-number="6"><span class="op">==</span> Dual(x<span class="op">=</span><span class="fl">6.141120008059867</span>, dx<span class="op">=</span><span class="fl">1.0100075033995546</span>)  )</a>
+<a class="sourceLine" id="cb5-7" data-line-number="7"><span class="co"># returns True since this is a valid python expression.</span></a></code></pre></div>
+<p>順帶一提，我們不需要額外實作 Chain Rule，因為它已經包含在 Dual Number 的算術系統內了。</p>
+<p><span><label for="sn-10" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-10" class="margin-toggle"/><span class="marginnote"> 可以看到第 3 行的 <code>dx</code> 正好等於應用 Chain Rule 求出的 <span class="math inline">\(\frac{\partial sin(sin(x))}{\partial x} = cos(x) × cos(sin(x))\)</span>。<br />
+這是因為在 <code>sin(dual)</code> 的定義中 <code class="sourceCode python">Dual(math.sin(dual.x), dual.dx <span class="op">*</span> math.cos(dual.x))</code> 裡面就已經 <em>inline</em> chain rule 了<br />
+<br />
+</span></span></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource python numberLines"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" data-line-number="1">(  sin(sin(Dual(<span class="dv">1</span>, <span class="dv">1</span>)))</a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="op">==</span> sin(Dual(math.sin(<span class="dv">1</span>), <span class="dv">1</span> <span class="op">*</span> math.cos(<span class="dv">1</span>)))                          <span class="co"># definition of sin</span></a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="op">==</span> Dual(math.sin(math.sin(<span class="dv">1</span>)), math.cos(<span class="dv">1</span>) <span class="op">*</span> math.cos(math.sin(<span class="dv">1</span>))) <span class="co"># definition of sin</span></a>
+<a class="sourceLine" id="cb6-4" data-line-number="4"><span class="op">==</span> Dual(x<span class="op">=</span><span class="fl">0.7456241416655579</span>, dx<span class="op">=</span><span class="fl">0.36003948908962097</span>) )</a></code></pre></div>
+<!--
+
+左圖為$f = sin(x) + x * y$的示意圖，右邊為以 Dual Number 實作的示意圖：
+
+~~~~
+        f(x, y)    |       f(x, y); dfdx                      f(3,2); dfdx
+          +-+      |          +---+---+                       +-----+-----+
+          |+|      |          | + | + |                       |6.14 | 1.01|
+          +-+      |          +---+---+                       +-----+-----+
+         /  \      |          /       \                        /       \
+        /    \     |         /         \                      /         \
+    +---+     +-+  |  +------+------+  +--+----------+   +----+-----+   +--+--+
+    |sin|     |×|  |  |sin(a)|cos(a)|  |× | a*db+b*db|   |0.14|-0.98|   | 6| 2|
+    +---+     +-+  |  +------+------+  +--+----------+   +----+-----+   +--+--+
+      |       /|   |        |           / |                   |          / |
+      | _____/ |   |        |  ________/  |                   |  _______/  |
+      |/       |   |        | /           |                   | /          |
+     +-+      +-+  |     +--+--+       +--+--+             +--+--+      +--+--+
+     |x|      |y|  |     |x | 1|       |y | 0|             |3 | 1|      |2 | 0|
+     +-+      +-+  |     +--+--+       +--+--+             +--+--+      +--+--+
+~~~~
+
+-->
+<p>這個方法的問題是每一個參數<span class="math inline">\(x_i\)</span>都必須算過一次，類神經的梯度來說需要<span class="math inline">\(O(n)\)</span>的時間才能算完（<span class="math inline">\(n\)</span>是參數的個數），並不是很適合類神經網路計算梯度（因為<span class="math inline">\(n\)</span>通常都不小）。</p>
+</section>
+</section>
+<section id="小結" class="level1">
+<h1>小結</h1>
+<p>本文介紹了</p>
+<ul>
+<li>Numerical Differential，用近似的方法計算，其優點是實作最簡單，缺點是計算誤差大到不夠實用</li>
+<li>Symbolic Differential，其實就是把人類計算微分的過程用電腦實作，可以得到正確的數值，但是會遇到算式膨脹的問題</li>
+<li>Forward-Mode Automatic Differential，應用了 chain rule，在計算的過程也可以簡單的算出正確的偏導數，但是不適合計算梯度。</li>
+</ul>
+<p>下一篇文章會介紹 Reverse-Mode Automatic Differential，是 Forward-Mode 相反方向的版本，同時也是 back propagation 的 general 版本。</p>
+</section>
+<section id="references" class="level1">
+<h1>References</h1>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Automatic_differentiation">Automatic differentiation on Wikipedia</a></li>
+<li><a href="https://idontgetoutmuch.wordpress.com/2013/10/13/backpropogation-is-just-steepest-descent-with-automatic-differentiation-2">Backpropogation is Just Steepest Descent with Automatic Differentiation</a></li>
+<li><a href="https://arxiv.org/pdf/1502.05767.pdf">Automatic Differentiation in Machine Learning: a Survey</a></li>
+<li><a href="https://arxiv.org/pdf/1404.7456.pdf">Automatic Differentiation of Algorithms for Machine Learning</a></li>
+</ul>
+</section>
+<section id="appendix" class="level1">
+<h1>Appendix</h1>
+<section id="example-logistic-regression" class="level2">
+<h2>Example: Logistic Regression</h2>
+<p>這邊用挑戰者號的O型環失效資料<span><label for="sn-11" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-11" class="margin-toggle"/><span class="marginnote"> 選這份資料是因為我最近在讀 “Probabilistic Programming &amp; Bayesian Methods for Hackers” 剛好介紹到這一份<a href="https://raw.githubusercontent.com/CamDavidsonPilon/Probabilistic-Programming-and-Bayesian-Methods-for-Hackers/master/Chapter2_MorePyMC/data/challenger_data.csv">資料集</a>。<br />
+<br />
+</span></span>作為範例，以上述的 Forward-Mode AD<span><label for="sn-12" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-12" class="margin-toggle"/><span class="marginnote"> <strong>注意:</strong> 這邊的 <code>forwardad</code> 已經有實作 <code>__radd__</code>, <code>exp</code>, <code>log</code>…等滿足下面程式所需的最小需求。<br />
+<br />
+</span></span> 實作 Gradient Descent 來進行 Logistic Regression。</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="im">from</span> forwardad <span class="im">import</span> <span class="op">*</span></a>
+<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="im">import</span> pandas <span class="im">as</span> pd</a>
+<a class="sourceLine" id="cb7-3" data-line-number="3"><span class="im">from</span> io <span class="im">import</span> StringIO</a>
+<a class="sourceLine" id="cb7-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb7-5" data-line-number="5">data <span class="op">=</span> StringIO(<span class="st">&#39;Date,Temperature,Damage Incident</span><span class="ch">\n</span><span class="st">04/12/1981,66,0.0</span><span class="ch">\n</span><span class="st">11/12/1981,70,1.0</span><span class="ch">\n</span><span class="st">3/22/82,69,0.0</span><span class="ch">\n</span><span class="st">6/27/82,80,</span><span class="ch">\n</span><span class="st">01/11/1982,68,0.0</span><span class="ch">\n</span><span class="st">04/04/1983,67,0.0</span><span class="ch">\n</span><span class="st">6/18/83,72,0.0</span><span class="ch">\n</span><span class="st">8/30/83,73,0.0</span><span class="ch">\n</span><span class="st">11/28/83,70,0.0</span><span class="ch">\n</span><span class="st">02/03/1984,57,1.0</span><span class="ch">\n</span><span class="st">04/06/1984,63,1.0</span><span class="ch">\n</span><span class="st">8/30/84,70,1.0</span><span class="ch">\n</span><span class="st">10/05/1984,78,0.0</span><span class="ch">\n</span><span class="st">11/08/1984,67,0.0</span><span class="ch">\n</span><span class="st">1/24/85,53,1.0</span><span class="ch">\n</span><span class="st">04/12/1985,67,0.0</span><span class="ch">\n</span><span class="st">4/29/85,75,0.0</span><span class="ch">\n</span><span class="st">6/17/85,70,0.0</span><span class="ch">\n</span><span class="st">7/29/85,81,0.0</span><span class="ch">\n</span><span class="st">8/27/85,76,0.0</span><span class="ch">\n</span><span class="st">10/03/1985,79,0.0</span><span class="ch">\n</span><span class="st">10/30/85,75,1.0</span><span class="ch">\n</span><span class="st">11/26/85,76,0.0</span><span class="ch">\n</span><span class="st">01/12/1986,58,1.0</span><span class="ch">\n</span><span class="st">1/28/86,31,1.0</span><span class="ch">\n</span><span class="st">&#39;</span>)</a>
+<a class="sourceLine" id="cb7-6" data-line-number="6">df <span class="op">=</span> pd.read_csv(data).dropna()</a>
+<a class="sourceLine" id="cb7-7" data-line-number="7">X <span class="op">=</span> df[<span class="st">&#39;Temperature&#39;</span>].tolist()</a>
+<a class="sourceLine" id="cb7-8" data-line-number="8">Y <span class="op">=</span> df[<span class="st">&#39;Damage Incident&#39;</span>].tolist()</a></code></pre></div>
+<p>這邊使用 logistic function 做模型，binary cross-entropy 作為 loss function。</p>
+<p><span class="math display">\[
+\begin{gathered}
+f(x) = \frac{1}{1+ exp(\beta x + \alpha)} \\
+Cost(y, \hat y) = -\frac{1}{N}\sum_{i=1}^N \bigg[ y_i \log(\hat{y}_i)+(1-y_i) \log(1-\hat{y}_i) \bigg]
+\end{gathered}
+\]</span> <span><label for="sn-13" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-13" class="margin-toggle"/><span class="marginnote"> 這邊可以看到，寫出來的程式幾乎沒有為了計算微分而改變，而是照著本來的定義在寫。<br />
+<br />
+</span></span></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw">def</span> f(alpha, beta, x):</a>
+<a class="sourceLine" id="cb8-2" data-line-number="2">    <span class="cf">return</span> <span class="dv">1</span> <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> exp(beta <span class="op">*</span> x <span class="op">+</span> alpha))</a>
+<a class="sourceLine" id="cb8-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="kw">def</span> cross_entroy(Y, Y_):</a>
+<a class="sourceLine" id="cb8-5" data-line-number="5">    loss <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb8-6" data-line-number="6">    <span class="cf">for</span> y, y_ <span class="kw">in</span> <span class="bu">zip</span>(Y, Y_):</a>
+<a class="sourceLine" id="cb8-7" data-line-number="7">        loss <span class="op">-=</span> y <span class="op">*</span> log(y_) <span class="op">+</span> (<span class="dv">1</span> <span class="op">-</span> y) <span class="op">*</span> log(<span class="dv">1</span> <span class="op">-</span> y_)</a>
+<a class="sourceLine" id="cb8-8" data-line-number="8">    <span class="cf">return</span> loss <span class="op">/</span> <span class="bu">len</span>(Y)</a></code></pre></div>
+<p>最後使用 Gradient Descent 來找出 <span class="math inline">\(\alpha, \beta\)</span>。</p>
+<p><span><label for="sn-14" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-14" class="margin-toggle"/><span class="marginnote"> <code>alpha</code>, <code>beta</code>, <code>lr</code>, <code>n_epoch</code> 這些參數都是可以設定的。<br />
+<br />
+</span></span></p>
+<p><span><label for="sn-15" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-15" class="margin-toggle"/><span class="marginnote"> 受限於 Forward-Mode AD 先天上的限制，<span class="math inline">\(\alpha\)</span> 跟 <span class="math inline">\(\beta\)</span> 的微分需要分開計算。<br />
+<br />
+</span></span></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb9-1" data-line-number="1">alpha <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb9-2" data-line-number="2">beta  <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb9-3" data-line-number="3">lr <span class="op">=</span> <span class="fl">0.005</span></a>
+<a class="sourceLine" id="cb9-4" data-line-number="4">n_epoch <span class="op">=</span> <span class="dv">1000</span></a>
+<a class="sourceLine" id="cb9-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb9-6" data-line-number="6"><span class="co"># 為了避免 log(0) ，這邊先置換成 0 ≈ 1e-18</span></a>
+<a class="sourceLine" id="cb9-7" data-line-number="7">Y <span class="op">=</span> [<span class="fl">1e-18</span> <span class="cf">if</span> x <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> x <span class="cf">for</span> x <span class="kw">in</span> Y]</a>
+<a class="sourceLine" id="cb9-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb9-9" data-line-number="9"><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(n_epoch):</a>
+<a class="sourceLine" id="cb9-10" data-line-number="10">    Y_alpha <span class="op">=</span> [f(Dual(alpha, <span class="dv">1</span>), beta, x) <span class="cf">for</span> x <span class="kw">in</span> X]</a>
+<a class="sourceLine" id="cb9-11" data-line-number="11">    Y_beta  <span class="op">=</span> [f(alpha, Dual(beta, <span class="dv">1</span>), x) <span class="cf">for</span> x <span class="kw">in</span> X]</a>
+<a class="sourceLine" id="cb9-12" data-line-number="12">    loss_alpha <span class="op">=</span> cross_entroy(Y, Y_alpha)</a>
+<a class="sourceLine" id="cb9-13" data-line-number="13">    loss_beta  <span class="op">=</span> cross_entroy(Y, Y_beta)</a>
+<a class="sourceLine" id="cb9-14" data-line-number="14">    <span class="cf">if</span> epoch <span class="op">%</span> <span class="dv">100</span> <span class="op">==</span> <span class="dv">0</span>:</a>
+<a class="sourceLine" id="cb9-15" data-line-number="15">        <span class="bu">print</span>(<span class="ss">f&#39;</span><span class="sc">{</span>epoch<span class="sc">: 5d}</span><span class="ss"> loss </span><span class="sc">{</span>loss_alpha<span class="sc">.x}</span><span class="ss"> alpha </span><span class="sc">{</span>alpha<span class="sc">}</span><span class="ss"> beta </span><span class="sc">{</span>beta<span class="sc">}</span><span class="ss">&#39;</span>)</a>
+<a class="sourceLine" id="cb9-16" data-line-number="16">    alpha <span class="op">-=</span> lr <span class="op">*</span> loss_alpha.dx</a>
+<a class="sourceLine" id="cb9-17" data-line-number="17">    beta  <span class="op">-=</span> lr <span class="op">*</span> loss_beta.dx</a></code></pre></div>
+<p>這邊是上面程式執行的結果（重新排版過），可以看到 Learning Rate 設定的有點太大了。有興趣的讀者可以試著自己實作看看。</p>
+<pre><code>    0 loss 0.693147180559945  alpha  0                   beta  0
+  100 loss 0.966931426916483  alpha -0.0201008838271800  beta  0.0465418617995232
+  200 loss 1.114664696718874  alpha -0.0417346760460772  beta -0.0170795861942109
+  300 loss 3.558155059566457  alpha -0.0595466871292758  beta  0.1800165252346373
+  400 loss 0.961973323155755  alpha -0.0821799396148940  beta  0.0472951650365717
+  500 loss 1.110644944663376  alpha -0.1037522632990092  beta -0.0161308641984885
+  600 loss 3.555985812065263  alpha -0.1215047609258659  beta  0.1809462252622945
+  700 loss 0.957097575658038  alpha -0.1440822016889158  beta  0.0480494092224557
+  800 loss 1.106712443731962  alpha -0.1655931706446121  beta -0.0151865701942648
+  900 loss 3.553772437842705  alpha -0.1832862200585766  beta  0.1818707335807102</code></pre>
+</section>
+</section>]]></description>
+    <pubDate>Tue, 09 Jan 2018 00:00:00 UT</pubDate>
+    <guid>https://op8867555.github.io/posts/2017-12-17-autodiff.html</guid>
+    <dc:creator>Alex Lu</dc:creator>
+</item>
+<item>
     <title>更換 blog 主題以迎接 2018 年</title>
     <link>https://op8867555.github.io/posts/2018-01-05-new-style.html</link>
-    <description><![CDATA[<p>過了 2017，我決定換掉之前用 Google 的 <a href="https://getmdl.io/">Material Design Lite</a> 手刻的 css，改用了 <a href="https://github.com/edwardtufte/tufte-css">Tufte CSS</a> <span><label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="sidenote">正確來說是它的 pandoc 版 fork “<a href="https://github.com/jez/tufte-pandoc-css">tufte-pandoc-css</a>”<br />
+    <description><![CDATA[<section>
+<p>過了 2017，我決定換掉之前用 Google 的 <a href="https://getmdl.io/">Material Design Lite</a> 手刻的 css，改用了 <a href="https://github.com/edwardtufte/tufte-css">Tufte CSS</a> <span><label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="sidenote">正確來說是它的 pandoc 版 fork “<a href="https://github.com/jez/tufte-pandoc-css">tufte-pandoc-css</a>”<br />
 <br />
 </span></span> 這套以 Edward Tufte 的書籍及手稿<span><label for="sn-2" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-2" class="margin-toggle"/><span class="sidenote">我沒看過，但是就是樣利用兩欄設計，把 foot note 改作 side note 的風格。<br />
 <br />
@@ -25,7 +322,8 @@
 <ul>
 <li>改用 <a href="https://khan.github.io/KaTeX/"><span class="math inline">\(\KaTeX\)</span></a> 這個前端渲染引擎來呈現 LaTeX 的運算式，相較於之前 pandoc 的基本款實作支援更多語法，而且渲染結果也好看了不少。</li>
 <li>使用 pandoc 的 <code>eastAsianLineBreakFilter</code> 來改進中文斷行的呈現。</li>
-</ul>]]></description>
+</ul>
+</section>]]></description>
     <pubDate>Fri, 05 Jan 2018 00:00:00 UT</pubDate>
     <guid>https://op8867555.github.io/posts/2018-01-05-new-style.html</guid>
     <dc:creator>Alex Lu</dc:creator>
@@ -34,7 +332,8 @@
     <title>筆記：幾個 CLI 實用工具: ag, fzf, fd, ripgrep</title>
     <link>https://op8867555.github.io/posts/2017-11-27-cli-tools-ag-rg-fzf-fd.html</link>
     <description><![CDATA[<p>筆記最近用的幾個 CLI 工具。</p>
-<h1 id="the-silver-searcher">The Silver Searcher</h1>
+<section id="the-silver-searcher" class="level1">
+<h1>The Silver Searcher</h1>
 <p><a href="https://github.com/ggreer/the_silver_searcher">The Silver Searcher</a> 是一個類似 ack 的搜尋工具，也就是找出出現某字串的所有檔案。</p>
 <ul>
 <li>飛天快</li>
@@ -43,7 +342,9 @@
 <li>用 c 實作</li>
 <li>直到 <span class="citation" data-cites="caasih">@caasih</span> 提到之前我都沒發現執行檔名稱 <code>ag</code> 是水銀的元素符號</li>
 </ul>
-<h1 id="ripgrep">ripgrep</h1>
+</section>
+<section id="ripgrep" class="level1">
+<h1>ripgrep</h1>
 <p><a href="https://github.com/BurntSushi/ripgrep">Ripgrep</a> 跟前述的 The Silver Searcher 功能差不多</p>
 <ul>
 <li>但是比飛天快還快</li>
@@ -51,7 +352,9 @@
 <li>regexp 的功能比較少（比方說我從來沒用過的 lookaround 跟 backreference 就沒有實作）</li>
 <li>用 rust 實作</li>
 </ul>
-<h1 id="fd">fd</h1>
+</section>
+<section id="fd" class="level1">
+<h1>fd</h1>
 <p><a href="https://github.com/sharkdp/fd">fd</a> 是一個類似 find 的檔案搜尋工具</p>
 <ul>
 <li>也會預設排除 <code>.gitignore</code></li>
@@ -59,7 +362,8 @@
 <li>也是飛天快</li>
 <li>也是 rust 實作</li>
 </ul>
-<h2 id="範例">範例</h2>
+<section id="範例" class="level2">
+<h2>範例</h2>
 <ul>
 <li><p>用 regexp 搜尋</p>
 <pre><code>fd &#39;[0-9]\.jpg$&#39;</code></pre></li>
@@ -100,7 +404,10 @@
 </tbody>
 </table></li>
 </ul>
-<h1 id="fzf">fzf</h1>
+</section>
+</section>
+<section id="fzf" class="level1">
+<h1>fzf</h1>
 <p><a href="https://github.com/junegunn/fzf">fzf</a> 是一個 fuzzy finder，就是 cmd+T 或是 ctrl+p 或是任何一個 文字編輯器/IDE 裡面不用打全名就可以找檔案的那個功能</p>
 <ul>
 <li>用 go 寫的</li>
@@ -121,7 +428,8 @@
 <a href="//imgur.com/SfiGWjD">View post on imgur.com</a>
 </blockquote>
 <script async src="//s.imgur.com/min/embed.js" charset="utf-8"></script></li>
-</ul>]]></description>
+</ul>
+</section>]]></description>
     <pubDate>Mon, 27 Nov 2017 00:00:00 UT</pubDate>
     <guid>https://op8867555.github.io/posts/2017-11-27-cli-tools-ag-rg-fzf-fd.html</guid>
     <dc:creator>Alex Lu</dc:creator>
@@ -163,9 +471,12 @@
 <item>
     <title>應用 git bisect 找出 linux kernel 中出現問題的 commit</title>
     <link>https://op8867555.github.io/posts/2017-10-05-bisecting-linux-kernel-bug.html</link>
-    <description><![CDATA[<h3 id="tldr">TL;DR</h3>
+    <description><![CDATA[<section id="tldr" class="level3">
+<h3>TL;DR</h3>
 <p>這篇文章筆記我使用 git bisect 來找出 linux kernel (drm/i915) 中的導致行為異常的是哪一個 commit 的過程。</p>
-<h1 id="起因">起因</h1>
+</section>
+<section id="起因" class="level1">
+<h1>起因</h1>
 <p>我的筆電上裝的是 Arch Linux，Chromium 在 linux 上是<a href="https://bugs.chromium.org/p/chromium/issues/detail?id=463440">不會有硬體加速功能</a>的，為了減少 CPU 資源的浪費，也為了增加續航力，我使用的是一個非官方版本的 <a href="https://aur.archlinux.org/packages/chromium-vaapi/">chromium-vaapi</a>。</p>
 <p>最近做完系統更新之後發現硬體加速的功能出了些異常，在跟 AUR package 的使用者討論後得知：</p>
 <ul>
@@ -174,13 +485,18 @@
 <li>在一番亂試之後發現到 kernel 降回 4.12 就沒事了！</li>
 </ul>
 <p>做了一些功課之後，我認為這個 bug 是來自於 linux kernel 中 DRM/i915 的部份，於是我便開始嘗試從茫茫 commit 海撈出那個針。</p>
-<h1 id="找出問題之旅">找出問題之旅</h1>
-<h2 id="drm-tip">drm-tip</h2>
+</section>
+<section id="找出問題之旅" class="level1">
+<h1>找出問題之旅</h1>
+<section id="drm-tip" class="level2">
+<h2>drm-tip</h2>
 <p>drm-tip 是裡面包含著不同的幾個團隊所維護的 drm 實作的 linux kernel</p>
 <figure>
 <img src="https://01.org/linuxgraphics/gfx-docs/maintainer-tools/_images/drm-intel-flow.svg" alt="這個 merge flow 很複雜，我也還沒搞懂" /><figcaption>這個 merge flow 很複雜，我也還沒搞懂</figcaption>
 </figure>
-<h2 id="在-archlinux-上編譯">在 ArchLinux 上編譯</h2>
+</section>
+<section id="在-archlinux-上編譯" class="level2">
+<h2>在 ArchLinux 上編譯</h2>
 <p>幸好我不必了解他們是怎麼 merge，只需要 build 起來能測試功能是否正常即可。</p>
 <ul>
 <li>使用 AUR 上面的 <a href="https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=linux-drm-tip-git&amp;id=f2f3487589a22ee728472259f4bd79af75bd782b">linux-drm-tip-git</a> 這個 package 編譯最新的版本</li>
@@ -191,15 +507,20 @@
 <li>先用 <code>makepkg -Asi</code> 編譯安裝一遍。</li>
 <li>然後使用這個版本的 kernel 後發現、恩、問題依舊</li>
 </ul>
-<h2 id="加快編譯速度">加快編譯速度</h2>
+</section>
+<section id="加快編譯速度" class="level2">
+<h2>加快編譯速度</h2>
 <p>我用了兩個工具來加速編譯速度：</p>
 <ul>
 <li><a href="https://wiki.archlinux.org/index.php/ccache">ccache</a>: 幫 gcc 做快取，改善重複編譯所需的時間</li>
 <li><a href="https://wiki.archlinux.org/index.php/Modprobed-db">modprobed-db</a>: 減少所需編譯的模組數</li>
 </ul>
-<h2 id="bisect">bisect</h2>
+</section>
+<section id="bisect" class="level2">
+<h2>bisect</h2>
 <p>要從至少 27000 筆的 commit 中找錯誤，當然不會一筆一筆嘗試。這邊使用的 bisect 就是用經典的演算法「二分搜尋法」來加快尋找的速度。</p>
-<h3 id="步驟">步驟</h3>
+<section id="步驟" class="level3">
+<h3>步驟</h3>
 <ul>
 <li>編譯完之後，進 <code>src/drm-tip</code> 執行 <code>git bisect start</code></li>
 <li>確認問題還在，標記為有問題的版本 <code>git bisect bad</code></li>
@@ -213,12 +534,16 @@
 Bisecting: 13952 revisions left to test after this (roughly 14 steps)
 [73adb8c5b0ea15e3942ab5781eb3e72d4e028ada] Merge tag &#39;for-4.13/dm-fixes-2&#39; of git://git.kernel.org/pub/scm/linux/kernel/git/device-mapper/linux-dm</code></pre></li>
 </ul>
-<h3 id="預估還要幾次查詢">預估還要幾次查詢</h3>
+</section>
+<section id="預估還要幾次查詢" class="level3">
+<h3>預估還要幾次查詢</h3>
 <ul>
 <li><code>git rev-list drm-tip ^6f7da290413b --count</code> 告訴我這兩個中間差了 27906 個 commit</li>
 <li>所以我預期最多還需要 16 次的篩選 (<span class="math inline">\(log_2(27906)+1 \approx 15.77\)</span>)</li>
 </ul>
-<h3 id="繼續尋找問題">繼續尋找問題</h3>
+</section>
+<section id="繼續尋找問題" class="level3">
+<h3>繼續尋找問題</h3>
 <p>這邊就是不斷的重複：</p>
 <ul>
 <li>編譯</li>
@@ -280,15 +605,23 @@ Bisecting: 1 revision left to test after this (roughly 1 step)
 &gt; git bisect good 507d977ff965
 Bisecting: 0 revisions left to test after this (roughly 0 steps)
 [071750e550af46b5d3a84ad56c2a108c3e136284] drm/i915: Disable EXEC_OBJECT_ASYNC when doing relocations</code></pre>
-<h3 id="找出有問題的-commit">找出有問題的 commit</h3>
+</section>
+<section id="找出有問題的-commit" class="level3">
+<h3>找出有問題的 commit</h3>
 <p>不斷重複上面的步驟，最後找出第一個有問題的 commit</p>
 <pre><code>&gt; git bisect good 071750e550af
 2889caa9232109afc8881f29a2205abeb5709d0c is the first bad commit</code></pre>
-<h1 id="後記">後記</h1>
+</section>
+</section>
+</section>
+<section id="後記" class="level1">
+<h1>後記</h1>
 <p>這個過程並不是很輕鬆（編譯一次至少需要 10min，還要重開機測試），將這個找到的這個 commit 回報上去之後，開發者很快的就能找到問題的關鍵點。</p>
 <p>最後得到的結論是，這個問題應該是來自 user space driver 沒有實作正確，於是我回去找了 intel-vaapi-driver 的 issue tracker，才發現到原來早在 3 個星期前就有人<a href="https://github.com/01org/intel-vaapi-driver/issues/262">回報</a>過，而且也已經修正並 merge 回 master 了。囧</p>
 <p>雖然最後發現不是 linux kernel 的問題，不過這也依然是個務實的除錯經驗。</p>
-<h1 id="參考資料">參考資料</h1>
+</section>
+<section id="參考資料" class="level1">
+<h1>參考資料</h1>
 <p><strong>drm/i915</strong></p>
 <ul>
 <li><a href="https://01.org/linuxgraphics/documentation/how-report-bugs">how to report bugs</a></li>
@@ -298,7 +631,8 @@ Bisecting: 0 revisions left to test after this (roughly 0 steps)
 <ul>
 <li><a href="https://wiki.archlinux.org/index.php/Bisecting_bugs">Bisecting bugs</a></li>
 <li><a href="https://project-insanity.org/blog/2013/02/13/how-i-found-a-kernel-regression-using-git-bisect/">How I fixed a kernel regression using git bisect</a></li>
-</ul>]]></description>
+</ul>
+</section>]]></description>
     <pubDate>Thu, 05 Oct 2017 00:00:00 UT</pubDate>
     <guid>https://op8867555.github.io/posts/2017-10-05-bisecting-linux-kernel-bug.html</guid>
     <dc:creator>Alex Lu</dc:creator>
@@ -306,18 +640,24 @@ Bisecting: 0 revisions left to test after this (roughly 0 steps)
 <item>
     <title>用 Python 計算經緯度對應的鄉鎮市區</title>
     <link>https://op8867555.github.io/posts/2017-09-16-python-getting-town-from-gps-coord.html</link>
-    <description><![CDATA[<h3 id="tldr">TL;DR</h3>
+    <description><![CDATA[<section id="tldr" class="level3">
+<h3>TL;DR</h3>
 <p>這篇文章筆記最近朋友問的一個問題： 如何不靠外部 API 取得一個經緯度座標落在哪一個鄉鎮市區。</p>
 <p>這邊應用政府 open data 的 <a href="https://data.gov.tw/dataset/7441">鄉鎮市區界線</a> 資料，加上 python 的 shapely 做範圍判斷、用 rtree 建立索引加速查詢。</p>
-<h1 id="實作筆記">實作筆記</h1>
+</section>
+<section id="實作筆記" class="level1">
+<h1>實作筆記</h1>
 <p>想法很單純，就是透過判斷座標(輸入的經緯度)有沒有落在多邊形(鄉鎮邊界)的範圍內。</p>
-<h2 id="資料來源">資料來源</h2>
+<section id="資料來源" class="level2">
+<h2>資料來源</h2>
 <p>政府有提供<a href="https://data.gov.tw/dataset/7441">鄉鎮市區界線</a>資料，是一個 <a href="https://en.wikipedia.org/wiki/Shapefile">Shapefile</a>。 Python 要讀取 .shp 檔不難，有很多 library 可以做到，可以參考<a href="https://gis.stackexchange.com/questions/113799/how-to-read-a-shapefile-in-python">這篇</a>。</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="im">import</span> fiona</a>
 <a class="sourceLine" id="cb1-2" data-line-number="2"><span class="im">from</span> shapely.geometry <span class="im">import</span> shape, Point</a>
 <a class="sourceLine" id="cb1-3" data-line-number="3"></a>
 <a class="sourceLine" id="cb1-4" data-line-number="4">collection <span class="op">=</span> fiona.<span class="bu">open</span>(<span class="st">&#39;./TOWN_MOI_1060525.shp&#39;</span>)</a></code></pre></div>
-<h2 id="查詢">查詢</h2>
+</section>
+<section id="查詢" class="level2">
+<h2>查詢</h2>
 <p>這邊我使用的是 <code>shapely</code> 這個套件來計算座標有無座落於某個多邊形。 所以先將 .shp 內的 geometry 建立成 shapely 的 Polygon 物件：</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" data-line-number="1">shapes <span class="op">=</span> {}</a>
 <a class="sourceLine" id="cb2-2" data-line-number="2">properties <span class="op">=</span> {}</a>
@@ -331,7 +671,9 @@ Bisecting: 0 revisions left to test after this (roughly 0 steps)
 <a class="sourceLine" id="cb3-2" data-line-number="2">    <span class="cf">return</span> <span class="bu">next</span>((town_id</a>
 <a class="sourceLine" id="cb3-3" data-line-number="3">                 <span class="cf">for</span> town_id <span class="kw">in</span> shapes</a>
 <a class="sourceLine" id="cb3-4" data-line-number="4">                 <span class="cf">if</span> shapes[town_id].contains(Point(x, y))), <span class="va">None</span>)</a></code></pre></div>
-<h2 id="加速查詢">加速查詢</h2>
+</section>
+<section id="加速查詢" class="level2">
+<h2>加速查詢</h2>
 <p>上面的查詢很單純地測試全台灣 368 個鄉鎮市的多邊形了一遍，如果是小量的輸入資料應該還算是可以接受，不過如果需要更細的比對（計算到村里）、或是有大量資料要計算的話，這樣的方法還是不夠有效率。</p>
 <p>因為在查詢一個台北的座標時，其實不用考慮離他太遠的台中、台南…等其他鄉鎮市區。</p>
 <p>基於這樣的想法，這邊用 R-Tree 這個<a href="https://en.wikipedia.org/wiki/R-tree">資料結構</a>來幫這些多邊形的 bounding box（多邊形的最小外接矩形）做索引：</p>
@@ -347,7 +689,9 @@ Bisecting: 0 revisions left to test after this (roughly 0 steps)
 <p>這樣查詢的時間就可以從 <span class="math inline">\(O(N)\)</span> 加快到 <span class="math inline">\(O(log_M N + M)\)</span> 了。以鄉鎮市區來說，在我的筆電上，從本來每次平均需要 3.95ms 提升到每次平均 223 µs，至少快了 16 倍。</p>
 <figure>
 <img src="https://i.imgur.com/MDrOi7i.png" alt="以🇹🇼總統府來舉例，它落在萬華區跟中正區兩個 bounding boxes 裡面" /><figcaption>以🇹🇼總統府來舉例，它落在萬華區跟中正區兩個 bounding boxes 裡面</figcaption>
-</figure>]]></description>
+</figure>
+</section>
+</section>]]></description>
     <pubDate>Sat, 16 Sep 2017 00:00:00 UT</pubDate>
     <guid>https://op8867555.github.io/posts/2017-09-16-python-getting-town-from-gps-coord.html</guid>
     <dc:creator>Alex Lu</dc:creator>
@@ -356,10 +700,14 @@ Bisecting: 0 revisions left to test after this (roughly 0 steps)
     <title>手動編譯 vs 編譯好的 tensorflow</title>
     <link>https://op8867555.github.io/posts/2017-09-09-tensorflow-prebuilt-vs-built-from-source.html</link>
     <description><![CDATA[<p>亂看文章時發現到 tensorflow prebuilt 版跟自己 build 效能有落差（現在想想這也是理所當然的事），於是就來自己編編看到底差多少了。</p>
-<h1 id="實驗">實驗</h1>
-<h2 id="使用的機器">使用的機器</h2>
+<section id="實驗" class="level1">
+<h1>實驗</h1>
+<section id="使用的機器" class="level2">
+<h2>使用的機器</h2>
 <p>Thinkpad X1 Carbon 2017，它的 CPU 是 Intel 的 i7-7500U（對，這顆絕對不適合拿來算這個）</p>
-<h2 id="使用的不同版本">使用的不同版本</h2>
+</section>
+<section id="使用的不同版本" class="level2">
+<h2>使用的不同版本</h2>
 <ul>
 <li><p><a href="https://pypi.python.org/pypi/tensorflow">PyPI 上的版本</a>，沒有機器相關的最佳化。</p></li>
 <li><p><a href="https://software.intel.com/en-us/articles/tensorflow-optimizations-on-modern-intel-architecture">intel 提供的版本</a> 使用 intel 的 Math Kernel library，但是沒有機器相關的最佳化<span><label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="sidenote">沒有做機器相關的最佳化時會有提醒<br />
@@ -371,7 +719,9 @@ Bisecting: 0 revisions left to test after this (roughly 0 steps)
 <li><code>--config=mkl</code> 同 intel 版本</li>
 </ul></li>
 </ul>
-<h2 id="使用的測試案例">使用的測試案例</h2>
+</section>
+<section id="使用的測試案例" class="level2">
+<h2>使用的測試案例</h2>
 <p>使用了 keras 的幾個 <a href="https://github.com/fchollet/keras/tree/master/examples">example</a> 來測試<span><label for="sn-2" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-2" class="margin-toggle"/><span class="sidenote">問我為什麼要用 keras 而不用 tensorflow 就好？因為我還想測 theano 啊…<br />
 <br />
 </span></span>，分別是：</p>
@@ -380,7 +730,9 @@ Bisecting: 0 revisions left to test after this (roughly 0 steps)
 <li>mnist-cnn</li>
 <li>cifar10-cnn</li>
 </ul>
-<h2 id="測試結果">測試結果</h2>
+</section>
+<section id="測試結果" class="level2">
+<h2>測試結果</h2>
 <table>
 <caption>實驗結果（數值是每次 epoch 所花的時間，越小越好）</caption>
 <thead>
@@ -415,7 +767,9 @@ Bisecting: 0 revisions left to test after this (roughly 0 steps)
 <p><span><label for="sn-3" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-3" class="margin-toggle"/><span class="marginnote"> [^1] 因為有 200 個 epoch 要跑，實在要花很多時間，所以這邊就都只取大概 3~4 個 epoch 的時間來算<br />
 <br />
 </span></span></p>
-<h2 id="結論">結論</h2>
+</section>
+<section id="結論" class="level2">
+<h2>結論</h2>
 <ul>
 <li>如果是真心想要用 Intel 的 CPU 跑 tensorflow …
 <ul>
@@ -427,7 +781,9 @@ Bisecting: 0 revisions left to test after this (roughly 0 steps)
 <ul>
 <li>用了 GTX 1060 6GB 的桌電跑 cifar10-cnn ，一個 epoch 只要 25s</li>
 </ul></li>
-</ul>]]></description>
+</ul>
+</section>
+</section>]]></description>
     <pubDate>Sat, 09 Sep 2017 00:00:00 UT</pubDate>
     <guid>https://op8867555.github.io/posts/2017-09-09-tensorflow-prebuilt-vs-built-from-source.html</guid>
     <dc:creator>Alex Lu</dc:creator>
@@ -436,21 +792,27 @@ Bisecting: 0 revisions left to test after this (roughly 0 steps)
     <title>筆記： DS216j 安裝 shadowsocks server</title>
     <link>https://op8867555.github.io/posts/2017-08-27-ds216j-shadowsocks.html</link>
     <description><![CDATA[<p>最近親戚弄了台 Synology DS216j 想拿來架 shadowsocks 的 server，這篇文章筆記我架這個 server 所走的路。</p>
-<h3 id="changelogs">changelogs</h3>
+<section id="changelogs" class="level3">
+<h3>changelogs</h3>
 <ul>
 <li>2017-10-12 紀錄一下，現在上游有編好的 package 能用了</li>
 </ul>
-<h1 id="折騰過程">折騰過程</h1>
+</section>
+<section id="折騰過程" class="level1">
+<h1>折騰過程</h1>
 <p>提到在 NAS 上架 shadowsocks，可以查到很多用 docker 的解決方法，不過網路上的幾篇文章都說這台機器不能用 docker，所以我直接往 binary 的方法前進。</p>
 <p>一開始看到的是這篇 <a href="http://jexbat.com/2016/NAS-Shadowsocks/">Synology DS216Play 安装 ShadowSocks</a>，從這篇文章中得出：</p>
 <ul>
 <li>原來有 package manager 可以用</li>
 <li>shadowsocks 有用 python 跟 libev 的實作可以選</li>
 </ul>
-<h2 id="安裝package-manager">安裝package manager</h2>
+<section id="安裝package-manager" class="level2">
+<h2>安裝package manager</h2>
 <p>朝著安裝 package manager 的方向前進後找到了這篇<a href="https://ky0n.xyz/synology-ds216j-optware-ipkg-init/">Synology DS216j Optware IPKG 介紹</a>。<br />
 看了看發現這是篇翻譯文，而原文有了更新的<a href="http://jasmin.sakura.ne.jp/blog/0245">版本🇯🇵</a>，發現到有 <a href="https://github.com/Entware-ng/Entware-ng/">entware-ng</a> 這個比 ipkg 更新的 package manager 能用，而且已經有 shadowsocks 的<a href="http://pkg.entware.net/binaries/armv7/Packages.html">套件能用</a>。</p>
-<h2 id="安裝-entware-ng">安裝 entware-ng</h2>
+</section>
+<section id="安裝-entware-ng" class="level2">
+<h2>安裝 entware-ng</h2>
 <p>安裝的過程不難，大致上就是開好SSH、照著<a href="https://github.com/Entware-ng/Entware-ng/wiki/Install-on-Synology-NAS">其 wiki 上寫的步驟</a>就行。</p>
 <p>筆記一下步驟：</p>
 <ul>
@@ -482,11 +844,15 @@ opkg install shadowsocks-libev</code></pre>
 <p><del>但是裝完卻發現沒有 <code>ss-server</code> 這個執行檔！原因似乎是因為 entware-ng 沒有跟上流的 openwrt 同步 <span><label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="sidenote"><a href="https://github.com/Entware-ng/entware-packages/commit/e3793bbbde8b907842f84731bfec292ccb069114" class="uri">https://github.com/Entware-ng/entware-packages/commit/e3793bbbde8b907842f84731bfec292ccb069114</a><br />
 <br />
 </span></span>，而不知為何的明明就有新的 Makefile ，除了 mipsel 以外卻沒有新的 binary package 能用。</del></p>
-<h3 id="更新">2017/10/12 更新</h3>
+<section id="更新" class="level3">
+<h3>2017/10/12 更新</h3>
 <p>前一陣子 entware 有跟上游同步過，所以直接安裝 <code>shadowsocks-libev-ss-server</code> 跟 <code>shadowsocks-libev-config</code> 就行了</p>
 <pre><code>opkg install shadowsocks-libev-config
 opkg install shadowsocks-libev-ss-server</code></pre>
-<h2 id="手動編譯">手動編譯</h2>
+</section>
+</section>
+<section id="手動編譯" class="level2">
+<h2>手動編譯</h2>
 <p>沒辦法，只好來自己編。幸好 entware 的 wiki 頁上也有<a href="https://github.com/Entware-ng/Entware-ng/wiki/Compile-packages-from-sources">教學</a>，也是照著做就好。</p>
 <p>Entware-ng 用的是 OpenWrt Buildroot，所以需要先裝好<a href="http://wiki.openwrt.org/doc/howto/buildroot.exigence#install_procedure_on_linux">它依賴的套件</a>。</p>
 <p>為了不把主力機的 Arch Linux 給搞髒了，我決定用找 docker 的方式來解決。<br />
@@ -531,7 +897,9 @@ opkg install shadowsocks-libev-ss-server_3.0.6-2_armv7soft.ipk</code></pre></li>
 <li><p>確認 shadowsocks-libev 可以啟動</p>
 <pre><code>/opt/etc/init.d/S22shadowsocks start</code></pre></li>
 </ul>
-<p>設定好 router 的 NAT，然後用手機之類的測試會動之後，收工。</p>]]></description>
+<p>設定好 router 的 NAT，然後用手機之類的測試會動之後，收工。</p>
+</section>
+</section>]]></description>
     <pubDate>Sun, 27 Aug 2017 00:00:00 UT</pubDate>
     <guid>https://op8867555.github.io/posts/2017-08-27-ds216j-shadowsocks.html</guid>
     <dc:creator>Alex Lu</dc:creator>
@@ -539,12 +907,15 @@ opkg install shadowsocks-libev-ss-server_3.0.6-2_armv7soft.ipk</code></pre></li>
 <item>
     <title>[en] Notes on Thinkpad X1 Carbon 2017 + Arch Linux</title>
     <link>https://op8867555.github.io/posts/2017-06-11-X1C5-notes.html</link>
-    <description><![CDATA[<h3 id="changelogs">changelogs</h3>
+    <description><![CDATA[<section id="changelogs" class="level3">
+<h3>changelogs</h3>
 <ul>
 <li>08/22 update kernel to 4.12; add a WWAN section.</li>
 <li>07/22 rewrite the post in English, remove some outdated information.</li>
 </ul>
-<h1 id="quick-summary">Quick Summary</h1>
+</section>
+<section id="quick-summary" class="level1">
+<h1>Quick Summary</h1>
 <p>I got a Thinkpad X1 Carbon 5th Gen (X1C5) and running Arch Linux (4.12) on it.</p>
 <p>Most stuff works out of box,</p>
 <ul>
@@ -563,9 +934,13 @@ opkg install shadowsocks-libev-ss-server_3.0.6-2_armv7soft.ipk</code></pre></li>
 <li>mini-Ethernet - I don’t have the adapter.</li>
 <li>hibernation - I don’t setup a swap partition.</li>
 </ul>
-<h1 id="topics">Topics</h1>
-<h2 id="trackpoint">TrackPoint</h2>
-<h3 id="alps-or-elantech">ALPS or Elantech</h3>
+</section>
+<section id="topics" class="level1">
+<h1>Topics</h1>
+<section id="trackpoint" class="level2">
+<h2>TrackPoint</h2>
+<section id="alps-or-elantech" class="level3">
+<h3>ALPS or Elantech</h3>
 <p>X1C5 comes with two versions of TrackPoint: ALPS and Elantech<span><label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="sidenote"><a href="https://patchwork.kernel.org/patch/9768231/" class="uri">https://patchwork.kernel.org/patch/9768231/</a><br />
 <br />
 </span></span>.</p>
@@ -576,49 +951,68 @@ Command Line: &quot;C:\Users\alexlu\Desktop\FW_Updater_1.0.0.9\TrackPointDetect.
 OS: 64-bit
 Pst Vendor : Elan
 [ERROR]: This TrackPoint is Elan (ID:03)</code></pre>
-<h3 id="issues">Issues</h3>
+</section>
+<section id="issues" class="level3">
+<h3>Issues</h3>
 <ul>
 <li><p>Recognized as a “PS/2 Generic Mouse”<br />
 ⇒ No palm-detection during trackpoint use</p></li>
 <li><p>Since kernel driver doesn’t support the new trackpoint, both of sensitivity and speed aren’t adjustable.<br />
 ⇒ The default speed/sensitivity is too slow to use.</p></li>
 </ul>
-<h3 id="mark-it-as-a-pointing-stick">Mark it as a pointing stick</h3>
+</section>
+<section id="mark-it-as-a-pointing-stick" class="level3">
+<h3>Mark it as a pointing stick</h3>
 <p>I found I can making libinput treat the “PS/2 Generic Mouse” as a trackpoint using a custom udev hwdb entry.</p>
 <p><em>Note: this should not be used anymore once trackpoint gets kernel driver supports</em></p>
 <pre><code>evdev:name:PS/2 Generic Mouse:dmi:*svnLENOVO*:pvrThinkPadX1Carbon5th*
   ID_INPUT_POINTINGSTICK=1</code></pre>
-<h3 id="better-trackpoint-acceleration">Better TrackPoint Acceleration</h3>
+</section>
+<section id="better-trackpoint-acceleration" class="level3">
+<h3>Better TrackPoint Acceleration</h3>
 <p>There is a <a href="https://bugs.freedesktop.org/show_bug.cgi?id=91369#c48">patch</a> which solves speed issue.</p>
 <p>I get my trackpoint much usable by setting up:</p>
 <ul>
 <li><code>LIBINPUT_ATTR_TRACKPOINT_RANGE=10</code> in hwdb</li>
 <li><code>xinput set-prop &quot;PS/2 Generic Mouse&quot; &quot;libinput Accel Speed&quot; -0.25</code> in my .xinitrc</li>
 </ul>
-<h2 id="trackpad">TrackPad</h2>
+</section>
+</section>
+<section id="trackpad" class="level2">
+<h2>TrackPad</h2>
 <p>The trackpad is <ins>able to</ins> use rmi4 over smbus for now(4.12).</p>
 <p>Turn it on by creating a <code>psmouse.conf</code> in <code>/etc/modprobe.d/</code></p>
 <pre><code>options psmouse synaptics_intertouch=1</code></pre>
-<h3 id="palm-detection">Palm Detection</h3>
+<section id="palm-detection" class="level3">
+<h3>Palm Detection</h3>
 <ul>
 <li>pressure-based palm-detection works great (libinput ≥ 1.8)</li>
 <li>palm-detection during trackpoint use requires <a href="#mark-it-as-a-pointing-stick">mark it as a pointing stick</a>.</li>
 </ul>
-<h2 id="new-hotkeys">New Hotkeys</h2>
+</section>
+</section>
+<section id="new-hotkeys" class="level2">
+<h2>New Hotkeys</h2>
 <p>Before linux-4.12, You needs <a href="https://patchwork.kernel.org/patch/9596129/">these</a> <a href="https://patchwork.kernel.org/patch/9596131/">patches</a> to get these buttons works.</p>
-<h2 id="fingerprint-reader">Fingerprint Reader</h2>
+</section>
+<section id="fingerprint-reader" class="level2">
+<h2>Fingerprint Reader</h2>
 <p>X1C5 have a Validity Sensor 138a:0097. There is no driver for it.</p>
 <p>Furthermore,</p>
 <ul>
 <li><a href="https://github.com/nmikhailov/Validity90">Validity90</a> - an open source reverse engineered driver (WIP).</li>
 <li><a href="https://bugs.freedesktop.org/show_bug.cgi?id=94536">a bug report of libfprint</a></li>
 </ul>
-<h2 id="wwan">WWAN</h2>
+</section>
+<section id="wwan" class="level2">
+<h2>WWAN</h2>
 <p>X1C5 (WWAN) comes with a Sierra EM7455 LTE Modem (1199:9079).</p>
 <p>It works out of box using latest ModemManager.</p>
-<h3 id="connecting-without-networkmanager">connecting without NetworkManager</h3>
+<section id="connecting-without-networkmanager" class="level3">
+<h3>connecting without NetworkManager</h3>
 <p>I’m wondering if there is a better way to do this…</p>
-<h4 id="connecting">connecting</h4>
+<section id="connecting" class="level4">
+<h4>connecting</h4>
 <ul>
 <li>find modem id: <code>mmcli -L</code></li>
 <li>connect: <code>mmcli -m $MODEM --simple-connect=&quot;apn=internet&quot;</code></li>
@@ -631,19 +1025,27 @@ Pst Vendor : Elan
 <li>assign a static IP: <code>ip addr add $IP_ADDR/$PREFIX broadcast $BROADCAST_ADDR dev $IFACE</code></li>
 <li>add a route: <code>ip route add default via $GATEWAY</code></li>
 </ul>
-<h4 id="disconnecting">disconnecting</h4>
+</section>
+<section id="disconnecting" class="level4">
+<h4>disconnecting</h4>
 <ul>
 <li>bring the interface down</li>
 <li>remove route for it</li>
 <li>remove static IP assignment</li>
 <li><code>mmcli -m $MODEM --simple-disconnect</code></li>
 </ul>
-<h1 id="references">References</h1>
+</section>
+</section>
+</section>
+</section>
+<section id="references" class="level1">
+<h1>References</h1>
 <ul>
 <li><a href="https://gist.github.com/gdamjan/141bb0def5f80257fae2b233ec16f3c2">gdamjan’s Note</a></li>
 <li><a href="http://fredrik.wendt.se/2017/04/26/lenovo-thinkpad-x1-carbon-5th-generation/">Fredrik’s Note</a></li>
 <li><a href="https://forums.lenovo.com/t5/forums/v3_1/forumtopicpage/board-id/tp02_en/thread-id/75464/page/29">discussion about TrackPad</a></li>
-</ul>]]></description>
+</ul>
+</section>]]></description>
     <pubDate>Tue, 22 Aug 2017 00:00:00 UT</pubDate>
     <guid>https://op8867555.github.io/posts/2017-06-11-X1C5-notes.html</guid>
     <dc:creator>Alex Lu</dc:creator>
@@ -651,15 +1053,19 @@ Pst Vendor : Elan
 <item>
     <title>用 VEGA 資料視覺化</title>
     <link>https://op8867555.github.io/posts/2017-08-11-vega.html</link>
-    <description><![CDATA[<h3 id="tldr">tl;dr</h3>
+    <description><![CDATA[<section id="tldr" class="level3">
+<h3>tl;dr</h3>
 <p><a href="https://vega.github.io/vega/">Vega</a> 是一個種描述互動視覺化的文法(JSON 規格)，相對於低階的 <a href="https://d3js.org/">d3.js</a>，提供了一個不用碰太多 JavaScript 就能編寫圖表的高階宣告式語法。這篇文章簡述 <a href="https://vega.github.io/vega/">Vega</a> 的概念，然後以 COSCUP 2017 的議程表為題寫了一個 tutorial（<a href="https://vega.github.io/editor/#/gist/vega/op8867555/5af6189b957373bf0ff9969c8e3d426a">完成品</a>）。</p>
 <p>另外，如果只有簡單的資料（csv, json…等），又只需要基本的幾種圖，可以考慮使用 <a href="https://vega.github.io/vega-lite/">vega-lite</a> 這個比 vega 還要高階的語言來做。</p>
-<h1 id="vega">VEGA</h1>
+</section>
+<section id="vega" class="level1">
+<h1>VEGA</h1>
 <blockquote>
 <p>Vega is a visualization grammar, a declarative language for creating, saving, and sharing interactive visualization designs. With Vega, you can describe the visual appearance and interactive behavior of a visualization in a JSON format, and generate web-based views using Canvas or SVG.</p>
 </blockquote>
 <p><a href="https://vega.github.io/vega/">Vega</a> 是 Washington Interactive Data Lab 的另一個專案(就是那個做 <a href="https://d3js.org/">d3.js</a> 的 IDL)，提出了一個 JSON 格式的文法，用來描述互動式的視覺化圖表，也一併給了 JavaScript 的 Runtime 實作。(背後很理所當然的用了 <a href="https://d3js.org/">d3.js</a> 作為 backend)</p>
-<h2 id="為什麼不用-d3-就好">為什麼不用 d3 就好</h2>
+<section id="為什麼不用-d3-就好" class="level2">
+<h2>為什麼不用 d3 就好</h2>
 <p>雖然不太一樣，但是可以先看看兩者實作 bar chart 的方式： <a href="https://bl.ocks.org/mbostock/3885304">d3</a>, <a href="https://vega.github.io/vega/examples/bar-chart/">vega</a>。</p>
 <p>可以看到幾點：</p>
 <ul>
@@ -672,7 +1078,9 @@ Pst Vendor : Elan
 <li>比起 js ， JSON 格式更好自動生成，也就是更好串接在其他應用</li>
 </ul>
 <p>Vega 團隊<a href="https://github.com/vega/vega/wiki/Vega-and-D3">有講明</a> Vega 的目的並不是要取代 d3.js ，而是在 d3.js 的基礎上，建立更高層度的視覺化。</p>
-<h2 id="長什麼樣子">長什麼樣子</h2>
+</section>
+<section id="長什麼樣子" class="level2">
+<h2>長什麼樣子</h2>
 <p>官網給的一個 bar chart 的範例長的像<a href="https://vega.github.io/vega/examples/bar-chart/">這樣</a>，可以發現幾乎看不到程式碼。</p>
 <p>下面這個是從 <a href="https://vega.github.io/vega/docs/specification/">specification</a> 抄來的基本款 outline</p>
 <ul>
@@ -705,7 +1113,9 @@ Pst Vendor : Elan
 <li><code>marks</code> 用來畫出折線、面積、矩形…等所有表現資料的部份，是整張圖核心的部份。</li>
 </ul>
 <p>畫圖所需要的元素 VEGA 團隊都適當的設計了出來，剩下的就是使用者依照需求填空了。</p>
-<h2 id="如何開始">如何開始</h2>
+</section>
+<section id="如何開始" class="level2">
+<h2>如何開始</h2>
 <p>如果想要開始使用，可以先看官方網站上的兩個 tutorials 寫的簡單好懂（當然還是需要看 documentation 就是了）</p>
 <ul>
 <li><a href="https://vega.github.io/vega/tutorials/bar-chart/">Let’s Make A Bar Chart</a> 介紹了最基本的幾個元素: data, scale, axes, marks, signals</li>
@@ -713,13 +1123,19 @@ Pst Vendor : Elan
 </ul>
 <p>除此之外，官方網站上也有一個線上的 WYSIWYG 編輯器： <a href="https://vega.github.io/editor">Vega Editor</a>，裡面有很多範例可以 <del>塗塗改改</del> 參考。</p>
 <p>剩下的就是讀<a href="https://vega.github.io/vega/docs/">文件</a>啦。</p>
-<h1 id="tutorial">tutorial</h1>
+</section>
+</section>
+<section id="tutorial" class="level1">
+<h1>tutorial</h1>
 <p>因為這次 COSCUP 2017 官網最早沒有釋出時間線形式的議程表，但是有給足自幹需要的資料， 就發現<a href="https://docs.google.com/spreadsheets/d/1gVQtWEqOZLsDtk1j-_TrPqq_nWN5VcTtWLpme3yl3Zc/edit#gid=98295178">大家都自幹了一份</a>，於是我就用 vega 也兜了一個簡單的版本，也就順便以此為原形，寫了這篇 tutorial。</p>
 <p><em>這篇 tutorial 會簡述怎麼從零開始到做出一個這樣議程表</em></p>
 <p><img src="http://i.imgur.com/HUAwF8k.png" class="half-page center" /></p>
-<h2 id="準備">準備</h2>
+<section id="準備" class="level2">
+<h2>準備</h2>
 <p>打開 <a href="https://vega.github.io/editor">Vega Editor</a>，就可以開始了。</p>
-<h2 id="top-level">top-level</h2>
+</section>
+<section id="top-level" class="level2">
+<h2>top-level</h2>
 <p>首先要先有個最簡單的雛型，宣告 schema 版本、圖的大小等</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co">// vg.json</span></a>
 <a class="sourceLine" id="cb2-2" data-line-number="2"><span class="op">{</span></a>
@@ -728,7 +1144,9 @@ Pst Vendor : Elan
 <a class="sourceLine" id="cb2-5" data-line-number="5">  <span class="st">&quot;height&quot;</span><span class="op">:</span> <span class="dv">1600</span><span class="op">,</span></a>
 <a class="sourceLine" id="cb2-6" data-line-number="6">  <span class="st">&quot;padding&quot;</span><span class="op">:</span> <span class="dv">50</span></a>
 <a class="sourceLine" id="cb2-7" data-line-number="7"><span class="op">}</span></a></code></pre></div>
-<h2 id="data">Data</h2>
+</section>
+<section id="data" class="level2">
+<h2>Data</h2>
 <p>這次的資料是 COSCUP 2017 官網所使用的 <a href="https://coscup.org/2017-assets/json/submissions.json">submissions.json</a>，是一個 array of records ，如下：</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="co">// submissions.json</span></a>
 <a class="sourceLine" id="cb3-2" data-line-number="2">[</a>
@@ -764,7 +1182,9 @@ Pst Vendor : Elan
 <div class="sourceCode" id="cb5"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="va">VEGA_DEBUG</span>.<span class="va">view</span>.<span class="at">data</span>(<span class="st">&#39;table&#39;</span>)</a>
 <a class="sourceLine" id="cb5-2" data-line-number="2"><span class="co">// (141) [Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, …]</span></a></code></pre></div>
 <p>可以觀察到資料有正確載入。</p>
-<h2 id="scale-axes">Scale, Axes</h2>
+</section>
+<section id="scale-axes" class="level2">
+<h2>Scale, Axes</h2>
 <p>載入資料之後、把圖畫出來之前，需要先將資料的範圍映射圖的X/Y座標：</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="co">// vg.json 的片段</span></a>
 <a class="sourceLine" id="cb6-2" data-line-number="2">  <span class="st">&quot;scales&quot;</span><span class="op">:</span> [</a>
@@ -802,7 +1222,9 @@ Pst Vendor : Elan
 <a class="sourceLine" id="cb7-4" data-line-number="4">    <span class="op">{</span> <span class="st">&quot;orient&quot;</span><span class="op">:</span> <span class="st">&quot;bottom&quot;</span><span class="op">,</span> <span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;xscale&quot;</span> <span class="op">},</span></a>
 <a class="sourceLine" id="cb7-5" data-line-number="5">    <span class="op">{</span> <span class="st">&quot;orient&quot;</span><span class="op">:</span> <span class="st">&quot;left&quot;</span><span class="op">,</span> <span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;yscale&quot;</span> <span class="op">}</span></a>
 <a class="sourceLine" id="cb7-6" data-line-number="6">  ]</a></code></pre></div>
-<h2 id="marks">Marks</h2>
+</section>
+<section id="marks" class="level2">
+<h2>Marks</h2>
 <p>我希望將每個議程用方塊的方式畫出來，做出時間表的的效果。</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="co">// vg.json 的片段</span></a>
 <a class="sourceLine" id="cb8-2" data-line-number="2">  <span class="st">&quot;marks&quot;</span><span class="op">:</span> [</a>
@@ -848,7 +1270,9 @@ Pst Vendor : Elan
 <p>另外，可以用 <code>tooltip</code> 屬性來顯示議程的主題：</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="co">// vg.json 的片段，marks[0][&quot;encode&quot;][&quot;enter&quot;] 裡面</span></a>
 <a class="sourceLine" id="cb11-2" data-line-number="2">  <span class="st">&quot;tooltip&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;field&quot;</span><span class="op">:</span> <span class="st">&quot;subject&quot;</span><span class="op">}</span></a></code></pre></div>
-<h2 id="transform">Transform</h2>
+</section>
+<section id="transform" class="level2">
+<h2>Transform</h2>
 <p>可以看到第一天議程結束到第二天議程結束有一大段空閒，可以用 transform 的 filter 來選擇只用哪一部分的資料。</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="co">// vg.json 的片段，data 底下</span></a>
 <a class="sourceLine" id="cb12-2" data-line-number="2"><span class="st">&quot;transform&quot;</span><span class="op">:</span> [</a>
@@ -858,7 +1282,9 @@ Pst Vendor : Elan
 <a class="sourceLine" id="cb12-6" data-line-number="6">  <span class="op">}</span></a>
 <a class="sourceLine" id="cb12-7" data-line-number="7">]</a></code></pre></div>
 <p><code>expr</code> 吃一個 vega 精簡過的 javascript subset，用來給 <code>filter</code> 決定保留與否。</p>
-<h2 id="signals">Signals</h2>
+</section>
+<section id="signals" class="level2">
+<h2>Signals</h2>
 <p>我不會永遠只想看其中一天，也不希望要看隔天的議程還要做修改這份 vega json。好在 vega 提供了一些方便的 signal，我這邊選用了他現成的 radio input：會在圖上面加上一個互動的 radio button，然後綁定成一個 signal。</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="co">// vg.json 的片段</span></a>
 <a class="sourceLine" id="cb13-2" data-line-number="2"><span class="st">&quot;signals&quot;</span><span class="op">:</span> [</a>
@@ -871,7 +1297,9 @@ Pst Vendor : Elan
 <p>綁定過的 signal 可以作為 <code>expr</code> 內的變數使用</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="co">// vg.json 的片段，修改 data[&quot;transform&quot;][0][&quot;expr&quot;]</span></a>
 <a class="sourceLine" id="cb14-2" data-line-number="2"><span class="st">&quot;expr&quot;</span><span class="op">:</span> <span class="st">&quot;datum.start &gt;= datetime(2017, 8-1, day) &amp;&amp; datum.end &lt; datetime(2017, 8-1, day)&quot;</span></a></code></pre></div>
-<h2 id="完成">完成</h2>
+</section>
+<section id="完成" class="level2">
+<h2>完成</h2>
 <p>一個簡單的<a href="https://vega.github.io/editor/#/gist/vega/op8867555/5af6189b957373bf0ff9969c8e3d426a">議程時間表</a>就完成啦！當然還有很多可以增加/改進的地方，像是：</p>
 <ul>
 <li>顯示更多情報：講者、議程摘要…</li>
@@ -880,192 +1308,16 @@ Pst Vendor : Elan
 <li>想辦法支援行動瀏覽器，手機版的 chrome 就不支援顯示 tooltip</li>
 <li>…</li>
 </ul>
-<h1 id="總結">總結</h1>
+</section>
+</section>
+<section id="總結" class="level1">
+<h1>總結</h1>
 <p>我最後的成果放在<a href="https://op8867555.github.io/coscup2017-submissions/index.html">這邊</a>，雖然不完美，但是也讓我在很短的時間內完成了一個堪用的成品。</p>
 <p><em>利用 Vega 這個工具，可以迅速得做出簡單好讀寫（相對於 d3.js），但又不失彈性的視覺化成果。</em></p>
-<p>題外話，雖然 JSON 還算是好讀寫，但是實際還是不太適合人類直接編寫，要的話用 YAML 或是再幹一個 DSL 可能會比較方便。</p>]]></description>
+<p>題外話，雖然 JSON 還算是好讀寫，但是實際還是不太適合人類直接編寫，要的話用 YAML 或是再幹一個 DSL 可能會比較方便。</p>
+</section>]]></description>
     <pubDate>Fri, 11 Aug 2017 00:00:00 UT</pubDate>
     <guid>https://op8867555.github.io/posts/2017-08-11-vega.html</guid>
-    <dc:creator>Alex Lu</dc:creator>
-</item>
-<item>
-    <title>ADAM CASA Hub A01 在 Linux 使用狀況＆個人心得</title>
-    <link>https://op8867555.github.io/posts/2017-07-21-adam-usb-c-dock.html</link>
-    <description><![CDATA[<h1 id="tldr">TL;DR</h1>
-<p>我買了一個 ADAM CASA Hub A01 ，用來搭配 X1C5 使用，環境是 Arch Linux + Kernel 4.11，我測試了下列項目都正常運作：</p>
-<ul>
-<li>1080p 外接螢幕</li>
-<li>USB 鍵盤、滑鼠</li>
-<li>USB 3 外接 HDD</li>
-<li>Type C Power Delivery 充電</li>
-<li>網路孔</li>
-</ul>
-<h1 id="使用心得">使用心得</h1>
-<p>上個月買了新筆電，因為 USB 孔比之前的少，也少了網路孔，HDMI 的位置也落在比較不方便的左手邊，就一直想找款 USB-c hub 來當成 dock 用。可能是因為 usb c 相對還算新玩意兒，網路上找不太到這類產品的資源。找了一圈之後，最後決定訂了這隻台廠的 hub，主要的原因是：</p>
-<ul>
-<li>滿足我的需求：
-<ul>
-<li>不能是專為蘋果設計的 <em>(yuck)</em></li>
-<li>至少一個 USB port</li>
-<li>網路孔</li>
-<li>HDMI 輸出</li>
-<li>可以的話有 type c 的 PowerDelivery</li>
-</ul></li>
-<li>官方網站有寫<strong>支援 Linux</strong><br />
-身為一個 linux user ，這點的加分實在很大。其他類似的產品都只寫支援 mac / chromebook。</li>
-</ul>
-<h2 id="批評">批評</h2>
-<p>這邊來談談我個人體感的幾個缺點</p>
-<ul>
-<li><p><strong>線的長度太短</strong><br />
-這個產品設計應該沒有考慮到平放於桌上以外的狀況，我只是將筆電墊高了約 5cm，就可以明顯感受到這個問題。</p>
-<p><img src="http://i.imgur.com/Kc6ECEA.jpg" /></p>
-<p>我得再花個幾百 NTD 買條延長線或是想辦法架高 hub 來解決這個問題。</p></li>
-<li><p><strong>開口方向設計不實用</strong><br />
-當像我一樣，usb c port 在筆電左方時，有幾個擺放方式：</p>
-<ol type="a">
-<li>橫著正放（開口向正面）： HDMI 跟 PD 面對正面 ⇒ NO</li>
-<li>橫著倒放（開口向背面）： SD 卡 ⇒ NO</li>
-<li>直著放（開口向左）： 網路孔面對正面 ⇒ NO</li>
-</ol>
-<p>沒有一個辦法是完美的，不過市面上的其他場品也有類似的問題。</p></li>
-</ul>
-<h1 id="一些-log">一些 log</h1>
-<h2 id="usb-裝置">USB 裝置</h2>
-<p><code>lsusb</code> 會多出下列裝置</p>
-<pre><code>Bus 004 Device 003: ID 0bda:8153 Realtek Semiconductor Corp. RTL8153 Gigabit Ethernet Adapter
-Bus 004 Device 002: ID 2109:0813 VIA Labs, Inc. 
-Bus 004 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
-Bus 003 Device 008: ID 2109:0100 VIA Labs, Inc. 
-Bus 003 Device 006: ID 05e3:0752 Genesys Logic, Inc. 
-Bus 003 Device 004: ID 05e3:0618 Genesys Logic, Inc. 
-Bus 003 Device 002: ID 2109:2813 VIA Labs, Inc. 
-Bus 003 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub</code></pre>
-<h2 id="xrandr">xRandr</h2>
-<ul>
-<li>HDMI 接上螢幕之後，會在接在 DP1 或是 DP2 輸出。</li>
-<li>EDID 跟原本的一樣不變 (會 passthrough)。</li>
-</ul>
-<pre class="half-page"><code>Screen 0: minimum 8 x 8, current 3000 x 1920, maximum 32767 x 32767
-DP1 disconnected (normal left inverted right x axis y axis)
-DP2 connected 1080x1920+1920+0 right (normal left inverted right x axis y axis) 480mm x 270mm
-   1920x1080     60.00*+  50.00    59.94  
-   1920x1080i    60.00    50.00    59.94  
-   1680x1050     59.88  
-   1600x900      60.00  
-   1280x1024     60.02  
-   1280x800      59.91  
-   1280x720      60.00    50.00    59.94  
-   1024x768      60.00  
-   800x600       60.32  
-   720x576       50.00  
-   720x480       60.00    59.94  
-   640x480       60.00    59.94  
-HDMI1 disconnected (normal left inverted right x axis y axis)
-VIRTUAL1 disconnected (normal left inverted right x axis y axis)</code></pre>
-<h2 id="dmesg">Dmesg</h2>
-<pre class="half-page"><code>[388483.356326] ucsi_acpi USBC000:00: ucsi_connector_change: failed to read connector status (-110)
-[388485.016551] pci 0000:06:00.0: [8086:15d3] type 01 class 0x060400
-[388485.016800] pci 0000:06:00.0: supports D1 D2
-[388485.016803] pci 0000:06:00.0: PME# supported from D0 D1 D2 D3hot D3cold
-[388485.017256] pci 0000:07:00.0: [8086:15d3] type 01 class 0x060400
-[388485.017402] pci 0000:07:00.0: supports D1 D2
-[388485.017404] pci 0000:07:00.0: PME# supported from D0 D1 D2 D3hot D3cold
-[388485.017525] pci 0000:07:01.0: [8086:15d3] type 01 class 0x060400
-[388485.017665] pci 0000:07:01.0: supports D1 D2
-[388485.017667] pci 0000:07:01.0: PME# supported from D0 D1 D2 D3hot D3cold
-[388485.017788] pci 0000:07:02.0: [8086:15d3] type 01 class 0x060400
-[388485.017929] pci 0000:07:02.0: supports D1 D2
-[388485.017930] pci 0000:07:02.0: PME# supported from D0 D1 D2 D3hot D3cold
-[388485.018053] pci 0000:07:04.0: [8086:15d3] type 01 class 0x060400
-[388485.018194] pci 0000:07:04.0: supports D1 D2
-[388485.018196] pci 0000:07:04.0: PME# supported from D0 D1 D2 D3hot D3cold
-[388485.018336] pci 0000:06:00.0: PCI bridge to [bus 07-70]
-[388485.018348] pci 0000:06:00.0:   bridge window [mem 0xbc000000-0xea0fffff]
-[388485.018357] pci 0000:06:00.0:   bridge window [mem 0x70000000-0xb9ffffff 64bit pref]
-[388485.018431] pci 0000:07:00.0: PCI bridge to [bus 08]
-[388485.018442] pci 0000:07:00.0:   bridge window [mem 0xea000000-0xea0fffff]
-[388485.018515] pci 0000:07:01.0: PCI bridge to [bus 09-3b]
-[388485.018526] pci 0000:07:01.0:   bridge window [mem 0xbc000000-0xd3efffff]
-[388485.018534] pci 0000:07:01.0:   bridge window [mem 0x70000000-0x8fffffff 64bit pref]
-[388485.018637] pci 0000:3c:00.0: [8086:15d4] type 00 class 0x0c0330
-[388485.018663] pci 0000:3c:00.0: reg 0x10: [mem 0xd3f00000-0xd3f0ffff]
-[388485.018858] pci 0000:3c:00.0: supports D1 D2
-[388485.018860] pci 0000:3c:00.0: PME# supported from D0 D1 D2 D3hot D3cold
-[388485.019054] pci 0000:07:02.0: PCI bridge to [bus 3c]
-[388485.019066] pci 0000:07:02.0:   bridge window [mem 0xd3f00000-0xd3ffffff]
-[388485.019141] pci 0000:07:04.0: PCI bridge to [bus 3d-70]
-[388485.019152] pci 0000:07:04.0:   bridge window [mem 0xd4000000-0xe9ffffff]
-[388485.019160] pci 0000:07:04.0:   bridge window [mem 0x90000000-0xb9ffffff 64bit pref]
-[388485.019194] pci_bus 0000:07: Allocating resources
-[388485.019235] pci 0000:07:01.0: bridge window [io  0x1000-0x0fff] to [bus 09-3b] add_size 1000
-[388485.019246] pci 0000:07:02.0: bridge window [io  0x1000-0x0fff] to [bus 3c] add_size 1000
-[388485.019249] pci 0000:07:02.0: bridge window [mem 0x00100000-0x000fffff 64bit pref] to [bus 3c] add_size 200000 add_align 100000
-[388485.019260] pci 0000:07:04.0: bridge window [io  0x1000-0x0fff] to [bus 3d-70] add_size 1000
-[388485.019272] pci 0000:06:00.0: bridge window [io  0x1000-0x0fff] to [bus 07-70] add_size 3000
-[388485.019277] pci 0000:06:00.0: BAR 13: no space for [io  size 0x3000]
-[388485.019279] pci 0000:06:00.0: BAR 13: failed to assign [io  size 0x3000]
-[388485.019283] pci 0000:06:00.0: BAR 13: no space for [io  size 0x3000]
-[388485.019285] pci 0000:06:00.0: BAR 13: failed to assign [io  size 0x3000]
-[388485.019293] pci 0000:07:02.0: BAR 15: no space for [mem size 0x00200000 64bit pref]
-[388485.019295] pci 0000:07:02.0: BAR 15: failed to assign [mem size 0x00200000 64bit pref]
-[388485.019297] pci 0000:07:01.0: BAR 13: no space for [io  size 0x1000]
-[388485.019298] pci 0000:07:01.0: BAR 13: failed to assign [io  size 0x1000]
-[388485.019301] pci 0000:07:02.0: BAR 13: no space for [io  size 0x1000]
-[388485.019302] pci 0000:07:02.0: BAR 13: failed to assign [io  size 0x1000]
-[388485.019304] pci 0000:07:04.0: BAR 13: no space for [io  size 0x1000]
-[388485.019306] pci 0000:07:04.0: BAR 13: failed to assign [io  size 0x1000]
-[388485.019309] pci 0000:07:04.0: BAR 13: no space for [io  size 0x1000]
-[388485.019311] pci 0000:07:04.0: BAR 13: failed to assign [io  size 0x1000]
-[388485.019315] pci 0000:07:02.0: BAR 15: no space for [mem size 0x00200000 64bit pref]
-[388485.019317] pci 0000:07:02.0: BAR 15: failed to assign [mem size 0x00200000 64bit pref]
-[388485.019318] pci 0000:07:02.0: BAR 13: no space for [io  size 0x1000]
-[388485.019320] pci 0000:07:02.0: BAR 13: failed to assign [io  size 0x1000]
-[388485.019322] pci 0000:07:01.0: BAR 13: no space for [io  size 0x1000]
-[388485.019324] pci 0000:07:01.0: BAR 13: failed to assign [io  size 0x1000]
-[388485.019327] pci 0000:07:00.0: PCI bridge to [bus 08]
-[388485.019334] pci 0000:07:00.0:   bridge window [mem 0xea000000-0xea0fffff]
-[388485.019369] pci 0000:07:01.0: PCI bridge to [bus 09-3b]
-[388485.019375] pci 0000:07:01.0:   bridge window [mem 0xbc000000-0xd3efffff]
-[388485.019380] pci 0000:07:01.0:   bridge window [mem 0x70000000-0x8fffffff 64bit pref]
-[388485.019389] pci 0000:07:02.0: PCI bridge to [bus 3c]
-[388485.019395] pci 0000:07:02.0:   bridge window [mem 0xd3f00000-0xd3ffffff]
-[388485.019404] pci 0000:07:04.0: PCI bridge to [bus 3d-70]
-[388485.019409] pci 0000:07:04.0:   bridge window [mem 0xd4000000-0xe9ffffff]
-[388485.019413] pci 0000:07:04.0:   bridge window [mem 0x90000000-0xb9ffffff 64bit pref]
-[388485.019420] pci 0000:06:00.0: PCI bridge to [bus 07-70]
-[388485.019425] pci 0000:06:00.0:   bridge window [mem 0xbc000000-0xea0fffff]
-[388485.019429] pci 0000:06:00.0:   bridge window [mem 0x70000000-0xb9ffffff 64bit pref]
-[388485.021125] xhci_hcd 0000:3c:00.0: xHCI Host Controller
-[388485.021134] xhci_hcd 0000:3c:00.0: new USB bus registered, assigned bus number 3
-[388485.022313] xhci_hcd 0000:3c:00.0: hcc params 0x200077c1 hci version 0x110 quirks 0x00009810
-[388485.024330] hub 3-0:1.0: USB hub found
-[388485.024341] hub 3-0:1.0: 2 ports detected
-[388485.024949] xhci_hcd 0000:3c:00.0: xHCI Host Controller
-[388485.024955] xhci_hcd 0000:3c:00.0: new USB bus registered, assigned bus number 4
-[388485.025136] hub 4-0:1.0: USB hub found
-[388485.025146] hub 4-0:1.0: 2 ports detected
-[388485.342798] usb 3-1: new high-speed USB device number 2 using xhci_hcd
-[388485.480782] hub 3-1:1.0: USB hub found
-[388485.481599] hub 3-1:1.0: 4 ports detected
-[388485.627543] usb 4-1: new SuperSpeed USB device number 2 using xhci_hcd
-[388485.730586] hub 4-1:1.0: USB hub found
-[388485.730871] hub 4-1:1.0: 4 ports detected
-[388485.812902] usb 3-1.3: new high-speed USB device number 3 using xhci_hcd
-[388485.922630] hub 3-1.3:1.0: USB hub found
-[388485.922928] hub 3-1.3:1.0: 4 ports detected
-[388486.112908] usb 4-1.4: new SuperSpeed USB device number 3 using xhci_hcd
-[388486.202794] usb 3-1.3.1: new high-speed USB device number 4 using xhci_hcd
-[388486.298596] usb-storage 3-1.3.1:1.0: USB Mass Storage device detected
-[388486.298988] scsi host0: usb-storage 3-1.3.1:1.0
-[388486.366550] usb 4-1.4: reset SuperSpeed USB device number 3 using xhci_hcd
-[388486.440411] r8152 4-1.4:1.0 eth0: v1.08.9
-[388486.772835] usb 3-1.3.3: new high-speed USB device number 5 using xhci_hcd
-[388486.989538] r8152 4-1.4:1.0 enp60s0u1u4: renamed from eth0
-[388487.321672] scsi 0:0:0:0: Direct-Access     Generic  STORAGE DEVICE   0233 PQ: 0 ANSI: 0
-[388487.325495] sd 0:0:0:0: [sda] Attached SCSI removable disk</code></pre>]]></description>
-    <pubDate>Fri, 21 Jul 2017 00:00:00 UT</pubDate>
-    <guid>https://op8867555.github.io/posts/2017-07-21-adam-usb-c-dock.html</guid>
     <dc:creator>Alex Lu</dc:creator>
 </item>
 

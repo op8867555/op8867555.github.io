@@ -8,7 +8,7 @@
     <title>Alex's Blog - 用 VEGA 資料視覺化</title>
     <meta name="robots" content="index, follow" />
     <link rel="alternate" href="/feed.xml" title="Alex Lu's Blog" type="application/atom+xml">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tufte-css/1.3/tufte.min.css" integrity="sha256-RB2fOyr8UMnkP7bVbAtAqgocMxqG+TDqly7ZEjmRJRY=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="/css/tufte.css" />
     <link rel="stylesheet" href="/css/pandoc.css" />
     <link rel="stylesheet" href="/css/default.css" />
     <link rel="stylesheet" href="/css/syntax.css" />
@@ -44,15 +44,19 @@
 </header>
 
 
-<h3 id="tldr">tl;dr</h3>
+<section id="tldr" class="level3">
+<h3>tl;dr</h3>
 <p><a href="https://vega.github.io/vega/">Vega</a> 是一個種描述互動視覺化的文法(JSON 規格)，相對於低階的 <a href="https://d3js.org/">d3.js</a>，提供了一個不用碰太多 JavaScript 就能編寫圖表的高階宣告式語法。這篇文章簡述 <a href="https://vega.github.io/vega/">Vega</a> 的概念，然後以 COSCUP 2017 的議程表為題寫了一個 tutorial（<a href="https://vega.github.io/editor/#/gist/vega/op8867555/5af6189b957373bf0ff9969c8e3d426a">完成品</a>）。</p>
 <p>另外，如果只有簡單的資料（csv, json…等），又只需要基本的幾種圖，可以考慮使用 <a href="https://vega.github.io/vega-lite/">vega-lite</a> 這個比 vega 還要高階的語言來做。</p>
-<h1 id="vega">VEGA</h1>
+</section>
+<section id="vega" class="level1">
+<h1>VEGA</h1>
 <blockquote>
 <p>Vega is a visualization grammar, a declarative language for creating, saving, and sharing interactive visualization designs. With Vega, you can describe the visual appearance and interactive behavior of a visualization in a JSON format, and generate web-based views using Canvas or SVG.</p>
 </blockquote>
 <p><a href="https://vega.github.io/vega/">Vega</a> 是 Washington Interactive Data Lab 的另一個專案(就是那個做 <a href="https://d3js.org/">d3.js</a> 的 IDL)，提出了一個 JSON 格式的文法，用來描述互動式的視覺化圖表，也一併給了 JavaScript 的 Runtime 實作。(背後很理所當然的用了 <a href="https://d3js.org/">d3.js</a> 作為 backend)</p>
-<h2 id="為什麼不用-d3-就好">為什麼不用 d3 就好</h2>
+<section id="為什麼不用-d3-就好" class="level2">
+<h2>為什麼不用 d3 就好</h2>
 <p>雖然不太一樣，但是可以先看看兩者實作 bar chart 的方式： <a href="https://bl.ocks.org/mbostock/3885304">d3</a>, <a href="https://vega.github.io/vega/examples/bar-chart/">vega</a>。</p>
 <p>可以看到幾點：</p>
 <ul>
@@ -65,7 +69,9 @@
 <li>比起 js ， JSON 格式更好自動生成，也就是更好串接在其他應用</li>
 </ul>
 <p>Vega 團隊<a href="https://github.com/vega/vega/wiki/Vega-and-D3">有講明</a> Vega 的目的並不是要取代 d3.js ，而是在 d3.js 的基礎上，建立更高層度的視覺化。</p>
-<h2 id="長什麼樣子">長什麼樣子</h2>
+</section>
+<section id="長什麼樣子" class="level2">
+<h2>長什麼樣子</h2>
 <p>官網給的一個 bar chart 的範例長的像<a href="https://vega.github.io/vega/examples/bar-chart/">這樣</a>，可以發現幾乎看不到程式碼。</p>
 <p>下面這個是從 <a href="https://vega.github.io/vega/docs/specification/">specification</a> 抄來的基本款 outline</p>
 <ul>
@@ -98,7 +104,9 @@
 <li><code>marks</code> 用來畫出折線、面積、矩形…等所有表現資料的部份，是整張圖核心的部份。</li>
 </ul>
 <p>畫圖所需要的元素 VEGA 團隊都適當的設計了出來，剩下的就是使用者依照需求填空了。</p>
-<h2 id="如何開始">如何開始</h2>
+</section>
+<section id="如何開始" class="level2">
+<h2>如何開始</h2>
 <p>如果想要開始使用，可以先看官方網站上的兩個 tutorials 寫的簡單好懂（當然還是需要看 documentation 就是了）</p>
 <ul>
 <li><a href="https://vega.github.io/vega/tutorials/bar-chart/">Let’s Make A Bar Chart</a> 介紹了最基本的幾個元素: data, scale, axes, marks, signals</li>
@@ -106,13 +114,19 @@
 </ul>
 <p>除此之外，官方網站上也有一個線上的 WYSIWYG 編輯器： <a href="https://vega.github.io/editor">Vega Editor</a>，裡面有很多範例可以 <del>塗塗改改</del> 參考。</p>
 <p>剩下的就是讀<a href="https://vega.github.io/vega/docs/">文件</a>啦。</p>
-<h1 id="tutorial">tutorial</h1>
+</section>
+</section>
+<section id="tutorial" class="level1">
+<h1>tutorial</h1>
 <p>因為這次 COSCUP 2017 官網最早沒有釋出時間線形式的議程表，但是有給足自幹需要的資料， 就發現<a href="https://docs.google.com/spreadsheets/d/1gVQtWEqOZLsDtk1j-_TrPqq_nWN5VcTtWLpme3yl3Zc/edit#gid=98295178">大家都自幹了一份</a>，於是我就用 vega 也兜了一個簡單的版本，也就順便以此為原形，寫了這篇 tutorial。</p>
 <p><em>這篇 tutorial 會簡述怎麼從零開始到做出一個這樣議程表</em></p>
 <p><img src="http://i.imgur.com/HUAwF8k.png" class="half-page center" /></p>
-<h2 id="準備">準備</h2>
+<section id="準備" class="level2">
+<h2>準備</h2>
 <p>打開 <a href="https://vega.github.io/editor">Vega Editor</a>，就可以開始了。</p>
-<h2 id="top-level">top-level</h2>
+</section>
+<section id="top-level" class="level2">
+<h2>top-level</h2>
 <p>首先要先有個最簡單的雛型，宣告 schema 版本、圖的大小等</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co">// vg.json</span></a>
 <a class="sourceLine" id="cb2-2" data-line-number="2"><span class="op">{</span></a>
@@ -121,7 +135,9 @@
 <a class="sourceLine" id="cb2-5" data-line-number="5">  <span class="st">&quot;height&quot;</span><span class="op">:</span> <span class="dv">1600</span><span class="op">,</span></a>
 <a class="sourceLine" id="cb2-6" data-line-number="6">  <span class="st">&quot;padding&quot;</span><span class="op">:</span> <span class="dv">50</span></a>
 <a class="sourceLine" id="cb2-7" data-line-number="7"><span class="op">}</span></a></code></pre></div>
-<h2 id="data">Data</h2>
+</section>
+<section id="data" class="level2">
+<h2>Data</h2>
 <p>這次的資料是 COSCUP 2017 官網所使用的 <a href="https://coscup.org/2017-assets/json/submissions.json">submissions.json</a>，是一個 array of records ，如下：</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="co">// submissions.json</span></a>
 <a class="sourceLine" id="cb3-2" data-line-number="2">[</a>
@@ -157,7 +173,9 @@
 <div class="sourceCode" id="cb5"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="va">VEGA_DEBUG</span>.<span class="va">view</span>.<span class="at">data</span>(<span class="st">'table'</span>)</a>
 <a class="sourceLine" id="cb5-2" data-line-number="2"><span class="co">// (141) [Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, …]</span></a></code></pre></div>
 <p>可以觀察到資料有正確載入。</p>
-<h2 id="scale-axes">Scale, Axes</h2>
+</section>
+<section id="scale-axes" class="level2">
+<h2>Scale, Axes</h2>
 <p>載入資料之後、把圖畫出來之前，需要先將資料的範圍映射圖的X/Y座標：</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="co">// vg.json 的片段</span></a>
 <a class="sourceLine" id="cb6-2" data-line-number="2">  <span class="st">&quot;scales&quot;</span><span class="op">:</span> [</a>
@@ -195,7 +213,9 @@
 <a class="sourceLine" id="cb7-4" data-line-number="4">    <span class="op">{</span> <span class="st">&quot;orient&quot;</span><span class="op">:</span> <span class="st">&quot;bottom&quot;</span><span class="op">,</span> <span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;xscale&quot;</span> <span class="op">},</span></a>
 <a class="sourceLine" id="cb7-5" data-line-number="5">    <span class="op">{</span> <span class="st">&quot;orient&quot;</span><span class="op">:</span> <span class="st">&quot;left&quot;</span><span class="op">,</span> <span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;yscale&quot;</span> <span class="op">}</span></a>
 <a class="sourceLine" id="cb7-6" data-line-number="6">  ]</a></code></pre></div>
-<h2 id="marks">Marks</h2>
+</section>
+<section id="marks" class="level2">
+<h2>Marks</h2>
 <p>我希望將每個議程用方塊的方式畫出來，做出時間表的的效果。</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="co">// vg.json 的片段</span></a>
 <a class="sourceLine" id="cb8-2" data-line-number="2">  <span class="st">&quot;marks&quot;</span><span class="op">:</span> [</a>
@@ -241,7 +261,9 @@
 <p>另外，可以用 <code>tooltip</code> 屬性來顯示議程的主題：</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="co">// vg.json 的片段，marks[0][&quot;encode&quot;][&quot;enter&quot;] 裡面</span></a>
 <a class="sourceLine" id="cb11-2" data-line-number="2">  <span class="st">&quot;tooltip&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;field&quot;</span><span class="op">:</span> <span class="st">&quot;subject&quot;</span><span class="op">}</span></a></code></pre></div>
-<h2 id="transform">Transform</h2>
+</section>
+<section id="transform" class="level2">
+<h2>Transform</h2>
 <p>可以看到第一天議程結束到第二天議程結束有一大段空閒，可以用 transform 的 filter 來選擇只用哪一部分的資料。</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="co">// vg.json 的片段，data 底下</span></a>
 <a class="sourceLine" id="cb12-2" data-line-number="2"><span class="st">&quot;transform&quot;</span><span class="op">:</span> [</a>
@@ -251,7 +273,9 @@
 <a class="sourceLine" id="cb12-6" data-line-number="6">  <span class="op">}</span></a>
 <a class="sourceLine" id="cb12-7" data-line-number="7">]</a></code></pre></div>
 <p><code>expr</code> 吃一個 vega 精簡過的 javascript subset，用來給 <code>filter</code> 決定保留與否。</p>
-<h2 id="signals">Signals</h2>
+</section>
+<section id="signals" class="level2">
+<h2>Signals</h2>
 <p>我不會永遠只想看其中一天，也不希望要看隔天的議程還要做修改這份 vega json。好在 vega 提供了一些方便的 signal，我這邊選用了他現成的 radio input：會在圖上面加上一個互動的 radio button，然後綁定成一個 signal。</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="co">// vg.json 的片段</span></a>
 <a class="sourceLine" id="cb13-2" data-line-number="2"><span class="st">&quot;signals&quot;</span><span class="op">:</span> [</a>
@@ -264,7 +288,9 @@
 <p>綁定過的 signal 可以作為 <code>expr</code> 內的變數使用</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="co">// vg.json 的片段，修改 data[&quot;transform&quot;][0][&quot;expr&quot;]</span></a>
 <a class="sourceLine" id="cb14-2" data-line-number="2"><span class="st">&quot;expr&quot;</span><span class="op">:</span> <span class="st">&quot;datum.start &gt;= datetime(2017, 8-1, day) &amp;&amp; datum.end &lt; datetime(2017, 8-1, day)&quot;</span></a></code></pre></div>
-<h2 id="完成">完成</h2>
+</section>
+<section id="完成" class="level2">
+<h2>完成</h2>
 <p>一個簡單的<a href="https://vega.github.io/editor/#/gist/vega/op8867555/5af6189b957373bf0ff9969c8e3d426a">議程時間表</a>就完成啦！當然還有很多可以增加/改進的地方，像是：</p>
 <ul>
 <li>顯示更多情報：講者、議程摘要…</li>
@@ -273,10 +299,14 @@
 <li>想辦法支援行動瀏覽器，手機版的 chrome 就不支援顯示 tooltip</li>
 <li>…</li>
 </ul>
-<h1 id="總結">總結</h1>
+</section>
+</section>
+<section id="總結" class="level1">
+<h1>總結</h1>
 <p>我最後的成果放在<a href="https://op8867555.github.io/coscup2017-submissions/index.html">這邊</a>，雖然不完美，但是也讓我在很短的時間內完成了一個堪用的成品。</p>
 <p><em>利用 Vega 這個工具，可以迅速得做出簡單好讀寫（相對於 d3.js），但又不失彈性的視覺化成果。</em></p>
 <p>題外話，雖然 JSON 還算是好讀寫，但是實際還是不太適合人類直接編寫，要的話用 YAML 或是再幹一個 DSL 可能會比較方便。</p>
+</section>
 </article>
 <div id="disqus_thread">
 <script>

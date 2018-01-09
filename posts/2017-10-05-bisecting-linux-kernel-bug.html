@@ -8,7 +8,7 @@
     <title>Alex's Blog - 應用 git bisect 找出 linux kernel 中出現問題的 commit</title>
     <meta name="robots" content="index, follow" />
     <link rel="alternate" href="/feed.xml" title="Alex Lu's Blog" type="application/atom+xml">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tufte-css/1.3/tufte.min.css" integrity="sha256-RB2fOyr8UMnkP7bVbAtAqgocMxqG+TDqly7ZEjmRJRY=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="/css/tufte.css" />
     <link rel="stylesheet" href="/css/pandoc.css" />
     <link rel="stylesheet" href="/css/default.css" />
     <link rel="stylesheet" href="/css/syntax.css" />
@@ -44,9 +44,12 @@
 </header>
 
 
-<h3 id="tldr">TL;DR</h3>
+<section id="tldr" class="level3">
+<h3>TL;DR</h3>
 <p>這篇文章筆記我使用 git bisect 來找出 linux kernel (drm/i915) 中的導致行為異常的是哪一個 commit 的過程。</p>
-<h1 id="起因">起因</h1>
+</section>
+<section id="起因" class="level1">
+<h1>起因</h1>
 <p>我的筆電上裝的是 Arch Linux，Chromium 在 linux 上是<a href="https://bugs.chromium.org/p/chromium/issues/detail?id=463440">不會有硬體加速功能</a>的，為了減少 CPU 資源的浪費，也為了增加續航力，我使用的是一個非官方版本的 <a href="https://aur.archlinux.org/packages/chromium-vaapi/">chromium-vaapi</a>。</p>
 <p>最近做完系統更新之後發現硬體加速的功能出了些異常，在跟 AUR package 的使用者討論後得知：</p>
 <ul>
@@ -55,13 +58,18 @@
 <li>在一番亂試之後發現到 kernel 降回 4.12 就沒事了！</li>
 </ul>
 <p>做了一些功課之後，我認為這個 bug 是來自於 linux kernel 中 DRM/i915 的部份，於是我便開始嘗試從茫茫 commit 海撈出那個針。</p>
-<h1 id="找出問題之旅">找出問題之旅</h1>
-<h2 id="drm-tip">drm-tip</h2>
+</section>
+<section id="找出問題之旅" class="level1">
+<h1>找出問題之旅</h1>
+<section id="drm-tip" class="level2">
+<h2>drm-tip</h2>
 <p>drm-tip 是裡面包含著不同的幾個團隊所維護的 drm 實作的 linux kernel</p>
 <figure>
 <img src="https://01.org/linuxgraphics/gfx-docs/maintainer-tools/_images/drm-intel-flow.svg" alt="這個 merge flow 很複雜，我也還沒搞懂" /><figcaption>這個 merge flow 很複雜，我也還沒搞懂</figcaption>
 </figure>
-<h2 id="在-archlinux-上編譯">在 ArchLinux 上編譯</h2>
+</section>
+<section id="在-archlinux-上編譯" class="level2">
+<h2>在 ArchLinux 上編譯</h2>
 <p>幸好我不必了解他們是怎麼 merge，只需要 build 起來能測試功能是否正常即可。</p>
 <ul>
 <li>使用 AUR 上面的 <a href="https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=linux-drm-tip-git&amp;id=f2f3487589a22ee728472259f4bd79af75bd782b">linux-drm-tip-git</a> 這個 package 編譯最新的版本</li>
@@ -72,15 +80,20 @@
 <li>先用 <code>makepkg -Asi</code> 編譯安裝一遍。</li>
 <li>然後使用這個版本的 kernel 後發現、恩、問題依舊</li>
 </ul>
-<h2 id="加快編譯速度">加快編譯速度</h2>
+</section>
+<section id="加快編譯速度" class="level2">
+<h2>加快編譯速度</h2>
 <p>我用了兩個工具來加速編譯速度：</p>
 <ul>
 <li><a href="https://wiki.archlinux.org/index.php/ccache">ccache</a>: 幫 gcc 做快取，改善重複編譯所需的時間</li>
 <li><a href="https://wiki.archlinux.org/index.php/Modprobed-db">modprobed-db</a>: 減少所需編譯的模組數</li>
 </ul>
-<h2 id="bisect">bisect</h2>
+</section>
+<section id="bisect" class="level2">
+<h2>bisect</h2>
 <p>要從至少 27000 筆的 commit 中找錯誤，當然不會一筆一筆嘗試。這邊使用的 bisect 就是用經典的演算法「二分搜尋法」來加快尋找的速度。</p>
-<h3 id="步驟">步驟</h3>
+<section id="步驟" class="level3">
+<h3>步驟</h3>
 <ul>
 <li>編譯完之後，進 <code>src/drm-tip</code> 執行 <code>git bisect start</code></li>
 <li>確認問題還在，標記為有問題的版本 <code>git bisect bad</code></li>
@@ -94,12 +107,16 @@
 Bisecting: 13952 revisions left to test after this (roughly 14 steps)
 [73adb8c5b0ea15e3942ab5781eb3e72d4e028ada] Merge tag 'for-4.13/dm-fixes-2' of git://git.kernel.org/pub/scm/linux/kernel/git/device-mapper/linux-dm</code></pre></li>
 </ul>
-<h3 id="預估還要幾次查詢">預估還要幾次查詢</h3>
+</section>
+<section id="預估還要幾次查詢" class="level3">
+<h3>預估還要幾次查詢</h3>
 <ul>
 <li><code>git rev-list drm-tip ^6f7da290413b --count</code> 告訴我這兩個中間差了 27906 個 commit</li>
 <li>所以我預期最多還需要 16 次的篩選 (<span class="math inline">\(log_2(27906)+1 \approx 15.77\)</span>)</li>
 </ul>
-<h3 id="繼續尋找問題">繼續尋找問題</h3>
+</section>
+<section id="繼續尋找問題" class="level3">
+<h3>繼續尋找問題</h3>
 <p>這邊就是不斷的重複：</p>
 <ul>
 <li>編譯</li>
@@ -161,15 +178,23 @@ Bisecting: 1 revision left to test after this (roughly 1 step)
 &gt; git bisect good 507d977ff965
 Bisecting: 0 revisions left to test after this (roughly 0 steps)
 [071750e550af46b5d3a84ad56c2a108c3e136284] drm/i915: Disable EXEC_OBJECT_ASYNC when doing relocations</code></pre>
-<h3 id="找出有問題的-commit">找出有問題的 commit</h3>
+</section>
+<section id="找出有問題的-commit" class="level3">
+<h3>找出有問題的 commit</h3>
 <p>不斷重複上面的步驟，最後找出第一個有問題的 commit</p>
 <pre><code>&gt; git bisect good 071750e550af
 2889caa9232109afc8881f29a2205abeb5709d0c is the first bad commit</code></pre>
-<h1 id="後記">後記</h1>
+</section>
+</section>
+</section>
+<section id="後記" class="level1">
+<h1>後記</h1>
 <p>這個過程並不是很輕鬆（編譯一次至少需要 10min，還要重開機測試），將這個找到的這個 commit 回報上去之後，開發者很快的就能找到問題的關鍵點。</p>
 <p>最後得到的結論是，這個問題應該是來自 user space driver 沒有實作正確，於是我回去找了 intel-vaapi-driver 的 issue tracker，才發現到原來早在 3 個星期前就有人<a href="https://github.com/01org/intel-vaapi-driver/issues/262">回報</a>過，而且也已經修正並 merge 回 master 了。囧</p>
 <p>雖然最後發現不是 linux kernel 的問題，不過這也依然是個務實的除錯經驗。</p>
-<h1 id="參考資料">參考資料</h1>
+</section>
+<section id="參考資料" class="level1">
+<h1>參考資料</h1>
 <p><strong>drm/i915</strong></p>
 <ul>
 <li><a href="https://01.org/linuxgraphics/documentation/how-report-bugs">how to report bugs</a></li>
@@ -180,6 +205,7 @@ Bisecting: 0 revisions left to test after this (roughly 0 steps)
 <li><a href="https://wiki.archlinux.org/index.php/Bisecting_bugs">Bisecting bugs</a></li>
 <li><a href="https://project-insanity.org/blog/2013/02/13/how-i-found-a-kernel-regression-using-git-bisect/">How I fixed a kernel regression using git bisect</a></li>
 </ul>
+</section>
 </article>
 <div id="disqus_thread">
 <script>

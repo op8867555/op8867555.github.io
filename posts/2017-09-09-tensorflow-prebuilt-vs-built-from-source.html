@@ -8,7 +8,7 @@
     <title>Alex's Blog - 手動編譯 vs 編譯好的 tensorflow</title>
     <meta name="robots" content="index, follow" />
     <link rel="alternate" href="/feed.xml" title="Alex Lu's Blog" type="application/atom+xml">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tufte-css/1.3/tufte.min.css" integrity="sha256-RB2fOyr8UMnkP7bVbAtAqgocMxqG+TDqly7ZEjmRJRY=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="/css/tufte.css" />
     <link rel="stylesheet" href="/css/pandoc.css" />
     <link rel="stylesheet" href="/css/default.css" />
     <link rel="stylesheet" href="/css/syntax.css" />
@@ -45,10 +45,14 @@
 
 
 <p>亂看文章時發現到 tensorflow prebuilt 版跟自己 build 效能有落差（現在想想這也是理所當然的事），於是就來自己編編看到底差多少了。</p>
-<h1 id="實驗">實驗</h1>
-<h2 id="使用的機器">使用的機器</h2>
+<section id="實驗" class="level1">
+<h1>實驗</h1>
+<section id="使用的機器" class="level2">
+<h2>使用的機器</h2>
 <p>Thinkpad X1 Carbon 2017，它的 CPU 是 Intel 的 i7-7500U（對，這顆絕對不適合拿來算這個）</p>
-<h2 id="使用的不同版本">使用的不同版本</h2>
+</section>
+<section id="使用的不同版本" class="level2">
+<h2>使用的不同版本</h2>
 <ul>
 <li><p><a href="https://pypi.python.org/pypi/tensorflow">PyPI 上的版本</a>，沒有機器相關的最佳化。</p></li>
 <li><p><a href="https://software.intel.com/en-us/articles/tensorflow-optimizations-on-modern-intel-architecture">intel 提供的版本</a> 使用 intel 的 Math Kernel library，但是沒有機器相關的最佳化<span><label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle" /><span class="sidenote">沒有做機器相關的最佳化時會有提醒<br />
@@ -60,7 +64,9 @@
 <li><code>--config=mkl</code> 同 intel 版本</li>
 </ul></li>
 </ul>
-<h2 id="使用的測試案例">使用的測試案例</h2>
+</section>
+<section id="使用的測試案例" class="level2">
+<h2>使用的測試案例</h2>
 <p>使用了 keras 的幾個 <a href="https://github.com/fchollet/keras/tree/master/examples">example</a> 來測試<span><label for="sn-2" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-2" class="margin-toggle" /><span class="sidenote">問我為什麼要用 keras 而不用 tensorflow 就好？因為我還想測 theano 啊…<br />
 <br />
 </span></span>，分別是：</p>
@@ -69,7 +75,9 @@
 <li>mnist-cnn</li>
 <li>cifar10-cnn</li>
 </ul>
-<h2 id="測試結果">測試結果</h2>
+</section>
+<section id="測試結果" class="level2">
+<h2>測試結果</h2>
 <table>
 <caption>實驗結果（數值是每次 epoch 所花的時間，越小越好）</caption>
 <thead>
@@ -104,7 +112,9 @@
 <p><span><label for="sn-3" class="margin-toggle">⊕</label><input type="checkbox" id="sn-3" class="margin-toggle" /><span class="marginnote"> [^1] 因為有 200 個 epoch 要跑，實在要花很多時間，所以這邊就都只取大概 3~4 個 epoch 的時間來算<br />
 <br />
 </span></span></p>
-<h2 id="結論">結論</h2>
+</section>
+<section id="結論" class="level2">
+<h2>結論</h2>
 <ul>
 <li>如果是真心想要用 Intel 的 CPU 跑 tensorflow …
 <ul>
@@ -117,6 +127,8 @@
 <li>用了 GTX 1060 6GB 的桌電跑 cifar10-cnn ，一個 epoch 只要 25s</li>
 </ul></li>
 </ul>
+</section>
+</section>
 </article>
 <div id="disqus_thread">
 <script>

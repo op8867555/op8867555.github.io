@@ -8,7 +8,7 @@
     <title>Alex's Blog - 筆記：幾個 CLI 實用工具: ag, fzf, fd, ripgrep</title>
     <meta name="robots" content="index, follow" />
     <link rel="alternate" href="/feed.xml" title="Alex Lu's Blog" type="application/atom+xml">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tufte-css/1.3/tufte.min.css" integrity="sha256-RB2fOyr8UMnkP7bVbAtAqgocMxqG+TDqly7ZEjmRJRY=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="/css/tufte.css" />
     <link rel="stylesheet" href="/css/pandoc.css" />
     <link rel="stylesheet" href="/css/default.css" />
     <link rel="stylesheet" href="/css/syntax.css" />
@@ -45,7 +45,8 @@
 
 
 <p>筆記最近用的幾個 CLI 工具。</p>
-<h1 id="the-silver-searcher">The Silver Searcher</h1>
+<section id="the-silver-searcher" class="level1">
+<h1>The Silver Searcher</h1>
 <p><a href="https://github.com/ggreer/the_silver_searcher">The Silver Searcher</a> 是一個類似 ack 的搜尋工具，也就是找出出現某字串的所有檔案。</p>
 <ul>
 <li>飛天快</li>
@@ -54,7 +55,9 @@
 <li>用 c 實作</li>
 <li>直到 <span class="citation" data-cites="caasih">@caasih</span> 提到之前我都沒發現執行檔名稱 <code>ag</code> 是水銀的元素符號</li>
 </ul>
-<h1 id="ripgrep">ripgrep</h1>
+</section>
+<section id="ripgrep" class="level1">
+<h1>ripgrep</h1>
 <p><a href="https://github.com/BurntSushi/ripgrep">Ripgrep</a> 跟前述的 The Silver Searcher 功能差不多</p>
 <ul>
 <li>但是比飛天快還快</li>
@@ -62,7 +65,9 @@
 <li>regexp 的功能比較少（比方說我從來沒用過的 lookaround 跟 backreference 就沒有實作）</li>
 <li>用 rust 實作</li>
 </ul>
-<h1 id="fd">fd</h1>
+</section>
+<section id="fd" class="level1">
+<h1>fd</h1>
 <p><a href="https://github.com/sharkdp/fd">fd</a> 是一個類似 find 的檔案搜尋工具</p>
 <ul>
 <li>也會預設排除 <code>.gitignore</code></li>
@@ -70,7 +75,8 @@
 <li>也是飛天快</li>
 <li>也是 rust 實作</li>
 </ul>
-<h2 id="範例">範例</h2>
+<section id="範例" class="level2">
+<h2>範例</h2>
 <ul>
 <li><p>用 regexp 搜尋</p>
 <pre><code>fd '[0-9]\.jpg$'</code></pre></li>
@@ -111,7 +117,10 @@
 </tbody>
 </table></li>
 </ul>
-<h1 id="fzf">fzf</h1>
+</section>
+</section>
+<section id="fzf" class="level1">
+<h1>fzf</h1>
 <p><a href="https://github.com/junegunn/fzf">fzf</a> 是一個 fuzzy finder，就是 cmd+T 或是 ctrl+p 或是任何一個 文字編輯器/IDE 裡面不用打全名就可以找檔案的那個功能</p>
 <ul>
 <li>用 go 寫的</li>
@@ -133,6 +142,7 @@
 </blockquote>
 <script async src="//s.imgur.com/min/embed.js" charset="utf-8"></script></li>
 </ul>
+</section>
 </article>
 <div id="disqus_thread">
 <script>

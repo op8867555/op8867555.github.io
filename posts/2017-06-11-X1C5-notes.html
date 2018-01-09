@@ -8,7 +8,7 @@
     <title>Alex's Blog - [en] Notes on Thinkpad X1 Carbon 2017 + Arch Linux</title>
     <meta name="robots" content="index, follow" />
     <link rel="alternate" href="/feed.xml" title="Alex Lu's Blog" type="application/atom+xml">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tufte-css/1.3/tufte.min.css" integrity="sha256-RB2fOyr8UMnkP7bVbAtAqgocMxqG+TDqly7ZEjmRJRY=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="/css/tufte.css" />
     <link rel="stylesheet" href="/css/pandoc.css" />
     <link rel="stylesheet" href="/css/default.css" />
     <link rel="stylesheet" href="/css/syntax.css" />
@@ -44,12 +44,15 @@
 </header>
 
 
-<h3 id="changelogs">changelogs</h3>
+<section id="changelogs" class="level3">
+<h3>changelogs</h3>
 <ul>
 <li>08/22 update kernel to 4.12; add a WWAN section.</li>
 <li>07/22 rewrite the post in English, remove some outdated information.</li>
 </ul>
-<h1 id="quick-summary">Quick Summary</h1>
+</section>
+<section id="quick-summary" class="level1">
+<h1>Quick Summary</h1>
 <p>I got a Thinkpad X1 Carbon 5th Gen (X1C5) and running Arch Linux (4.12) on it.</p>
 <p>Most stuff works out of box,</p>
 <ul>
@@ -68,9 +71,13 @@
 <li>mini-Ethernet - I don’t have the adapter.</li>
 <li>hibernation - I don’t setup a swap partition.</li>
 </ul>
-<h1 id="topics">Topics</h1>
-<h2 id="trackpoint">TrackPoint</h2>
-<h3 id="alps-or-elantech">ALPS or Elantech</h3>
+</section>
+<section id="topics" class="level1">
+<h1>Topics</h1>
+<section id="trackpoint" class="level2">
+<h2>TrackPoint</h2>
+<section id="alps-or-elantech" class="level3">
+<h3>ALPS or Elantech</h3>
 <p>X1C5 comes with two versions of TrackPoint: ALPS and Elantech<span><label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle" /><span class="sidenote"><a href="https://patchwork.kernel.org/patch/9768231/" class="uri">https://patchwork.kernel.org/patch/9768231/</a><br />
 <br />
 </span></span>.</p>
@@ -81,49 +88,68 @@ Command Line: &quot;C:\Users\alexlu\Desktop\FW_Updater_1.0.0.9\TrackPointDetect.
 OS: 64-bit
 Pst Vendor : Elan
 [ERROR]: This TrackPoint is Elan (ID:03)</code></pre>
-<h3 id="issues">Issues</h3>
+</section>
+<section id="issues" class="level3">
+<h3>Issues</h3>
 <ul>
 <li><p>Recognized as a “PS/2 Generic Mouse”<br />
 ⇒ No palm-detection during trackpoint use</p></li>
 <li><p>Since kernel driver doesn’t support the new trackpoint, both of sensitivity and speed aren’t adjustable.<br />
 ⇒ The default speed/sensitivity is too slow to use.</p></li>
 </ul>
-<h3 id="mark-it-as-a-pointing-stick">Mark it as a pointing stick</h3>
+</section>
+<section id="mark-it-as-a-pointing-stick" class="level3">
+<h3>Mark it as a pointing stick</h3>
 <p>I found I can making libinput treat the “PS/2 Generic Mouse” as a trackpoint using a custom udev hwdb entry.</p>
 <p><em>Note: this should not be used anymore once trackpoint gets kernel driver supports</em></p>
 <pre><code>evdev:name:PS/2 Generic Mouse:dmi:*svnLENOVO*:pvrThinkPadX1Carbon5th*
   ID_INPUT_POINTINGSTICK=1</code></pre>
-<h3 id="better-trackpoint-acceleration">Better TrackPoint Acceleration</h3>
+</section>
+<section id="better-trackpoint-acceleration" class="level3">
+<h3>Better TrackPoint Acceleration</h3>
 <p>There is a <a href="https://bugs.freedesktop.org/show_bug.cgi?id=91369#c48">patch</a> which solves speed issue.</p>
 <p>I get my trackpoint much usable by setting up:</p>
 <ul>
 <li><code>LIBINPUT_ATTR_TRACKPOINT_RANGE=10</code> in hwdb</li>
 <li><code>xinput set-prop &quot;PS/2 Generic Mouse&quot; &quot;libinput Accel Speed&quot; -0.25</code> in my .xinitrc</li>
 </ul>
-<h2 id="trackpad">TrackPad</h2>
+</section>
+</section>
+<section id="trackpad" class="level2">
+<h2>TrackPad</h2>
 <p>The trackpad is <ins>able to</ins> use rmi4 over smbus for now(4.12).</p>
 <p>Turn it on by creating a <code>psmouse.conf</code> in <code>/etc/modprobe.d/</code></p>
 <pre><code>options psmouse synaptics_intertouch=1</code></pre>
-<h3 id="palm-detection">Palm Detection</h3>
+<section id="palm-detection" class="level3">
+<h3>Palm Detection</h3>
 <ul>
 <li>pressure-based palm-detection works great (libinput ≥ 1.8)</li>
 <li>palm-detection during trackpoint use requires <a href="#mark-it-as-a-pointing-stick">mark it as a pointing stick</a>.</li>
 </ul>
-<h2 id="new-hotkeys">New Hotkeys</h2>
+</section>
+</section>
+<section id="new-hotkeys" class="level2">
+<h2>New Hotkeys</h2>
 <p>Before linux-4.12, You needs <a href="https://patchwork.kernel.org/patch/9596129/">these</a> <a href="https://patchwork.kernel.org/patch/9596131/">patches</a> to get these buttons works.</p>
-<h2 id="fingerprint-reader">Fingerprint Reader</h2>
+</section>
+<section id="fingerprint-reader" class="level2">
+<h2>Fingerprint Reader</h2>
 <p>X1C5 have a Validity Sensor 138a:0097. There is no driver for it.</p>
 <p>Furthermore,</p>
 <ul>
 <li><a href="https://github.com/nmikhailov/Validity90">Validity90</a> - an open source reverse engineered driver (WIP).</li>
 <li><a href="https://bugs.freedesktop.org/show_bug.cgi?id=94536">a bug report of libfprint</a></li>
 </ul>
-<h2 id="wwan">WWAN</h2>
+</section>
+<section id="wwan" class="level2">
+<h2>WWAN</h2>
 <p>X1C5 (WWAN) comes with a Sierra EM7455 LTE Modem (1199:9079).</p>
 <p>It works out of box using latest ModemManager.</p>
-<h3 id="connecting-without-networkmanager">connecting without NetworkManager</h3>
+<section id="connecting-without-networkmanager" class="level3">
+<h3>connecting without NetworkManager</h3>
 <p>I’m wondering if there is a better way to do this…</p>
-<h4 id="connecting">connecting</h4>
+<section id="connecting" class="level4">
+<h4>connecting</h4>
 <ul>
 <li>find modem id: <code>mmcli -L</code></li>
 <li>connect: <code>mmcli -m $MODEM --simple-connect=&quot;apn=internet&quot;</code></li>
@@ -136,19 +162,27 @@ Pst Vendor : Elan
 <li>assign a static IP: <code>ip addr add $IP_ADDR/$PREFIX broadcast $BROADCAST_ADDR dev $IFACE</code></li>
 <li>add a route: <code>ip route add default via $GATEWAY</code></li>
 </ul>
-<h4 id="disconnecting">disconnecting</h4>
+</section>
+<section id="disconnecting" class="level4">
+<h4>disconnecting</h4>
 <ul>
 <li>bring the interface down</li>
 <li>remove route for it</li>
 <li>remove static IP assignment</li>
 <li><code>mmcli -m $MODEM --simple-disconnect</code></li>
 </ul>
-<h1 id="references">References</h1>
+</section>
+</section>
+</section>
+</section>
+<section id="references" class="level1">
+<h1>References</h1>
 <ul>
 <li><a href="https://gist.github.com/gdamjan/141bb0def5f80257fae2b233ec16f3c2">gdamjan’s Note</a></li>
 <li><a href="http://fredrik.wendt.se/2017/04/26/lenovo-thinkpad-x1-carbon-5th-generation/">Fredrik’s Note</a></li>
 <li><a href="https://forums.lenovo.com/t5/forums/v3_1/forumtopicpage/board-id/tp02_en/thread-id/75464/page/29">discussion about TrackPad</a></li>
 </ul>
+</section>
 </article>
 <div id="disqus_thread">
 <script>
