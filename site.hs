@@ -74,6 +74,16 @@ main =
                 >>= loadAndApplyTemplate "templates/post.html" (postCtx tags)
                 >>= relativizeUrls
                 >>= loadAndApplyTemplate "templates/default.html" (postCtx tags)
+
+        match "hobbies/*" $ do
+            route $ setExtension "html"
+            compile $
+                myCompiler
+                >>= saveSnapshot "content"
+                >>= loadAndApplyTemplate "templates/post.html" (postCtx tags)
+                >>= relativizeUrls
+                >>= loadAndApplyTemplate "templates/default.html" (postCtx tags)
+
         match "index.md" $ do
             route $ setExtension "html"
             compile $ do

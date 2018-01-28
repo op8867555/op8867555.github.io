@@ -17,3 +17,7 @@ $partial("templates/post-list.html")$
 # Tags
 
 $taglist$
+
+# Hobbies
+
+* [Anime](/hobbies/anime.html)
