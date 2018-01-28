@@ -7,8 +7,322 @@
         <description><![CDATA[Alex Lu's Blog Feed]]></description>
         <atom:link href="https://op8867555.github.io/feed.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Fri, 12 Jan 2018 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Sun, 28 Jan 2018 00:00:00 UT</lastBuildDate>
         <item>
+    <title>機器如何計算微分/偏微分（下）</title>
+    <link>https://op8867555.github.io/posts/2018-01-11-autodiff-reverse-mode.html</link>
+    <description><![CDATA[<section>
+<p><a href="/posts/2017-12-17-autodiff.html">前一篇文章</a>的最後介紹了 Forward-Mode Automatic Differential 這個應用 Chain Rule 的技巧，這一篇要來介紹一個反過來的版本 Reverse-Mode Automatic Differential。</p>
+</section>
+<section id="recap-forward-mode-ad" class="level1">
+<h1>Recap: Forward-Mode AD</h1>
+<p>計算 Foward-Mode AD 的時候，假設要求 <span class="math inline">\(f(x, y) = sin(x) + x × y\)</span> 在 <span class="math inline">\((3, 1)\)</span> 對 <span class="math inline">\(x\)</span> 的偏微分 <span class="math inline">\(\frac{\partial Y}{\partial x}\)</span>，我們會像這樣由上到下計算：</p>
+<p><span><label for="sn-1" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="marginnote"> <a href="https://upload.wikimedia.org/wikipedia/commons/a/a4/ForwardAccumulationAutomaticDifferentiation.png"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/ForwardAccumulationAutomaticDifferentiation.png/512px-ForwardAccumulationAutomaticDifferentiation.png" /></a> Forward-Mode AD 在 <a href="https://en.wikipedia.org/wiki/Automatic_differentiation">Wikipedia</a> 上的示意圖<br />
+<br />
+</span></span></p>
+<p><span class="math display">\[\begin{array}{cl}
+\frac{∂}{∂ x} x&amp;= 1\\[0.5em]
+\frac{∂}{∂ x} sin(x) &amp;= cos(x) \\[0.5em]
+\frac{∂}{∂ x} x \cdot y  &amp;= 1\\[0.5em]
+\frac{∂}{∂ x} sin(x) + x \cdot y  &amp;= \frac{∂ sin(x)}{∂ x} +
+\frac{∂ x \cdot y}{∂ x} = cos(x) + 1
+\end{array}\]</span></p>
+<p>也就是如果今天有個 <span class="math inline">\(f\)</span>，而將 <span class="math inline">\(x_i\)</span> 以外的輸入都是為常數的話，得到 <span class="math inline">\(f_{x_i} = g_1 \circ g_2 \circ \cdots \circ g_n\)</span>，</p>
+<ol type="1">
+<li>從 <span class="math inline">\(\frac{\partial x_i}{\partial x_i} = 1\)</span>，並將其他變數 <span class="math inline">\(x_j\)</span> 視為常數，</li>
+<li>照著變數<span class="math inline">\(x_i\)</span> 的計算過程計算 <span class="math inline">\(g(x_i)\)</span> 的偏微分（這個例子的第一個 <span class="math inline">\(g\)</span> 是 <span class="math inline">\(sin\)</span> 或是 <span class="math inline">\(x \cdot y\)</span>）<span><label for="sn-2" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-2" class="margin-toggle"/><span class="marginnote"> 我們可以將 <span class="math inline">\(\cdot\)</span> 看成 <span class="math inline">\(mul(x, y)\)</span>，而因為 <span class="math inline">\(y\)</span> 被視為常數，所以又可以看成一個單變數函數 <span class="math inline">\(mul_{1}(x) = 1\)</span>。<br />
+<br />
+</span></span></li>
+<li>最後求得 <span class="math inline">\(\frac{\partial}{\partial x_i}f(..., x_i, ...)\)</span></li>
+</ol>
+<p>如果要計算每個變數 <span class="math inline">\(x_i\)</span> 的偏微分的話，我們就必須重複這樣的動作 <span class="math inline">\(N\)</span> 次，而計算梯度時就會遇到這個困境。</p>
+</section>
+<section id="reverse-mode-ad" class="level1">
+<h1>Reverse-Mode AD</h1>
+<p>Reverse-Mode AD 則是反過來計算：</p>
+<p><span><label for="sn-3" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-3" class="margin-toggle"/><span class="marginnote"> <a href="https://commons.wikimedia.org/wiki/File%3AReverseaccumulationAD.png"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a0/ReverseaccumulationAD.png" /></a> Rerverse-Mode AD 在 <a href="https://en.wikipedia.org/wiki/Automatic_differentiation">Wikipedia</a> 上的示意圖<br />
+<br />
+</span></span></p>
+<p><span class="math display">\[\begin{array}{cll}
+\frac{∂ Y}{∂ Y} &amp;= \frac{∂ Y}{∂ sin(x) + x \cdot y} &amp;= 1 \\[0.5em]
+\frac{∂ Y}{∂ sin(x)} &amp;=
+\frac{∂ Y}{∂ sin(x) + x \cdot y}\frac{∂ sin(x) + x \cdot y}{∂ sin(x)} &amp;=
+1 \cdot 1
+\\[0.5em]
+\frac{∂ Y}{∂ x \cdot y} &amp;=
+\frac{∂ Y}{∂ sin(x) + x \cdot y}\frac{∂ sin(x) + x \cdot y}{∂ x \cdot y} &amp;=
+1 \cdot 1
+\\[0.5em]
+\frac{∂ Y}{∂ x} &amp;=
+\frac{∂ Y}{∂ sin(x)}\frac{∂ sin(x)}{∂ x} +
+\frac{∂ Y}{∂ x \cdot y}\frac{∂ x \cdot y}{∂ x} &amp;=
+1 \cdot cos(x) + 1 \cdot y
+\\[0.5em]
+\frac{∂ Y}{∂ y} &amp;=
+\frac{∂ Y}{∂ x \cdot y}\frac{∂ x \cdot y}{∂ y} &amp;=
+1 \cdot x
+\end{array}\]</span></p>
+<p>Forward-Mode AD 從 <span class="math inline">\(\frac{∂ \color{red}x}{∂ x} = 1\)</span> 開始<strong>組合</strong>，到 <span class="math inline">\(\frac{∂ \color{red}Y}{∂ x}\)</span> 結束； Reverse-Mode AD 從 <span class="math inline">\(\frac{∂ Y}{∂ \color{red}Y} = 1\)</span> 開始<strong>分解</strong>，到 <span class="math inline">\(\frac{∂ Y}{∂ \color{red}x}\)</span> 結束。</p>
+<section id="back-propagation" class="level2">
+<h2>Back Propagation</h2>
+<p><span><label for="sn-4" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-4" class="margin-toggle"/><span class="marginnote"> <a href="/images/autodiff-neuron.svg"><img src="/images/autodiff-neuron.svg" /></a> 類神經的神經元示意圖<br />
+<br />
+</span></span></p>
+<p>所以這是如何跟類神經網路關聯接一起的？一個簡單的類神經網路<span><label for="sn-5" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-5" class="margin-toggle"/><span class="sidenote">為了簡化，我省去了 Bias term <span class="math inline">\(b^{(l)}\)</span>。<br />
+<br />
+</span></span>可以這樣表示<span><label for="sn-6" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-6" class="margin-toggle"/><span class="sidenote">我這邊使用 <span class="math inline">\(a\)</span> 表示 summation, <span class="math inline">\(z\)</span> 表示 activation 的輸出，有些文章會採用反過來的表示方式。<br />
+<br />
+</span></span>：</p>
+<p><span class="math display">\[\begin{aligned}
+a_i^{(1)} &amp;= \sum_j w^{(1)}_{ij} \cdot x_i
+&amp; z_i^{(1)} &amp;= f(a_i^{(1)}) \\
+a_i^{(2)} &amp;= \sum_j w^{(2)}_{ij} \cdot z_j^{(1)}
+&amp; z_1^{(2)} &amp;= f(a_i^{(2)}) \\
+&amp;\cdots &amp; &amp; \cdots \\
+a_i^{(l)} &amp;= \sum_j w^{(l)}_{ij} \cdot z_j^{(l-1)}
+ &amp;z_i^{(l)} &amp;= f(a_i^{(l)})
+\end{aligned}\]</span></p>
+<p>接著我們會定義 cost function (或稱為 loss function)，比方說 Mean Squared Error：</p>
+<p><span class="math display">\[C(Y, \hat Y) = \frac{1}{n} \sum_i^n \left(Y_i - \hat{Y}_i\right)^2\]</span></p>
+<p>類神經的 Forward Propagation 就是帶入資料 <span class="math inline">\(X\)</span> 跟權重 <span class="math inline">\(w\)</span> 計算出預測值 <span class="math inline">\(z_i^{(l)}\)</span>，而 Back Propagation 就是利用 cost 來找出一組更好 <span class="math inline">\(w_{ij}\)</span> 來使的 <span class="math inline">\(C\)</span> 更小。</p>
+<p>怎麼做？從 <span class="math inline">\(\frac{∂ C}{∂ \color{red}C} = 1\)</span> 開始、 <span class="math inline">\(\frac{∂ C}{∂ \color{red}z_i^{(l)}}, \frac{∂ C}{∂ \color{red}a_i^{(l)}}, \frac{∂ C}{∂ \color{red}w_{ij}^{(l)}}, \frac{∂ C}{∂ \color{red}z_i^{(l-1)}} ...\frac{∂ C}{∂ \color{red}a_i^{(1)}}\)</span>，最後算到 <span class="math inline">\(\frac{∂ C}{∂ \color{red}w_{ij}^{(1)}}\)</span>，求出每一個 <span class="math inline">\(\frac{∂ C}{∂ w_{ij}}\)</span> 之後我們就可以利用 Gradient Descent 法來找出更好的 <span class="math inline">\(w_{ij}\)</span></p>
+<p><span class="math display">\[w_{ij} \leftarrow w_{ij} - \eta \frac{∂ C}{∂ w_{ij}}\]</span></p>
+<p>注意到了嗎？這跟前面所敘述的 Reverse-Mode AD 是<strong>一樣的計算過程</strong>，這代表我們可以利用它來取代<span><label for="sn-7" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-7" class="margin-toggle"/><span class="sidenote">Back Propagation 跟 AD 都應用了 chain rule 來計算，不同的是使用 AD 的技巧後不再需要推導公式。<br />
+<br />
+</span></span>手動推導的 Back Propagation 演算法。</p>
+</section>
+<section id="為什麼類神經要用-reverse-mode-ad" class="level2">
+<h2>為什麼類神經要用 Reverse-Mode AD?</h2>
+<p>Jacobian matrix 是一個 <span class="math inline">\(f: ℝ^n \rightarrow ℝ^m\)</span> 的所有偏導數所組合而成的矩陣：</p>
+<p><span class="math display">\[\mathbf {J} =
+\begin{bmatrix}
+\frac {\partial f_{1}}{\partial x_{1}} &amp; \cdots &amp; \frac {\partial f_{1}}{\partial x_{n}}\\[0.5em]
+\vdots &amp;\ddots &amp;\vdots \\[0.5em]
+\frac {\partial f_{m}}{\partial x_{1}} &amp; \cdots &amp; \frac {\partial f_{m}}{\partial x_{n}}
+\end{bmatrix}\]</span></p>
+<p>Reverse-Mode AD 就是一次算一個 row，Forward-Mode AD 則是一次算一個 column。由於類神經網路是一個 <span class="math inline">\(n \gg m\)</span> 的函數，用 Reverse-Mode AD 有效率了不少。</p>
+</section>
+</section>
+<section id="implementation" class="level1">
+<h1>Implementation</h1>
+<p>Reverse-Mode AD 的實作比起 Forward-Mode AD 複雜了點，先回來看看前面的<span class="math inline">\(\frac{∂ Y}{∂ x}\)</span>：</p>
+<p><span class="math display">\[\frac{∂ Y}{∂ x} =
+\textcolor{blue}{\frac{∂ Y}{∂ sin(x)}}
+\textcolor{green}{\frac{∂ sin(x)}{∂ x}} +
+\textcolor{blue}{\frac{∂ Y}{∂ x \cdot y}}
+\textcolor{green}{\frac{∂ x \cdot y}{∂ x}}\]</span></p>
+<p>可以觀察到：</p>
+<ol type="1">
+<li><span class="math inline">\(\color{blue}\text{藍色}\)</span>的部份跟計算過程是<strong>相反順序的</strong><span><label for="sn-8" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-8" class="margin-toggle"/><span class="sidenote">以計算 <span class="math inline">\(Y = (f \circ g \circ h) (x)\)</span> 的微分 <span class="math inline">\(\frac{∂ Y}{∂ x}\)</span> 為例，我們需要從後面到前面地求出 <span class="math inline">\(\frac{∂ Y}{∂ f}, \frac{∂ Y}{∂ g}, \frac{∂ Y}{∂ h}\)</span>，<br />
+<br />
+</span></span></li>
+<li><span class="math inline">\(\color{green}\text{綠色}\)</span>的部份跟計算過程是<strong>相同順序的</strong><span><label for="sn-9" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-9" class="margin-toggle"/><span class="sidenote">繼續上面的例子，計算綠色的部份需要從前面到後面的求出 <span class="math inline">\(\frac{∂ h(x)}{∂ x}, \frac{∂ g(h(x))}{∂ h(x)}, \frac{∂ f(g(h(x)))}{∂ g(h(x))}\)</span>。<br />
+<br />
+</span></span></li>
+<li>我們需要追蹤一個變數被在哪些地方，上面 <span class="math inline">\(Y = sin(x) + x \cdot y\)</span> 的例子 <span class="math inline">\(x\)</span> 就被用 <span class="math inline">\(sin(x)\)</span> 跟 <span class="math inline">\(x \cdot y\)</span> 兩處。</li>
+</ol>
+<section id="wengert-tape" class="level2">
+<h2>Wengert Tape</h2>
+<p>其中一個作法是使用 Wengert Tape ，這個資料結構追蹤順向計算的過程，Reverse-Mode AD 時則是會反過來計算。<span><label for="sn-10" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-10" class="margin-toggle"/><span class="sidenote">這邊的實作參考自 Edward Kmett 所寫的 <a href="https://github.com/ekmett/ad"><code>ad</code></a> 自動微分函式庫。<br />
+<br />
+</span></span><span><label for="sn-11" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-11" class="margin-toggle"/><span class="sidenote">注意：為了方便實作跟解釋，我的實作有稍微變化過。<br />
+<br />
+</span></span></p>
+<p>為了簡化，這邊將計算的過程推廣成三種形式： 變數、單變數函數、雙變數函數。</p>
+<ul>
+<li><code>x</code> （或是 <code>y</code>） 表示這個計算的輸入節點 <span class="math inline">\(x, y\)</span></li>
+<li><code>dx</code> （或是 <code>dy</code>） 表示輸入對這個計算的影響 <span class="math inline">\(\frac{∂f}{∂x}, \frac{∂f}{∂y}\)</span>，也就是前述的<span class="math inline">\(\color{green}\text{綠色}\)</span>部份。</li>
+<li><code>ss</code> 表示這個計算對於整個計算的影響 <span class="math inline">\(\frac{∂ Y}{∂ f}\)</span>，也就是前述<span class="math inline">\(\color{blue}\text{藍色}\)</span>的部份。</li>
+</ul>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="im">from</span> collections <span class="im">import</span> namedtuple</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2">Var <span class="op">=</span> namedtuple(<span class="st">&#39;Var&#39;</span>, [<span class="st">&#39;ss&#39;</span>])</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">Un  <span class="op">=</span> namedtuple(<span class="st">&#39;Un&#39;</span>,  [<span class="st">&#39;x&#39;</span>, <span class="st">&#39;dx&#39;</span>, <span class="st">&#39;ss&#39;</span>])</a>
+<a class="sourceLine" id="cb1-4" data-line-number="4">Bin <span class="op">=</span> namedtuple(<span class="st">&#39;Bin&#39;</span>, [<span class="st">&#39;x&#39;</span>, <span class="st">&#39;y&#39;</span>, <span class="st">&#39;dx&#39;</span>, <span class="st">&#39;dy&#39;</span>, <span class="st">&#39;ss&#39;</span>])</a></code></pre></div>
+<p>這樣就可以下面的這段程式來表達 <span class="math inline">\(sin(x) + x \cdot y \bigg\vert_{x = 3, y = 1}\)</span> 的順向計算過程<span><label for="sn-12" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-12" class="margin-toggle"/><span class="sidenote">為了簡化，我省去了當下計算的輸出數值<code>v</code>(<span class="math inline">\(f(x)\)</span>)<br />
+<br />
+</span></span></p>
+<p><span><label for="sn-13" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-13" class="margin-toggle"/><span class="marginnote"> 這邊我小小的作弊了一下，直接使用 <code>Dict</code> 來方便更新 <code>ss</code> 的值。<br />
+<br />
+</span></span></p>
+<p><span><label for="sn-14" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-14" class="margin-toggle"/><span class="marginnote"> <a href="/images/autodiff-forward-ad.svg"><img src="/images/autodiff-forward-ad.svg" /></a> 這張圖表示順向計算時所累計的數值<br />
+<br />
+</span></span></p>
+<p><span><label for="sn-15" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-15" class="margin-toggle"/><span class="marginnote"> <a href="/images/autodiff-tape.svg"><img src="/images/autodiff-tape.svg" /></a> 這張圖表示節點之間的相依關係<br />
+<br />
+</span></span></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="im">from</span> math <span class="im">import</span> <span class="op">*</span></a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw">def</span> box(v<span class="op">=</span><span class="dv">0</span>):</a>
+<a class="sourceLine" id="cb2-3" data-line-number="3">    <span class="cf">return</span> {<span class="st">&#39;value&#39;</span>: v}</a>
+<a class="sourceLine" id="cb2-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb2-5" data-line-number="5">x <span class="op">=</span> Var(box())</a>
+<a class="sourceLine" id="cb2-6" data-line-number="6">y <span class="op">=</span> Var(box())</a>
+<a class="sourceLine" id="cb2-7" data-line-number="7">sin_x <span class="op">=</span> Un(x, cos(<span class="dv">1</span>), box())</a>
+<a class="sourceLine" id="cb2-8" data-line-number="8">x_times_y <span class="op">=</span> Bin(x, y, <span class="dv">1</span>, <span class="dv">3</span>, box())</a>
+<a class="sourceLine" id="cb2-9" data-line-number="9">Y <span class="op">=</span> Bin(sin_x, x_times_y, <span class="dv">1</span>, <span class="dv">1</span>, box(<span class="dv">1</span>))</a></code></pre></div>
+<p>Wengert Tape 就是紀錄輸入變數及這一連續的計算過程。</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" data-line-number="1">tape <span class="op">=</span> [x, y, sin_x, x_times_y, Y]</a></code></pre></div>
+<p>當計算 Reverse-Mode AD時，我們會將 tape 反過來累計：<span><label for="sn-16" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-16" class="margin-toggle"/><span class="marginnote"> 注意到這邊的實作已經在前面建構這些節點的同時，將順向計算的過程給嵌進去了。<br />
+<br />
+</span></span></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="cf">for</span> cell <span class="kw">in</span> <span class="bu">reversed</span>(tape):</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">    <span class="cf">if</span> <span class="bu">isinstance</span>(cell, Bin):</a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">        cell.x.ss[<span class="st">&#39;value&#39;</span>] <span class="op">+=</span> cell.ss[<span class="st">&#39;value&#39;</span>] <span class="op">*</span> cell.dx</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4">        cell.y.ss[<span class="st">&#39;value&#39;</span>] <span class="op">+=</span> cell.ss[<span class="st">&#39;value&#39;</span>] <span class="op">*</span> cell.dy</a>
+<a class="sourceLine" id="cb4-5" data-line-number="5">    <span class="cf">elif</span> <span class="bu">isinstance</span>(cell, Un):</a>
+<a class="sourceLine" id="cb4-6" data-line-number="6">        cell.x.ss[<span class="st">&#39;value&#39;</span>] <span class="op">+=</span> cell.ss[<span class="st">&#39;value&#39;</span>] <span class="op">*</span> cell.dx</a></code></pre></div>
+<p>Reverse Mode AD 就像這樣在一個 pass 就能算出所有輸入的偏導數</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="bu">print</span>((x.ss[<span class="st">&#39;value&#39;</span>], y.ss[<span class="st">&#39;value&#39;</span>]))</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">(<span class="fl">0.010007503399554585</span>, <span class="dv">3</span>)</a></code></pre></div>
+<p>剩下的就是實作一個易用的界面給使用者了，也就是只需要指定順向計算的過程。</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="op">&gt;&gt;&gt;</span> x <span class="op">=</span> var(<span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="op">&gt;&gt;&gt;</span> y <span class="op">=</span> var(<span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="op">&gt;&gt;&gt;</span> Y <span class="op">=</span> sin(x) <span class="op">+</span> x <span class="op">*</span> y</a>
+<a class="sourceLine" id="cb6-4" data-line-number="4"><span class="op">&gt;&gt;&gt;</span> Y.value</a>
+<a class="sourceLine" id="cb6-5" data-line-number="5"><span class="fl">3.1411200080598674</span></a>
+<a class="sourceLine" id="cb6-6" data-line-number="6"><span class="op">&gt;&gt;&gt;</span> Y.tape</a>
+<a class="sourceLine" id="cb6-7" data-line-number="7">Tape([<span class="op">&lt;</span>Var <span class="bu">object</span> at <span class="bn">0x7f84dbfed198</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb6-8" data-line-number="8"> <span class="op">&lt;</span>Unary <span class="bu">object</span> at <span class="bn">0x7f84e6968c50</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb6-9" data-line-number="9"> <span class="op">&lt;</span>Var <span class="bu">object</span> at <span class="bn">0x7f84e3e567b8</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb6-10" data-line-number="10"> <span class="op">&lt;</span>Binary <span class="bu">object</span> at <span class="bn">0x7f84e0dff4e0</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb6-11" data-line-number="11"> <span class="op">&lt;</span>Binary <span class="bu">object</span> at <span class="bn">0x7f84dbfed630</span><span class="op">&gt;</span>])</a>
+<a class="sourceLine" id="cb6-12" data-line-number="12"><span class="op">&gt;&gt;&gt;</span> Y.backprop()</a>
+<a class="sourceLine" id="cb6-13" data-line-number="13"><span class="op">&gt;&gt;&gt;</span> x.sensitivity</a>
+<a class="sourceLine" id="cb6-14" data-line-number="14"><span class="fl">0.010007503399554585</span></a></code></pre></div>
+<section id="其他變化" class="level3">
+<h3>其他變化</h3>
+<ul>
+<li>另外一個做法是將所有節點表示成一個有向無環圖（DAG; Directed Acyclic Graph），接著做 Topological sort 來計算出順向跟反向的計算順序。</li>
+<li>可以選擇將記住計算的函數及輸入輸出，而非偏導數的數值 <span><label for="sn-17" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-17" class="margin-toggle"/><span class="sidenote">如果我沒弄錯的話， tensorflow 就是以 DAG 表示，用 DFS 來找出計算順序，並採用只儲存函數本身跟輸入輸出的做法。<br />
+<br />
+</span></span>。</li>
+<li>可以在變數節點記下名稱，方便事後觀察。</li>
+</ul>
+</section>
+</section>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>這篇文章介紹了 Reverse-Mode AD 以及實作的方法，學會這些細節雖然沒有讓我更會訓練類神經網路，但也是更了解這些黑盒子底下到底在做些什麼。</p>
+</section>
+<section id="appendix" class="level1">
+<h1>Appendix</h1>
+<section id="example-softmax-regression" class="level2">
+<h2>Example: Softmax Regression</h2>
+<p><span><label for="sn-18" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-18" class="margin-toggle"/><span class="marginnote"> 我的「玩具版」 Reverse-Mode AD 實作函數庫放在<a href="https://gist.github.com/op8867555/59d246a54188fe0d282656fe83e84a65">這邊</a>。<br />
+<br />
+</span></span></p>
+<p>這次以 ML 常用的 iris 資料集作為範例，建構一個 Softmax Regression 來分類這些花朵。</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="im">from</span> reverse_ad <span class="im">import</span> <span class="op">*</span></a>
+<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="im">from</span> sklearn.datasets <span class="im">import</span> load_iris</a>
+<a class="sourceLine" id="cb7-3" data-line-number="3"><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</a>
+<a class="sourceLine" id="cb7-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb7-5" data-line-number="5">iris <span class="op">=</span> load_iris()</a>
+<a class="sourceLine" id="cb7-6" data-line-number="6">X <span class="op">=</span> iris[<span class="st">&#39;data&#39;</span>]</a>
+<a class="sourceLine" id="cb7-7" data-line-number="7">Y <span class="op">=</span> iris[<span class="st">&#39;target&#39;</span>]</a>
+<a class="sourceLine" id="cb7-8" data-line-number="8">X_train, X_test, Y_train, Y_test <span class="op">=</span> train_test_split(X, Y)</a></code></pre></div>
+<p>這邊使用 Softmax Regression 做分類，用 Cross Entropy 做為 loss function。<span><label for="sn-19" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-19" class="margin-toggle"/><span class="marginnote"> <span class="math display">\[\begin{gathered}
+  Softmax(X_i) = \frac{exp(X_i)}{\sum_k exp(X_i)} \\
+  f(X; W, B) = Softmax(W \times X + B) \\
+  Cost(Y, \hat Y) = \frac{-1}{|Y|}\sum_{y} \sum_{k} y_k \log(\hat{y}_k)
+  \end{gathered}\]</span><br />
+<br />
+</span></span></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw">def</span> softmax(z):</a>
+<a class="sourceLine" id="cb8-2" data-line-number="2">    z_exp <span class="op">=</span> [exp(i) <span class="cf">for</span> i <span class="kw">in</span> z]</a>
+<a class="sourceLine" id="cb8-3" data-line-number="3">    sum_z_exp <span class="op">=</span> <span class="bu">sum</span>(z_exp)</a>
+<a class="sourceLine" id="cb8-4" data-line-number="4">    <span class="cf">return</span> [i <span class="op">/</span> sum_z_exp <span class="cf">for</span> i <span class="kw">in</span> z_exp]</a>
+<a class="sourceLine" id="cb8-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb8-6" data-line-number="6"><span class="kw">def</span> reg(xs, w, b):</a>
+<a class="sourceLine" id="cb8-7" data-line-number="7">    <span class="cf">return</span> softmax([<span class="bu">sum</span>(w[i][j] <span class="op">*</span> x <span class="cf">for</span> j, x <span class="kw">in</span> <span class="bu">enumerate</span>(xs)) <span class="op">+</span> b[i]</a>
+<a class="sourceLine" id="cb8-8" data-line-number="8">                    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>)])</a>
+<a class="sourceLine" id="cb8-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb8-10" data-line-number="10"><span class="kw">def</span> categorical_cross_entropy(Y, Y_):</a>
+<a class="sourceLine" id="cb8-11" data-line-number="11">    loss <span class="op">=</span> <span class="bu">sum</span>(<span class="bu">sum</span>(k <span class="op">*</span> log(k_) <span class="cf">for</span> k, k_ <span class="kw">in</span> <span class="bu">zip</span>(y, y_)) <span class="cf">for</span> y, y_ <span class="kw">in</span> <span class="bu">zip</span>(Y, Y_))</a>
+<a class="sourceLine" id="cb8-12" data-line-number="12">    <span class="cf">return</span> <span class="dv">-1</span> <span class="op">*</span> loss <span class="op">/</span> <span class="bu">len</span> (Y_)</a></code></pre></div>
+<p>用 Gradient Descent 來找到更好的 <span class="math inline">\(W\)</span> 跟 <span class="math inline">\(B\)</span></p>
+<p><span><label for="sn-20" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-20" class="margin-toggle"/><span class="marginnote"> 這邊需要先對標籤做 one-hot encoding 才會有跟公式輸出一致的維度。<br />
+<br />
+</span></span></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="im">from</span> sklearn.metrics <span class="im">import</span> accuracy_score</a>
+<a class="sourceLine" id="cb9-2" data-line-number="2">Y_encoded <span class="op">=</span> OneHotEncoder().fit_transform(Y_train.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)).todense().tolist()</a>
+<a class="sourceLine" id="cb9-3" data-line-number="3">w <span class="op">=</span> [[var(<span class="dv">0</span>) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>)] <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>)]</a>
+<a class="sourceLine" id="cb9-4" data-line-number="4">b <span class="op">=</span> [var(<span class="dv">0</span>) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>)]</a>
+<a class="sourceLine" id="cb9-5" data-line-number="5">lr <span class="op">=</span> <span class="fl">0.1</span></a></code></pre></div>
+<p><span><label for="sn-21" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-21" class="margin-toggle"/><span class="marginnote"> 使用 Reverse Mode AD 就不再需要每一個參數都再計算一次。<br />
+<br />
+</span></span></p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1000</span>):</a>
+<a class="sourceLine" id="cb10-2" data-line-number="2">    Y_predicted <span class="op">=</span> [reg(x, w<span class="op">=</span>w, b<span class="op">=</span>b) <span class="cf">for</span> x <span class="kw">in</span> X_train]</a>
+<a class="sourceLine" id="cb10-3" data-line-number="3">    loss <span class="op">=</span> categorical_cross_entropy(Y_encoded, Y_predicted)</a>
+<a class="sourceLine" id="cb10-4" data-line-number="4">    loss.backprop()</a>
+<a class="sourceLine" id="cb10-5" data-line-number="5">    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</a>
+<a class="sourceLine" id="cb10-6" data-line-number="6">        b[i] <span class="op">-=</span> lr <span class="op">*</span> b[i].sensitivity</a>
+<a class="sourceLine" id="cb10-7" data-line-number="7">        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</a>
+<a class="sourceLine" id="cb10-8" data-line-number="8">            w[i][j] <span class="op">-=</span> lr <span class="op">*</span> w[i][j].sensitivity</a>
+<a class="sourceLine" id="cb10-9" data-line-number="9">    <span class="cf">if</span> epoch <span class="op">%</span> <span class="dv">10</span> <span class="op">==</span> <span class="dv">0</span>:</a>
+<a class="sourceLine" id="cb10-10" data-line-number="10">        accuracy <span class="op">=</span> accuracy_score(Y_test, [tolabel(reg(x, w<span class="op">=</span>w, b<span class="op">=</span>b)) <span class="cf">for</span> x <span class="kw">in</span> X_test])</a>
+<a class="sourceLine" id="cb10-11" data-line-number="11">        <span class="bu">print</span>(<span class="ss">f&#39;</span><span class="sc">{</span>epoch<span class="sc">: 5d}</span><span class="ss"> loss </span><span class="sc">{</span>loss<span class="sc">.</span>value<span class="sc">}</span><span class="ss"> acc </span><span class="sc">{</span>accuracy<span class="sc">}</span><span class="ss">&#39;</span>)</a></code></pre></div>
+<p>跑起來成果像是這樣：</p>
+<pre><code>    0 loss 1.098612288668108   acc 0.34210526315789475
+   10 loss 0.84323472659183    acc 0.6578947368421053
+   20 loss 0.716723873894274   acc 0.6578947368421053
+   30 loss 0.6493242141034026  acc 0.6578947368421053
+   40 loss 0.6030807982006535  acc 0.6578947368421053
+   50 loss 0.5661515656844388  acc 0.6578947368421053
+   60 loss 0.5340659822896819  acc 0.6578947368421053
+   70 loss 0.5047568856139167  acc 0.6578947368421053
+   80 loss 0.4771475569375817  acc 0.6578947368421053
+   90 loss 0.45064476873213055 acc 0.6578947368421053
+  100 loss 0.42493012219412674 acc 0.6578947368421053
+  110 loss 0.39987107522910936 acc 0.7105263157894737
+  120 loss 0.37549205547113373 acc 0.7105263157894737
+  130 loss 0.3519881981460512  acc 0.7368421052631579
+  140 loss 0.3297816399879364  acc 0.7631578947368421
+  150 loss 0.30960905639139913 acc 0.868421052631579
+  160 loss 0.2925264903210591  acc 0.9210526315789473</code></pre>
+<!--
+
+example :: Diagram B
+example = nodes # applyAll [connectOutside a b | (a, b) <- names]
+                # padX 1.2 # padY 1.1
+                # centerXY
+    where names = concat [ zip inputsNames weightsNames
+                         , zip weightsNames (repeat "sum")
+                         , [("sum", "act"), ("act", "out")]
+                         ]
+
+nodes = foldl1 (|||)  [ vsep 1 inputs # centerY
+                      , strutX 3
+                      , vsep 1 weights # centerY
+                      , strutX 3
+                      , sum_ # centerY
+                      , strutX 1.5
+                      , text "a" # translateY 0.5
+                      , strutX 1.5
+                      , act # centerY
+                      , strutX 1
+                      , out
+                      ]
+withText = replicate 5 (text "×" # translateY 0.5)
+
+inputsNames = map (("input_"++) . show) [1..5]
+weightsNames = map (("weight_"++) . show) [1..5]
+inputs  = (\x -> mconcat [ text "z⁽ˡ⁻¹⁾"
+                         , circle 1.25 # named x
+                         , text "×" # translate (r2 (3, 0.5))
+                         ]) <$> inputsNames
+weights = map (\x -> text "w" <> circle 1.25 # named x) weightsNames
+sum_    = text "Σ" <> circle 1.25 # named "sum"
+act     = text "f" <> circle 1.25 # named "act"
+out     = text "z⁽ˡ⁾"
+-->
+</section>
+</section>]]></description>
+    <pubDate>Sun, 28 Jan 2018 00:00:00 UT</pubDate>
+    <guid>https://op8867555.github.io/posts/2018-01-11-autodiff-reverse-mode.html</guid>
+    <dc:creator>Alex Lu</dc:creator>
+</item>
+<item>
     <title>[en] Notes on Thinkpad X1 Carbon 2017 + Arch Linux</title>
     <link>https://op8867555.github.io/posts/2017-06-11-X1C5-notes.html</link>
     <description><![CDATA[<section id="changelogs" class="level3">
@@ -1078,276 +1392,6 @@ opkg install shadowsocks-libev-ss-server_3.0.6-2_armv7soft.ipk</code></pre></li>
 </section>]]></description>
     <pubDate>Sun, 27 Aug 2017 00:00:00 UT</pubDate>
     <guid>https://op8867555.github.io/posts/2017-08-27-ds216j-shadowsocks.html</guid>
-    <dc:creator>Alex Lu</dc:creator>
-</item>
-<item>
-    <title>用 VEGA 資料視覺化</title>
-    <link>https://op8867555.github.io/posts/2017-08-11-vega.html</link>
-    <description><![CDATA[<section id="tldr" class="level3">
-<h3>tl;dr</h3>
-<p><a href="https://vega.github.io/vega/">Vega</a> 是一個種描述互動視覺化的文法(JSON 規格)，相對於低階的 <a href="https://d3js.org/">d3.js</a>，提供了一個不用碰太多 JavaScript 就能編寫圖表的高階宣告式語法。這篇文章簡述 <a href="https://vega.github.io/vega/">Vega</a> 的概念，然後以 COSCUP 2017 的議程表為題寫了一個 tutorial（<a href="https://vega.github.io/editor/#/gist/vega/op8867555/5af6189b957373bf0ff9969c8e3d426a">完成品</a>）。</p>
-<p>另外，如果只有簡單的資料（csv, json…等），又只需要基本的幾種圖，可以考慮使用 <a href="https://vega.github.io/vega-lite/">vega-lite</a> 這個比 vega 還要高階的語言來做。</p>
-</section>
-<section id="vega" class="level1">
-<h1>VEGA</h1>
-<blockquote>
-<p>Vega is a visualization grammar, a declarative language for creating, saving, and sharing interactive visualization designs. With Vega, you can describe the visual appearance and interactive behavior of a visualization in a JSON format, and generate web-based views using Canvas or SVG.</p>
-</blockquote>
-<p><a href="https://vega.github.io/vega/">Vega</a> 是 Washington Interactive Data Lab 的另一個專案(就是那個做 <a href="https://d3js.org/">d3.js</a> 的 IDL)，提出了一個 JSON 格式的文法，用來描述互動式的視覺化圖表，也一併給了 JavaScript 的 Runtime 實作。(背後很理所當然的用了 <a href="https://d3js.org/">d3.js</a> 作為 backend)</p>
-<section id="為什麼不用-d3-就好" class="level2">
-<h2>為什麼不用 d3 就好</h2>
-<p>雖然不太一樣，但是可以先看看兩者實作 bar chart 的方式： <a href="https://bl.ocks.org/mbostock/3885304">d3</a>, <a href="https://vega.github.io/vega/examples/bar-chart/">vega</a>。</p>
-<p>可以看到幾點：</p>
-<ul>
-<li>vega 的寫法少了很多來自 js 語法的雜訊，<br />
-也不用讓變數名稱佔掉大腦可貴的記憶空間<span><label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="sidenote"><a href="https://www.kernel.org/doc/html/v4.10/process/coding-style.html#functions" class="uri">https://www.kernel.org/doc/html/v4.10/process/coding-style.html#functions</a><br />
-<br />
-</span></span></li>
-<li>vega 用了一個 json 敘述來描述視覺化，<br />
-但是 d3.js 的版本需要從 html/svg/canvas 等低階的實作細節開始考慮</li>
-<li>比起 js ， JSON 格式更好自動生成，也就是更好串接在其他應用</li>
-</ul>
-<p>Vega 團隊<a href="https://github.com/vega/vega/wiki/Vega-and-D3">有講明</a> Vega 的目的並不是要取代 d3.js ，而是在 d3.js 的基礎上，建立更高層度的視覺化。</p>
-</section>
-<section id="長什麼樣子" class="level2">
-<h2>長什麼樣子</h2>
-<p>官網給的一個 bar chart 的範例長的像<a href="https://vega.github.io/vega/examples/bar-chart/">這樣</a>，可以發現幾乎看不到程式碼。</p>
-<p>下面這個是從 <a href="https://vega.github.io/vega/docs/specification/">specification</a> 抄來的基本款 outline</p>
-<ul>
-<li>上半部是除了 <code>$schema</code> 之外，是一些關於整張圖的 top-level 設定</li>
-<li>下半部 <code class="sourceCode javascript">[]</code> 分別還需要填入適當的內容。</li>
-</ul>
-<div class="sourceCode" id="cb1"><pre class="sourceCode json"><code class="sourceCode json"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="fu">{</span></a>
-<a class="sourceLine" id="cb1-2" data-line-number="2">  <span class="dt">&quot;$schema&quot;</span><span class="fu">:</span> <span class="st">&quot;https://vega.github.io/schema/vega/v3.0.json&quot;</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb1-3" data-line-number="3">  <span class="dt">&quot;description&quot;</span><span class="fu">:</span> <span class="st">&quot;A specification outline example.&quot;</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb1-4" data-line-number="4">  <span class="dt">&quot;width&quot;</span><span class="fu">:</span> <span class="dv">500</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb1-5" data-line-number="5">  <span class="dt">&quot;height&quot;</span><span class="fu">:</span> <span class="dv">200</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb1-6" data-line-number="6">  <span class="dt">&quot;padding&quot;</span><span class="fu">:</span> <span class="dv">5</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb1-7" data-line-number="7">  <span class="dt">&quot;autosize&quot;</span><span class="fu">:</span> <span class="st">&quot;pad&quot;</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb1-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb1-9" data-line-number="9">  <span class="dt">&quot;signals&quot;</span><span class="fu">:</span> <span class="ot">[]</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb1-10" data-line-number="10">  <span class="dt">&quot;data&quot;</span><span class="fu">:</span> <span class="ot">[]</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb1-11" data-line-number="11">  <span class="dt">&quot;scales&quot;</span><span class="fu">:</span> <span class="ot">[]</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb1-12" data-line-number="12">  <span class="dt">&quot;projections&quot;</span><span class="fu">:</span> <span class="ot">[]</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb1-13" data-line-number="13">  <span class="dt">&quot;axes&quot;</span><span class="fu">:</span> <span class="ot">[]</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb1-14" data-line-number="14">  <span class="dt">&quot;legends&quot;</span><span class="fu">:</span> <span class="ot">[]</span><span class="fu">,</span></a>
-<a class="sourceLine" id="cb1-15" data-line-number="15">  <span class="dt">&quot;marks&quot;</span><span class="fu">:</span> <span class="ot">[]</span></a>
-<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="fu">}</span></a></code></pre></div>
-<ul>
-<li><code>signals</code> 提供一個 reactive 的方法來做互動事件： 滑鼠移動、內建的按鈕、範圍選擇器之類的</li>
-<li><code>data</code> 用來載入、parse、轉換，一些簡單的資料處理 (filter, aggregation 之類的都可以在這裡做掉)。</li>
-<li><code>scales</code> 用來映射資料的 domain 跟 輸出的 range (XY 座標/ 顏色等)。</li>
-<li><code>projections</code> 用來將經緯度投影到座標平面。</li>
-<li><code>axes</code> 可以指定圖的的座標軸的位置、刻度。</li>
-<li><code>legends</code> 是圖的圖例。</li>
-<li><code>marks</code> 用來畫出折線、面積、矩形…等所有表現資料的部份，是整張圖核心的部份。</li>
-</ul>
-<p>畫圖所需要的元素 VEGA 團隊都適當的設計了出來，剩下的就是使用者依照需求填空了。</p>
-</section>
-<section id="如何開始" class="level2">
-<h2>如何開始</h2>
-<p>如果想要開始使用，可以先看官方網站上的兩個 tutorials 寫的簡單好懂（當然還是需要看 documentation 就是了）</p>
-<ul>
-<li><a href="https://vega.github.io/vega/tutorials/bar-chart/">Let’s Make A Bar Chart</a> 介紹了最基本的幾個元素: data, scale, axes, marks, signals</li>
-<li><a href="https://vega.github.io/vega/tutorials/airports/">Mapping Airport Connections</a> 進一步應用了 data transform, projections, signals</li>
-</ul>
-<p>除此之外，官方網站上也有一個線上的 WYSIWYG 編輯器： <a href="https://vega.github.io/editor">Vega Editor</a>，裡面有很多範例可以 <del>塗塗改改</del> 參考。</p>
-<p>剩下的就是讀<a href="https://vega.github.io/vega/docs/">文件</a>啦。</p>
-</section>
-</section>
-<section id="tutorial" class="level1">
-<h1>tutorial</h1>
-<p>因為這次 COSCUP 2017 官網最早沒有釋出時間線形式的議程表，但是有給足自幹需要的資料， 就發現<a href="https://docs.google.com/spreadsheets/d/1gVQtWEqOZLsDtk1j-_TrPqq_nWN5VcTtWLpme3yl3Zc/edit#gid=98295178">大家都自幹了一份</a>，於是我就用 vega 也兜了一個簡單的版本，也就順便以此為原形，寫了這篇 tutorial。</p>
-<p><em>這篇 tutorial 會簡述怎麼從零開始到做出一個這樣議程表</em></p>
-<p><img src="http://i.imgur.com/HUAwF8k.png" class="half-page center" /></p>
-<section id="準備" class="level2">
-<h2>準備</h2>
-<p>打開 <a href="https://vega.github.io/editor">Vega Editor</a>，就可以開始了。</p>
-</section>
-<section id="top-level" class="level2">
-<h2>top-level</h2>
-<p>首先要先有個最簡單的雛型，宣告 schema 版本、圖的大小等</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co">// vg.json</span></a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="op">{</span></a>
-<a class="sourceLine" id="cb2-3" data-line-number="3">  <span class="st">&quot;$schema&quot;</span><span class="op">:</span> <span class="st">&quot;https://vega.github.io/schema/vega/v3.0.json&quot;</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb2-4" data-line-number="4">  <span class="st">&quot;width&quot;</span><span class="op">:</span> <span class="dv">480</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb2-5" data-line-number="5">  <span class="st">&quot;height&quot;</span><span class="op">:</span> <span class="dv">1600</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb2-6" data-line-number="6">  <span class="st">&quot;padding&quot;</span><span class="op">:</span> <span class="dv">50</span></a>
-<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="op">}</span></a></code></pre></div>
-</section>
-<section id="data" class="level2">
-<h2>Data</h2>
-<p>這次的資料是 COSCUP 2017 官網所使用的 <a href="https://coscup.org/2017-assets/json/submissions.json">submissions.json</a>，是一個 array of records ，如下：</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="co">// submissions.json</span></a>
-<a class="sourceLine" id="cb3-2" data-line-number="2">[</a>
-<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co">// 我隨便節錄了一個議程，兩天所有的議程都在這個 array 裡面</span></a>
-<a class="sourceLine" id="cb3-4" data-line-number="4">  <span class="op">{</span></a>
-<a class="sourceLine" id="cb3-5" data-line-number="5">    <span class="st">&quot;room&quot;</span><span class="op">:</span> <span class="st">&quot;202&quot;</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb3-6" data-line-number="6">    <span class="st">&quot;community&quot;</span><span class="op">:</span> <span class="st">&quot;Chinese 中文&quot;</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb3-7" data-line-number="7">    <span class="st">&quot;subject&quot;</span><span class="op">:</span> <span class="st">&quot;Unicode 不是年年更新嗎，2017 怎麼還在缺字？&quot;</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb3-8" data-line-number="8">    <span class="st">&quot;summary&quot;</span><span class="op">:</span> <span class="st">&quot;維基文庫是維基媒體基金會所屬計畫中有關原始文獻典藏的網站，而中文的維基文庫因此遇到其他維基計畫不曾遇到的問題–暴量的古籍缺字。台灣的維基分會在經手吳守禮國臺對 照活用辭典的現代數位化之計畫中，也遇到了嚴重的缺字問題，好在現在開源動態組字技術已經發展成熟，可以整合到維基網站裡，本議題將分享該專案運用此新式缺字處理技術的點滴、目前瓶頸、未來的展望。&quot;</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb3-9" data-line-number="9">    <span class="st">&quot;start&quot;</span><span class="op">:</span> <span class="st">&quot;2017-08-05T16:20:00+08:00&quot;</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb3-10" data-line-number="10">    <span class="st">&quot;end&quot;</span><span class="op">:</span> <span class="st">&quot;2017-08-05T17:00:00+08:00&quot;</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb3-11" data-line-number="11">    <span class="st">&quot;original_speakerpic&quot;</span><span class="op">:</span> <span class="st">&quot;http://imgur.com/q0j6fda&quot;</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb3-12" data-line-number="12">    <span class="st">&quot;lang&quot;</span><span class="op">:</span> <span class="st">&quot;ZH&quot;</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb3-13" data-line-number="13">    <span class="st">&quot;speaker&quot;</span><span class="op">:</span> <span class="op">{</span></a>
-<a class="sourceLine" id="cb3-14" data-line-number="14">      <span class="st">&quot;name&quot;</span><span class="op">:</span> <span class="st">&quot;張正一&quot;</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb3-15" data-line-number="15">      <span class="st">&quot;avatar&quot;</span><span class="op">:</span> <span class="st">&quot;https://coscup.org/2017-assets/images/program/202-2017-08-05T1515.jpg&quot;</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb3-16" data-line-number="16">      <span class="st">&quot;bio&quot;</span><span class="op">:</span> <span class="st">&quot;維基協會理事，維基吳守禮台語辭典現代數位化計畫 PM，動態組字技術開發長期參與者&quot;</span></a>
-<a class="sourceLine" id="cb3-17" data-line-number="17">    <span class="op">}</span></a>
-<a class="sourceLine" id="cb3-18" data-line-number="18">  <span class="op">},</span></a>
-<a class="sourceLine" id="cb3-19" data-line-number="19"><span class="co">// 還有更多...</span></a>
-<a class="sourceLine" id="cb3-20" data-line-number="20">]</a></code></pre></div>
-<p>Vega 支援讀取 array of records 的資料，我們可以直接將他讀進來，然後順便對時間欄位做 parse ：</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="co">// vg.json</span></a>
-<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="op">{</span> <span class="co">// 前略</span></a>
-<a class="sourceLine" id="cb4-3" data-line-number="3">  <span class="st">&quot;data&quot;</span><span class="op">:</span>[</a>
-<a class="sourceLine" id="cb4-4" data-line-number="4">    <span class="op">{</span> <span class="st">&quot;name&quot;</span><span class="op">:</span> <span class="st">&quot;table&quot;</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb4-5" data-line-number="5">       <span class="st">&quot;url&quot;</span><span class="op">:</span> <span class="st">&quot;https://coscup.org/2017-assets/json/submissions.json&quot;</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb4-6" data-line-number="6">       <span class="st">&quot;format&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;type&quot;</span><span class="op">:</span><span class="st">&quot;json&quot;</span><span class="op">,</span> <span class="st">&quot;parse&quot;</span><span class="op">:{</span><span class="st">&quot;start&quot;</span><span class="op">:</span><span class="st">&quot;date&quot;</span><span class="op">,</span> <span class="st">&quot;end&quot;</span><span class="op">:</span> <span class="st">&quot;date&quot;</span><span class="op">}}</span></a>
-<a class="sourceLine" id="cb4-7" data-line-number="7">    <span class="op">}</span></a>
-<a class="sourceLine" id="cb4-8" data-line-number="8">  ]</a>
-<a class="sourceLine" id="cb4-9" data-line-number="9"><span class="op">}</span></a></code></pre></div>
-<p>如果用的是 Vega Editor 的話，可以打開 developer console (chrome 的話按 <key>Ctrl</key> + <key>Shift</key> + <key>J</key>) 執行：</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="va">VEGA_DEBUG</span>.<span class="va">view</span>.<span class="at">data</span>(<span class="st">&#39;table&#39;</span>)</a>
-<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="co">// (141) [Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, …]</span></a></code></pre></div>
-<p>可以觀察到資料有正確載入。</p>
-</section>
-<section id="scale-axes" class="level2">
-<h2>Scale, Axes</h2>
-<p>載入資料之後、把圖畫出來之前，需要先將資料的範圍映射圖的X/Y座標：</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="co">// vg.json 的片段</span></a>
-<a class="sourceLine" id="cb6-2" data-line-number="2">  <span class="st">&quot;scales&quot;</span><span class="op">:</span> [</a>
-<a class="sourceLine" id="cb6-3" data-line-number="3">    <span class="op">{</span></a>
-<a class="sourceLine" id="cb6-4" data-line-number="4">      <span class="st">&quot;name&quot;</span><span class="op">:</span> <span class="st">&quot;xscale&quot;</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb6-5" data-line-number="5">      <span class="st">&quot;type&quot;</span><span class="op">:</span> <span class="st">&quot;band&quot;</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb6-6" data-line-number="6">      <span class="st">&quot;domain&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;data&quot;</span><span class="op">:</span> <span class="st">&quot;table&quot;</span><span class="op">,</span> <span class="st">&quot;field&quot;</span><span class="op">:</span> <span class="st">&quot;room&quot;</span><span class="op">,</span> <span class="st">&quot;sort&quot;</span><span class="op">:</span> <span class="kw">true</span><span class="op">},</span></a>
-<a class="sourceLine" id="cb6-7" data-line-number="7">      <span class="st">&quot;range&quot;</span><span class="op">:</span> <span class="st">&quot;width&quot;</span></a>
-<a class="sourceLine" id="cb6-8" data-line-number="8">    <span class="op">},</span></a>
-<a class="sourceLine" id="cb6-9" data-line-number="9">    <span class="op">{</span></a>
-<a class="sourceLine" id="cb6-10" data-line-number="10">      <span class="st">&quot;name&quot;</span><span class="op">:</span> <span class="st">&quot;yscale&quot;</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb6-11" data-line-number="11">      <span class="st">&quot;type&quot;</span><span class="op">:</span> <span class="st">&quot;time&quot;</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb6-12" data-line-number="12">      <span class="st">&quot;domain&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;data&quot;</span><span class="op">:</span> <span class="st">&quot;table&quot;</span><span class="op">,</span> <span class="st">&quot;fields&quot;</span><span class="op">:</span> [<span class="st">&quot;start&quot;</span><span class="op">,</span> <span class="st">&quot;end&quot;</span>]<span class="op">},</span></a>
-<a class="sourceLine" id="cb6-13" data-line-number="13">      <span class="st">&quot;range&quot;</span><span class="op">:</span> <span class="st">&quot;height&quot;</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb6-14" data-line-number="14">      <span class="st">&quot;reverse&quot;</span><span class="op">:</span> <span class="kw">true</span></a>
-<a class="sourceLine" id="cb6-15" data-line-number="15">    <span class="op">}</span></a>
-<a class="sourceLine" id="cb6-16" data-line-number="16">  ]</a></code></pre></div>
-<p>每個 scale 都要有對應的名字 <code>name</code> 跟類型 <code>type</code> ，這邊我分別定義了：</p>
-<p><code>xscale</code></p>
-<ul>
-<li><code>band</code> 可以做出 categorical 分段的效果(想像一下 bar chart，看一下<a href="https://vega.github.io/vega/docs/scales/#band">這張圖</a>)</li>
-<li><code>sort</code> 好讓場地依照順序顯示</li>
-<li><code>range</code> 設定成 <code>width</code> 指的是 top-level 的設定</li>
-</ul>
-<p><code>yscale</code></p>
-<ul>
-<li><code>time</code> 告訴 vega 我用的資料是個時間</li>
-<li><code>fields</code> 指定 <code>domain</code> 的最小最大值來自哪個欄位</li>
-<li><code>reverse</code> 用來反轉軸的大小，讓先發生的有比較高的值，顯示在圖的上方</li>
-</ul>
-<p>我們可以畫幾個座標軸（使用前面定義的scale）來觀察：</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="co">// vg.json 的片段</span></a>
-<a class="sourceLine" id="cb7-2" data-line-number="2">  <span class="st">&quot;axes&quot;</span><span class="op">:</span> [</a>
-<a class="sourceLine" id="cb7-3" data-line-number="3">    <span class="op">{</span> <span class="st">&quot;orient&quot;</span><span class="op">:</span> <span class="st">&quot;top&quot;</span><span class="op">,</span> <span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;xscale&quot;</span> <span class="op">},</span></a>
-<a class="sourceLine" id="cb7-4" data-line-number="4">    <span class="op">{</span> <span class="st">&quot;orient&quot;</span><span class="op">:</span> <span class="st">&quot;bottom&quot;</span><span class="op">,</span> <span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;xscale&quot;</span> <span class="op">},</span></a>
-<a class="sourceLine" id="cb7-5" data-line-number="5">    <span class="op">{</span> <span class="st">&quot;orient&quot;</span><span class="op">:</span> <span class="st">&quot;left&quot;</span><span class="op">,</span> <span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;yscale&quot;</span> <span class="op">}</span></a>
-<a class="sourceLine" id="cb7-6" data-line-number="6">  ]</a></code></pre></div>
-</section>
-<section id="marks" class="level2">
-<h2>Marks</h2>
-<p>我希望將每個議程用方塊的方式畫出來，做出時間表的的效果。</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="co">// vg.json 的片段</span></a>
-<a class="sourceLine" id="cb8-2" data-line-number="2">  <span class="st">&quot;marks&quot;</span><span class="op">:</span> [</a>
-<a class="sourceLine" id="cb8-3" data-line-number="3">    <span class="op">{</span></a>
-<a class="sourceLine" id="cb8-4" data-line-number="4">      <span class="st">&quot;type&quot;</span><span class="op">:</span> <span class="st">&quot;rect&quot;</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb8-5" data-line-number="5">      <span class="st">&quot;from&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;data&quot;</span><span class="op">:</span><span class="st">&quot;table&quot;</span><span class="op">},</span></a>
-<a class="sourceLine" id="cb8-6" data-line-number="6">      <span class="st">&quot;encode&quot;</span><span class="op">:</span> <span class="op">{</span></a>
-<a class="sourceLine" id="cb8-7" data-line-number="7">        <span class="st">&quot;update&quot;</span><span class="op">:</span> <span class="op">{</span></a>
-<a class="sourceLine" id="cb8-8" data-line-number="8">          <span class="st">&quot;xc&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;xscale&quot;</span><span class="op">,</span> <span class="st">&quot;field&quot;</span><span class="op">:</span> <span class="st">&quot;room&quot;</span><span class="op">,</span> <span class="st">&quot;band&quot;</span><span class="op">:</span><span class="fl">0.5</span><span class="op">},</span></a>
-<a class="sourceLine" id="cb8-9" data-line-number="9">          <span class="st">&quot;width&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;xscale&quot;</span><span class="op">,</span> <span class="st">&quot;band&quot;</span><span class="op">:</span> <span class="fl">0.5</span><span class="op">},</span></a>
-<a class="sourceLine" id="cb8-10" data-line-number="10">          <span class="st">&quot;y&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;yscale&quot;</span><span class="op">,</span> <span class="st">&quot;field&quot;</span><span class="op">:</span> <span class="st">&quot;start&quot;</span><span class="op">},</span></a>
-<a class="sourceLine" id="cb8-11" data-line-number="11">          <span class="st">&quot;y2&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;yscale&quot;</span><span class="op">,</span> <span class="st">&quot;field&quot;</span><span class="op">:</span> <span class="st">&quot;end&quot;</span><span class="op">}</span></a>
-<a class="sourceLine" id="cb8-12" data-line-number="12">        <span class="op">}</span></a>
-<a class="sourceLine" id="cb8-13" data-line-number="13">      <span class="op">}</span></a>
-<a class="sourceLine" id="cb8-14" data-line-number="14">    <span class="op">}</span></a>
-<a class="sourceLine" id="cb8-15" data-line-number="15">  ]</a></code></pre></div>
-<ul>
-<li>每個 mark 都要有對應的 <code>type</code>，這邊選用方塊(<code>rect</code>)</li>
-<li>用 <code>from</code> 來指定資料來源</li>
-</ul>
-<p><code>encode</code> 的部份用來指定畫圖時的參數，建議先看一下<a href="https://vega.github.io/vega/docs/marks/">文件</a> 跟 <a href="https://bost.ocks.org/mike/join/">Thinking with Joins</a></p>
-<ul>
-<li><code>xc</code> 用來指定 整個方塊的中心座標，<code>band</code> 是為了調整方塊的位置，向右移動半個 band</li>
-<li><code>width</code> 用半個 <code>band</code></li>
-<li><code>y</code>, <code>y2</code> 指定方塊的上界跟下界，感謝 scale ，我們可以直接指定 <code>start</code> 跟 <code>end</code> 這兩個時間欄位</li>
-</ul>
-<p>看起來不糟，不過上點顏色應該會好看點。我用議程屬於的社群(<code>community</code>) 來上色。</p>
-<ul>
-<li>先建立一個 scale 從社群類型映射到顏色</li>
-<li>在 marks 裡面使用這個 scale</li>
-</ul>
-<div class="sourceCode" id="cb9"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="co">// vg.json 的片段，scale 底下</span></a>
-<a class="sourceLine" id="cb9-2" data-line-number="2">    <span class="op">{</span></a>
-<a class="sourceLine" id="cb9-3" data-line-number="3">      <span class="st">&quot;name&quot;</span><span class="op">:</span> <span class="st">&quot;color&quot;</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb9-4" data-line-number="4">      <span class="st">&quot;type&quot;</span><span class="op">:</span> <span class="st">&quot;ordinal&quot;</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb9-5" data-line-number="5">      <span class="st">&quot;domain&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;data&quot;</span><span class="op">:</span> <span class="st">&quot;table&quot;</span><span class="op">,</span> <span class="st">&quot;field&quot;</span><span class="op">:</span> <span class="st">&quot;community&quot;</span><span class="op">},</span></a>
-<a class="sourceLine" id="cb9-6" data-line-number="6">      <span class="st">&quot;range&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;scheme&quot;</span><span class="op">:</span> <span class="st">&quot;category20&quot;</span><span class="op">}</span></a>
-<a class="sourceLine" id="cb9-7" data-line-number="7">    <span class="op">}</span></a></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="co">// vg.json 的片段，marks[0][&quot;encode&quot;] 底下</span></a>
-<a class="sourceLine" id="cb10-2" data-line-number="2">    <span class="st">&quot;enter&quot;</span><span class="op">:</span> <span class="op">{</span></a>
-<a class="sourceLine" id="cb10-3" data-line-number="3">      <span class="st">&quot;fill&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;scale&quot;</span><span class="op">:</span> <span class="st">&quot;color&quot;</span><span class="op">,</span> <span class="st">&quot;field&quot;</span><span class="op">:</span> <span class="st">&quot;community&quot;</span><span class="op">}</span></a>
-<a class="sourceLine" id="cb10-4" data-line-number="4">    <span class="op">}</span></a></code></pre></div>
-<p>另外，可以用 <code>tooltip</code> 屬性來顯示議程的主題：</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="co">// vg.json 的片段，marks[0][&quot;encode&quot;][&quot;enter&quot;] 裡面</span></a>
-<a class="sourceLine" id="cb11-2" data-line-number="2">  <span class="st">&quot;tooltip&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;field&quot;</span><span class="op">:</span> <span class="st">&quot;subject&quot;</span><span class="op">}</span></a></code></pre></div>
-</section>
-<section id="transform" class="level2">
-<h2>Transform</h2>
-<p>可以看到第一天議程結束到第二天議程結束有一大段空閒，可以用 transform 的 filter 來選擇只用哪一部分的資料。</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="co">// vg.json 的片段，data 底下</span></a>
-<a class="sourceLine" id="cb12-2" data-line-number="2"><span class="st">&quot;transform&quot;</span><span class="op">:</span> [</a>
-<a class="sourceLine" id="cb12-3" data-line-number="3">  <span class="op">{</span></a>
-<a class="sourceLine" id="cb12-4" data-line-number="4">    <span class="st">&quot;type&quot;</span><span class="op">:</span> <span class="st">&quot;filter&quot;</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb12-5" data-line-number="5">    <span class="st">&quot;expr&quot;</span><span class="op">:</span> <span class="st">&quot;datum.start &gt;= datetime(2017, 8-1, 5) &amp;&amp; datum.end &lt; datetime(2017, 8-1, 5+1)&quot;</span></a>
-<a class="sourceLine" id="cb12-6" data-line-number="6">  <span class="op">}</span></a>
-<a class="sourceLine" id="cb12-7" data-line-number="7">]</a></code></pre></div>
-<p><code>expr</code> 吃一個 vega 精簡過的 javascript subset，用來給 <code>filter</code> 決定保留與否。</p>
-</section>
-<section id="signals" class="level2">
-<h2>Signals</h2>
-<p>我不會永遠只想看其中一天，也不希望要看隔天的議程還要做修改這份 vega json。好在 vega 提供了一些方便的 signal，我這邊選用了他現成的 radio input：會在圖上面加上一個互動的 radio button，然後綁定成一個 signal。</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="co">// vg.json 的片段</span></a>
-<a class="sourceLine" id="cb13-2" data-line-number="2"><span class="st">&quot;signals&quot;</span><span class="op">:</span> [</a>
-<a class="sourceLine" id="cb13-3" data-line-number="3">    <span class="op">{</span></a>
-<a class="sourceLine" id="cb13-4" data-line-number="4">      <span class="st">&quot;name&quot;</span><span class="op">:</span> <span class="st">&quot;day&quot;</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb13-5" data-line-number="5">      <span class="st">&quot;value&quot;</span><span class="op">:</span> <span class="dv">5</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb13-6" data-line-number="6">      <span class="st">&quot;bind&quot;</span><span class="op">:</span> <span class="op">{</span><span class="st">&quot;input&quot;</span><span class="op">:</span> <span class="st">&quot;radio&quot;</span><span class="op">,</span> <span class="st">&quot;options&quot;</span><span class="op">:</span> [<span class="dv">5</span><span class="op">,</span> <span class="dv">6</span>]<span class="op">}</span></a>
-<a class="sourceLine" id="cb13-7" data-line-number="7">    <span class="op">}</span></a>
-<a class="sourceLine" id="cb13-8" data-line-number="8">]</a></code></pre></div>
-<p>綁定過的 signal 可以作為 <code>expr</code> 內的變數使用</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="co">// vg.json 的片段，修改 data[&quot;transform&quot;][0][&quot;expr&quot;]</span></a>
-<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="st">&quot;expr&quot;</span><span class="op">:</span> <span class="st">&quot;datum.start &gt;= datetime(2017, 8-1, day) &amp;&amp; datum.end &lt; datetime(2017, 8-1, day)&quot;</span></a></code></pre></div>
-</section>
-<section id="完成" class="level2">
-<h2>完成</h2>
-<p>一個簡單的<a href="https://vega.github.io/editor/#/gist/vega/op8867555/5af6189b957373bf0ff9969c8e3d426a">議程時間表</a>就完成啦！當然還有很多可以增加/改進的地方，像是：</p>
-<ul>
-<li>顯示更多情報：講者、議程摘要…</li>
-<li>讓圖更漂亮：調整滑鼠 hover 時的 style …</li>
-<li>加上 Scale Break ，直接省去切換兩天的動作</li>
-<li>想辦法支援行動瀏覽器，手機版的 chrome 就不支援顯示 tooltip</li>
-<li>…</li>
-</ul>
-</section>
-</section>
-<section id="總結" class="level1">
-<h1>總結</h1>
-<p>我最後的成果放在<a href="https://op8867555.github.io/coscup2017-submissions/index.html">這邊</a>，雖然不完美，但是也讓我在很短的時間內完成了一個堪用的成品。</p>
-<p><em>利用 Vega 這個工具，可以迅速得做出簡單好讀寫（相對於 d3.js），但又不失彈性的視覺化成果。</em></p>
-<p>題外話，雖然 JSON 還算是好讀寫，但是實際還是不太適合人類直接編寫，要的話用 YAML 或是再幹一個 DSL 可能會比較方便。</p>
-</section>]]></description>
-    <pubDate>Fri, 11 Aug 2017 00:00:00 UT</pubDate>
-    <guid>https://op8867555.github.io/posts/2017-08-11-vega.html</guid>
     <dc:creator>Alex Lu</dc:creator>
 </item>
 

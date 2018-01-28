@@ -1,0 +1,376 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="google-site-verification" content="CLMtF1JkUEd-jPZ3RQateLLiKyn729kaOHg9Hnu_TSo" />
+    <title>Alex's Blog - 機器如何計算微分/偏微分（下）</title>
+    <meta name="robots" content="index, follow" />
+    <link rel="alternate" href="/feed.xml" title="Alex Lu's Blog" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/tufte.css" />
+    <link rel="stylesheet" href="/css/pandoc.css" />
+    <link rel="stylesheet" href="/css/default.css" />
+    <link rel="stylesheet" href="/css/syntax.css" />
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-40612089-3', 'auto');
+    ga('send', 'pageview');
+    </script>
+    <!-- katex -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/contrib/auto-render.js" "></script>
+  </head>
+  <body>
+    <nav>
+<a href="../">Home</a>
+</nav>
+<article>
+
+<header>
+<h1 class="title">機器如何計算微分/偏微分（下）</h1>
+
+
+<p class="byline">January 28, 2018</p>
+
+
+<p class="byline">Tags: <a href="../tags/meachine-learning.html">meachine-learning</a>, <a href="../tags/autodiff.html">autodiff</a></p>
+
+</header>
+
+
+<section>
+<p><a href="../posts/2017-12-17-autodiff.html">前一篇文章</a>的最後介紹了 Forward-Mode Automatic Differential 這個應用 Chain Rule 的技巧，這一篇要來介紹一個反過來的版本 Reverse-Mode Automatic Differential。</p>
+</section>
+<section id="recap-forward-mode-ad" class="level1">
+<h1>Recap: Forward-Mode AD</h1>
+<p>計算 Foward-Mode AD 的時候，假設要求 <span class="math inline">\(f(x, y) = sin(x) + x × y\)</span> 在 <span class="math inline">\((3, 1)\)</span> 對 <span class="math inline">\(x\)</span> 的偏微分 <span class="math inline">\(\frac{\partial Y}{\partial x}\)</span>，我們會像這樣由上到下計算：</p>
+<p><span><label for="sn-1" class="margin-toggle">⊕</label><input type="checkbox" id="sn-1" class="margin-toggle" /><span class="marginnote"> <a href="https://upload.wikimedia.org/wikipedia/commons/a/a4/ForwardAccumulationAutomaticDifferentiation.png"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/ForwardAccumulationAutomaticDifferentiation.png/512px-ForwardAccumulationAutomaticDifferentiation.png" /></a> Forward-Mode AD 在 <a href="https://en.wikipedia.org/wiki/Automatic_differentiation">Wikipedia</a> 上的示意圖<br />
+<br />
+</span></span></p>
+<p><span class="math display">\[\begin{array}{cl}
+\frac{∂}{∂ x} x&amp;= 1\\[0.5em]
+\frac{∂}{∂ x} sin(x) &amp;= cos(x) \\[0.5em]
+\frac{∂}{∂ x} x \cdot y  &amp;= 1\\[0.5em]
+\frac{∂}{∂ x} sin(x) + x \cdot y  &amp;= \frac{∂ sin(x)}{∂ x} +
+\frac{∂ x \cdot y}{∂ x} = cos(x) + 1
+\end{array}\]</span></p>
+<p>也就是如果今天有個 <span class="math inline">\(f\)</span>，而將 <span class="math inline">\(x_i\)</span> 以外的輸入都是為常數的話，得到 <span class="math inline">\(f_{x_i} = g_1 \circ g_2 \circ \cdots \circ g_n\)</span>，</p>
+<ol type="1">
+<li>從 <span class="math inline">\(\frac{\partial x_i}{\partial x_i} = 1\)</span>，並將其他變數 <span class="math inline">\(x_j\)</span> 視為常數，</li>
+<li>照著變數<span class="math inline">\(x_i\)</span> 的計算過程計算 <span class="math inline">\(g(x_i)\)</span> 的偏微分（這個例子的第一個 <span class="math inline">\(g\)</span> 是 <span class="math inline">\(sin\)</span> 或是 <span class="math inline">\(x \cdot y\)</span>）<span><label for="sn-2" class="margin-toggle">⊕</label><input type="checkbox" id="sn-2" class="margin-toggle" /><span class="marginnote"> 我們可以將 <span class="math inline">\(\cdot\)</span> 看成 <span class="math inline">\(mul(x, y)\)</span>，而因為 <span class="math inline">\(y\)</span> 被視為常數，所以又可以看成一個單變數函數 <span class="math inline">\(mul_{1}(x) = 1\)</span>。<br />
+<br />
+</span></span></li>
+<li>最後求得 <span class="math inline">\(\frac{\partial}{\partial x_i}f(..., x_i, ...)\)</span></li>
+</ol>
+<p>如果要計算每個變數 <span class="math inline">\(x_i\)</span> 的偏微分的話，我們就必須重複這樣的動作 <span class="math inline">\(N\)</span> 次，而計算梯度時就會遇到這個困境。</p>
+</section>
+<section id="reverse-mode-ad" class="level1">
+<h1>Reverse-Mode AD</h1>
+<p>Reverse-Mode AD 則是反過來計算：</p>
+<p><span><label for="sn-3" class="margin-toggle">⊕</label><input type="checkbox" id="sn-3" class="margin-toggle" /><span class="marginnote"> <a href="https://commons.wikimedia.org/wiki/File%3AReverseaccumulationAD.png"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a0/ReverseaccumulationAD.png" /></a> Rerverse-Mode AD 在 <a href="https://en.wikipedia.org/wiki/Automatic_differentiation">Wikipedia</a> 上的示意圖<br />
+<br />
+</span></span></p>
+<p><span class="math display">\[\begin{array}{cll}
+\frac{∂ Y}{∂ Y} &amp;= \frac{∂ Y}{∂ sin(x) + x \cdot y} &amp;= 1 \\[0.5em]
+\frac{∂ Y}{∂ sin(x)} &amp;=
+\frac{∂ Y}{∂ sin(x) + x \cdot y}\frac{∂ sin(x) + x \cdot y}{∂ sin(x)} &amp;=
+1 \cdot 1
+\\[0.5em]
+\frac{∂ Y}{∂ x \cdot y} &amp;=
+\frac{∂ Y}{∂ sin(x) + x \cdot y}\frac{∂ sin(x) + x \cdot y}{∂ x \cdot y} &amp;=
+1 \cdot 1
+\\[0.5em]
+\frac{∂ Y}{∂ x} &amp;=
+\frac{∂ Y}{∂ sin(x)}\frac{∂ sin(x)}{∂ x} +
+\frac{∂ Y}{∂ x \cdot y}\frac{∂ x \cdot y}{∂ x} &amp;=
+1 \cdot cos(x) + 1 \cdot y
+\\[0.5em]
+\frac{∂ Y}{∂ y} &amp;=
+\frac{∂ Y}{∂ x \cdot y}\frac{∂ x \cdot y}{∂ y} &amp;=
+1 \cdot x
+\end{array}\]</span></p>
+<p>Forward-Mode AD 從 <span class="math inline">\(\frac{∂ \color{red}x}{∂ x} = 1\)</span> 開始<strong>組合</strong>，到 <span class="math inline">\(\frac{∂ \color{red}Y}{∂ x}\)</span> 結束； Reverse-Mode AD 從 <span class="math inline">\(\frac{∂ Y}{∂ \color{red}Y} = 1\)</span> 開始<strong>分解</strong>，到 <span class="math inline">\(\frac{∂ Y}{∂ \color{red}x}\)</span> 結束。</p>
+<section id="back-propagation" class="level2">
+<h2>Back Propagation</h2>
+<p><span><label for="sn-4" class="margin-toggle">⊕</label><input type="checkbox" id="sn-4" class="margin-toggle" /><span class="marginnote"> <a href="../images/autodiff-neuron.svg"><img src="../images/autodiff-neuron.svg" /></a> 類神經的神經元示意圖<br />
+<br />
+</span></span></p>
+<p>所以這是如何跟類神經網路關聯接一起的？一個簡單的類神經網路<span><label for="sn-5" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-5" class="margin-toggle" /><span class="sidenote">為了簡化，我省去了 Bias term <span class="math inline">\(b^{(l)}\)</span>。<br />
+<br />
+</span></span>可以這樣表示<span><label for="sn-6" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-6" class="margin-toggle" /><span class="sidenote">我這邊使用 <span class="math inline">\(a\)</span> 表示 summation, <span class="math inline">\(z\)</span> 表示 activation 的輸出，有些文章會採用反過來的表示方式。<br />
+<br />
+</span></span>：</p>
+<p><span class="math display">\[\begin{aligned}
+a_i^{(1)} &amp;= \sum_j w^{(1)}_{ij} \cdot x_i
+&amp; z_i^{(1)} &amp;= f(a_i^{(1)}) \\
+a_i^{(2)} &amp;= \sum_j w^{(2)}_{ij} \cdot z_j^{(1)}
+&amp; z_1^{(2)} &amp;= f(a_i^{(2)}) \\
+&amp;\cdots &amp; &amp; \cdots \\
+a_i^{(l)} &amp;= \sum_j w^{(l)}_{ij} \cdot z_j^{(l-1)}
+ &amp;z_i^{(l)} &amp;= f(a_i^{(l)})
+\end{aligned}\]</span></p>
+<p>接著我們會定義 cost function (或稱為 loss function)，比方說 Mean Squared Error：</p>
+<p><span class="math display">\[C(Y, \hat Y) = \frac{1}{n} \sum_i^n \left(Y_i - \hat{Y}_i\right)^2\]</span></p>
+<p>類神經的 Forward Propagation 就是帶入資料 <span class="math inline">\(X\)</span> 跟權重 <span class="math inline">\(w\)</span> 計算出預測值 <span class="math inline">\(z_i^{(l)}\)</span>，而 Back Propagation 就是利用 cost 來找出一組更好 <span class="math inline">\(w_{ij}\)</span> 來使的 <span class="math inline">\(C\)</span> 更小。</p>
+<p>怎麼做？從 <span class="math inline">\(\frac{∂ C}{∂ \color{red}C} = 1\)</span> 開始、 <span class="math inline">\(\frac{∂ C}{∂ \color{red}z_i^{(l)}}, \frac{∂ C}{∂ \color{red}a_i^{(l)}}, \frac{∂ C}{∂ \color{red}w_{ij}^{(l)}}, \frac{∂ C}{∂ \color{red}z_i^{(l-1)}} ...\frac{∂ C}{∂ \color{red}a_i^{(1)}}\)</span>，最後算到 <span class="math inline">\(\frac{∂ C}{∂ \color{red}w_{ij}^{(1)}}\)</span>，求出每一個 <span class="math inline">\(\frac{∂ C}{∂ w_{ij}}\)</span> 之後我們就可以利用 Gradient Descent 法來找出更好的 <span class="math inline">\(w_{ij}\)</span></p>
+<p><span class="math display">\[w_{ij} \leftarrow w_{ij} - \eta \frac{∂ C}{∂ w_{ij}}\]</span></p>
+<p>注意到了嗎？這跟前面所敘述的 Reverse-Mode AD 是<strong>一樣的計算過程</strong>，這代表我們可以利用它來取代<span><label for="sn-7" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-7" class="margin-toggle" /><span class="sidenote">Back Propagation 跟 AD 都應用了 chain rule 來計算，不同的是使用 AD 的技巧後不再需要推導公式。<br />
+<br />
+</span></span>手動推導的 Back Propagation 演算法。</p>
+</section>
+<section id="為什麼類神經要用-reverse-mode-ad" class="level2">
+<h2>為什麼類神經要用 Reverse-Mode AD?</h2>
+<p>Jacobian matrix 是一個 <span class="math inline">\(f: ℝ^n \rightarrow ℝ^m\)</span> 的所有偏導數所組合而成的矩陣：</p>
+<p><span class="math display">\[\mathbf {J} =
+\begin{bmatrix}
+\frac {\partial f_{1}}{\partial x_{1}} &amp; \cdots &amp; \frac {\partial f_{1}}{\partial x_{n}}\\[0.5em]
+\vdots &amp;\ddots &amp;\vdots \\[0.5em]
+\frac {\partial f_{m}}{\partial x_{1}} &amp; \cdots &amp; \frac {\partial f_{m}}{\partial x_{n}}
+\end{bmatrix}\]</span></p>
+<p>Reverse-Mode AD 就是一次算一個 row，Forward-Mode AD 則是一次算一個 column。由於類神經網路是一個 <span class="math inline">\(n \gg m\)</span> 的函數，用 Reverse-Mode AD 有效率了不少。</p>
+</section>
+</section>
+<section id="implementation" class="level1">
+<h1>Implementation</h1>
+<p>Reverse-Mode AD 的實作比起 Forward-Mode AD 複雜了點，先回來看看前面的<span class="math inline">\(\frac{∂ Y}{∂ x}\)</span>：</p>
+<p><span class="math display">\[\frac{∂ Y}{∂ x} =
+\textcolor{blue}{\frac{∂ Y}{∂ sin(x)}}
+\textcolor{green}{\frac{∂ sin(x)}{∂ x}} +
+\textcolor{blue}{\frac{∂ Y}{∂ x \cdot y}}
+\textcolor{green}{\frac{∂ x \cdot y}{∂ x}}\]</span></p>
+<p>可以觀察到：</p>
+<ol type="1">
+<li><span class="math inline">\(\color{blue}\text{藍色}\)</span>的部份跟計算過程是<strong>相反順序的</strong><span><label for="sn-8" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-8" class="margin-toggle" /><span class="sidenote">以計算 <span class="math inline">\(Y = (f \circ g \circ h) (x)\)</span> 的微分 <span class="math inline">\(\frac{∂ Y}{∂ x}\)</span> 為例，我們需要從後面到前面地求出 <span class="math inline">\(\frac{∂ Y}{∂ f}, \frac{∂ Y}{∂ g}, \frac{∂ Y}{∂ h}\)</span>，<br />
+<br />
+</span></span></li>
+<li><span class="math inline">\(\color{green}\text{綠色}\)</span>的部份跟計算過程是<strong>相同順序的</strong><span><label for="sn-9" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-9" class="margin-toggle" /><span class="sidenote">繼續上面的例子，計算綠色的部份需要從前面到後面的求出 <span class="math inline">\(\frac{∂ h(x)}{∂ x}, \frac{∂ g(h(x))}{∂ h(x)}, \frac{∂ f(g(h(x)))}{∂ g(h(x))}\)</span>。<br />
+<br />
+</span></span></li>
+<li>我們需要追蹤一個變數被在哪些地方，上面 <span class="math inline">\(Y = sin(x) + x \cdot y\)</span> 的例子 <span class="math inline">\(x\)</span> 就被用 <span class="math inline">\(sin(x)\)</span> 跟 <span class="math inline">\(x \cdot y\)</span> 兩處。</li>
+</ol>
+<section id="wengert-tape" class="level2">
+<h2>Wengert Tape</h2>
+<p>其中一個作法是使用 Wengert Tape ，這個資料結構追蹤順向計算的過程，Reverse-Mode AD 時則是會反過來計算。<span><label for="sn-10" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-10" class="margin-toggle" /><span class="sidenote">這邊的實作參考自 Edward Kmett 所寫的 <a href="https://github.com/ekmett/ad"><code>ad</code></a> 自動微分函式庫。<br />
+<br />
+</span></span><span><label for="sn-11" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-11" class="margin-toggle" /><span class="sidenote">注意：為了方便實作跟解釋，我的實作有稍微變化過。<br />
+<br />
+</span></span></p>
+<p>為了簡化，這邊將計算的過程推廣成三種形式： 變數、單變數函數、雙變數函數。</p>
+<ul>
+<li><code>x</code> （或是 <code>y</code>） 表示這個計算的輸入節點 <span class="math inline">\(x, y\)</span></li>
+<li><code>dx</code> （或是 <code>dy</code>） 表示輸入對這個計算的影響 <span class="math inline">\(\frac{∂f}{∂x}, \frac{∂f}{∂y}\)</span>，也就是前述的<span class="math inline">\(\color{green}\text{綠色}\)</span>部份。</li>
+<li><code>ss</code> 表示這個計算對於整個計算的影響 <span class="math inline">\(\frac{∂ Y}{∂ f}\)</span>，也就是前述<span class="math inline">\(\color{blue}\text{藍色}\)</span>的部份。</li>
+</ul>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="im">from</span> collections <span class="im">import</span> namedtuple</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2">Var <span class="op">=</span> namedtuple(<span class="st">'Var'</span>, [<span class="st">'ss'</span>])</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">Un  <span class="op">=</span> namedtuple(<span class="st">'Un'</span>,  [<span class="st">'x'</span>, <span class="st">'dx'</span>, <span class="st">'ss'</span>])</a>
+<a class="sourceLine" id="cb1-4" data-line-number="4">Bin <span class="op">=</span> namedtuple(<span class="st">'Bin'</span>, [<span class="st">'x'</span>, <span class="st">'y'</span>, <span class="st">'dx'</span>, <span class="st">'dy'</span>, <span class="st">'ss'</span>])</a></code></pre></div>
+<p>這樣就可以下面的這段程式來表達 <span class="math inline">\(sin(x) + x \cdot y \bigg\vert_{x = 3, y = 1}\)</span> 的順向計算過程<span><label for="sn-12" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-12" class="margin-toggle" /><span class="sidenote">為了簡化，我省去了當下計算的輸出數值<code>v</code>(<span class="math inline">\(f(x)\)</span>)<br />
+<br />
+</span></span></p>
+<p><span><label for="sn-13" class="margin-toggle">⊕</label><input type="checkbox" id="sn-13" class="margin-toggle" /><span class="marginnote"> 這邊我小小的作弊了一下，直接使用 <code>Dict</code> 來方便更新 <code>ss</code> 的值。<br />
+<br />
+</span></span></p>
+<p><span><label for="sn-14" class="margin-toggle">⊕</label><input type="checkbox" id="sn-14" class="margin-toggle" /><span class="marginnote"> <a href="../images/autodiff-forward-ad.svg"><img src="../images/autodiff-forward-ad.svg" /></a> 這張圖表示順向計算時所累計的數值<br />
+<br />
+</span></span></p>
+<p><span><label for="sn-15" class="margin-toggle">⊕</label><input type="checkbox" id="sn-15" class="margin-toggle" /><span class="marginnote"> <a href="../images/autodiff-tape.svg"><img src="../images/autodiff-tape.svg" /></a> 這張圖表示節點之間的相依關係<br />
+<br />
+</span></span></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="im">from</span> math <span class="im">import</span> <span class="op">*</span></a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw">def</span> box(v<span class="op">=</span><span class="dv">0</span>):</a>
+<a class="sourceLine" id="cb2-3" data-line-number="3">    <span class="cf">return</span> {<span class="st">'value'</span>: v}</a>
+<a class="sourceLine" id="cb2-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb2-5" data-line-number="5">x <span class="op">=</span> Var(box())</a>
+<a class="sourceLine" id="cb2-6" data-line-number="6">y <span class="op">=</span> Var(box())</a>
+<a class="sourceLine" id="cb2-7" data-line-number="7">sin_x <span class="op">=</span> Un(x, cos(<span class="dv">1</span>), box())</a>
+<a class="sourceLine" id="cb2-8" data-line-number="8">x_times_y <span class="op">=</span> Bin(x, y, <span class="dv">1</span>, <span class="dv">3</span>, box())</a>
+<a class="sourceLine" id="cb2-9" data-line-number="9">Y <span class="op">=</span> Bin(sin_x, x_times_y, <span class="dv">1</span>, <span class="dv">1</span>, box(<span class="dv">1</span>))</a></code></pre></div>
+<p>Wengert Tape 就是紀錄輸入變數及這一連續的計算過程。</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" data-line-number="1">tape <span class="op">=</span> [x, y, sin_x, x_times_y, Y]</a></code></pre></div>
+<p>當計算 Reverse-Mode AD時，我們會將 tape 反過來累計：<span><label for="sn-16" class="margin-toggle">⊕</label><input type="checkbox" id="sn-16" class="margin-toggle" /><span class="marginnote"> 注意到這邊的實作已經在前面建構這些節點的同時，將順向計算的過程給嵌進去了。<br />
+<br />
+</span></span></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="cf">for</span> cell <span class="kw">in</span> <span class="bu">reversed</span>(tape):</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">    <span class="cf">if</span> <span class="bu">isinstance</span>(cell, Bin):</a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">        cell.x.ss[<span class="st">'value'</span>] <span class="op">+=</span> cell.ss[<span class="st">'value'</span>] <span class="op">*</span> cell.dx</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4">        cell.y.ss[<span class="st">'value'</span>] <span class="op">+=</span> cell.ss[<span class="st">'value'</span>] <span class="op">*</span> cell.dy</a>
+<a class="sourceLine" id="cb4-5" data-line-number="5">    <span class="cf">elif</span> <span class="bu">isinstance</span>(cell, Un):</a>
+<a class="sourceLine" id="cb4-6" data-line-number="6">        cell.x.ss[<span class="st">'value'</span>] <span class="op">+=</span> cell.ss[<span class="st">'value'</span>] <span class="op">*</span> cell.dx</a></code></pre></div>
+<p>Reverse Mode AD 就像這樣在一個 pass 就能算出所有輸入的偏導數</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="bu">print</span>((x.ss[<span class="st">'value'</span>], y.ss[<span class="st">'value'</span>]))</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">(<span class="fl">0.010007503399554585</span>, <span class="dv">3</span>)</a></code></pre></div>
+<p>剩下的就是實作一個易用的界面給使用者了，也就是只需要指定順向計算的過程。</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="op">&gt;&gt;&gt;</span> x <span class="op">=</span> var(<span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="op">&gt;&gt;&gt;</span> y <span class="op">=</span> var(<span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="op">&gt;&gt;&gt;</span> Y <span class="op">=</span> sin(x) <span class="op">+</span> x <span class="op">*</span> y</a>
+<a class="sourceLine" id="cb6-4" data-line-number="4"><span class="op">&gt;&gt;&gt;</span> Y.value</a>
+<a class="sourceLine" id="cb6-5" data-line-number="5"><span class="fl">3.1411200080598674</span></a>
+<a class="sourceLine" id="cb6-6" data-line-number="6"><span class="op">&gt;&gt;&gt;</span> Y.tape</a>
+<a class="sourceLine" id="cb6-7" data-line-number="7">Tape([<span class="op">&lt;</span>Var <span class="bu">object</span> at <span class="bn">0x7f84dbfed198</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb6-8" data-line-number="8"> <span class="op">&lt;</span>Unary <span class="bu">object</span> at <span class="bn">0x7f84e6968c50</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb6-9" data-line-number="9"> <span class="op">&lt;</span>Var <span class="bu">object</span> at <span class="bn">0x7f84e3e567b8</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb6-10" data-line-number="10"> <span class="op">&lt;</span>Binary <span class="bu">object</span> at <span class="bn">0x7f84e0dff4e0</span><span class="op">&gt;</span>,</a>
+<a class="sourceLine" id="cb6-11" data-line-number="11"> <span class="op">&lt;</span>Binary <span class="bu">object</span> at <span class="bn">0x7f84dbfed630</span><span class="op">&gt;</span>])</a>
+<a class="sourceLine" id="cb6-12" data-line-number="12"><span class="op">&gt;&gt;&gt;</span> Y.backprop()</a>
+<a class="sourceLine" id="cb6-13" data-line-number="13"><span class="op">&gt;&gt;&gt;</span> x.sensitivity</a>
+<a class="sourceLine" id="cb6-14" data-line-number="14"><span class="fl">0.010007503399554585</span></a></code></pre></div>
+<section id="其他變化" class="level3">
+<h3>其他變化</h3>
+<ul>
+<li>另外一個做法是將所有節點表示成一個有向無環圖（DAG; Directed Acyclic Graph），接著做 Topological sort 來計算出順向跟反向的計算順序。</li>
+<li>可以選擇將記住計算的函數及輸入輸出，而非偏導數的數值 <span><label for="sn-17" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-17" class="margin-toggle" /><span class="sidenote">如果我沒弄錯的話， tensorflow 就是以 DAG 表示，用 DFS 來找出計算順序，並採用只儲存函數本身跟輸入輸出的做法。<br />
+<br />
+</span></span>。</li>
+<li>可以在變數節點記下名稱，方便事後觀察。</li>
+</ul>
+</section>
+</section>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>這篇文章介紹了 Reverse-Mode AD 以及實作的方法，學會這些細節雖然沒有讓我更會訓練類神經網路，但也是更了解這些黑盒子底下到底在做些什麼。</p>
+</section>
+<section id="appendix" class="level1">
+<h1>Appendix</h1>
+<section id="example-softmax-regression" class="level2">
+<h2>Example: Softmax Regression</h2>
+<p><span><label for="sn-18" class="margin-toggle">⊕</label><input type="checkbox" id="sn-18" class="margin-toggle" /><span class="marginnote"> 我的「玩具版」 Reverse-Mode AD 實作函數庫放在<a href="https://gist.github.com/op8867555/59d246a54188fe0d282656fe83e84a65">這邊</a>。<br />
+<br />
+</span></span></p>
+<p>這次以 ML 常用的 iris 資料集作為範例，建構一個 Softmax Regression 來分類這些花朵。</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="im">from</span> reverse_ad <span class="im">import</span> <span class="op">*</span></a>
+<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="im">from</span> sklearn.datasets <span class="im">import</span> load_iris</a>
+<a class="sourceLine" id="cb7-3" data-line-number="3"><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</a>
+<a class="sourceLine" id="cb7-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb7-5" data-line-number="5">iris <span class="op">=</span> load_iris()</a>
+<a class="sourceLine" id="cb7-6" data-line-number="6">X <span class="op">=</span> iris[<span class="st">'data'</span>]</a>
+<a class="sourceLine" id="cb7-7" data-line-number="7">Y <span class="op">=</span> iris[<span class="st">'target'</span>]</a>
+<a class="sourceLine" id="cb7-8" data-line-number="8">X_train, X_test, Y_train, Y_test <span class="op">=</span> train_test_split(X, Y)</a></code></pre></div>
+<p>這邊使用 Softmax Regression 做分類，用 Cross Entropy 做為 loss function。<span><label for="sn-19" class="margin-toggle">⊕</label><input type="checkbox" id="sn-19" class="margin-toggle" /><span class="marginnote"> <span class="math display">\[\begin{gathered}
+  Softmax(X_i) = \frac{exp(X_i)}{\sum_k exp(X_i)} \\
+  f(X; W, B) = Softmax(W \times X + B) \\
+  Cost(Y, \hat Y) = \frac{-1}{|Y|}\sum_{y} \sum_{k} y_k \log(\hat{y}_k)
+  \end{gathered}\]</span><br />
+<br />
+</span></span></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw">def</span> softmax(z):</a>
+<a class="sourceLine" id="cb8-2" data-line-number="2">    z_exp <span class="op">=</span> [exp(i) <span class="cf">for</span> i <span class="kw">in</span> z]</a>
+<a class="sourceLine" id="cb8-3" data-line-number="3">    sum_z_exp <span class="op">=</span> <span class="bu">sum</span>(z_exp)</a>
+<a class="sourceLine" id="cb8-4" data-line-number="4">    <span class="cf">return</span> [i <span class="op">/</span> sum_z_exp <span class="cf">for</span> i <span class="kw">in</span> z_exp]</a>
+<a class="sourceLine" id="cb8-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb8-6" data-line-number="6"><span class="kw">def</span> reg(xs, w, b):</a>
+<a class="sourceLine" id="cb8-7" data-line-number="7">    <span class="cf">return</span> softmax([<span class="bu">sum</span>(w[i][j] <span class="op">*</span> x <span class="cf">for</span> j, x <span class="kw">in</span> <span class="bu">enumerate</span>(xs)) <span class="op">+</span> b[i]</a>
+<a class="sourceLine" id="cb8-8" data-line-number="8">                    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>)])</a>
+<a class="sourceLine" id="cb8-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb8-10" data-line-number="10"><span class="kw">def</span> categorical_cross_entropy(Y, Y_):</a>
+<a class="sourceLine" id="cb8-11" data-line-number="11">    loss <span class="op">=</span> <span class="bu">sum</span>(<span class="bu">sum</span>(k <span class="op">*</span> log(k_) <span class="cf">for</span> k, k_ <span class="kw">in</span> <span class="bu">zip</span>(y, y_)) <span class="cf">for</span> y, y_ <span class="kw">in</span> <span class="bu">zip</span>(Y, Y_))</a>
+<a class="sourceLine" id="cb8-12" data-line-number="12">    <span class="cf">return</span> <span class="dv">-1</span> <span class="op">*</span> loss <span class="op">/</span> <span class="bu">len</span> (Y_)</a></code></pre></div>
+<p>用 Gradient Descent 來找到更好的 <span class="math inline">\(W\)</span> 跟 <span class="math inline">\(B\)</span></p>
+<p><span><label for="sn-20" class="margin-toggle">⊕</label><input type="checkbox" id="sn-20" class="margin-toggle" /><span class="marginnote"> 這邊需要先對標籤做 one-hot encoding 才會有跟公式輸出一致的維度。<br />
+<br />
+</span></span></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="im">from</span> sklearn.metrics <span class="im">import</span> accuracy_score</a>
+<a class="sourceLine" id="cb9-2" data-line-number="2">Y_encoded <span class="op">=</span> OneHotEncoder().fit_transform(Y_train.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)).todense().tolist()</a>
+<a class="sourceLine" id="cb9-3" data-line-number="3">w <span class="op">=</span> [[var(<span class="dv">0</span>) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>)] <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>)]</a>
+<a class="sourceLine" id="cb9-4" data-line-number="4">b <span class="op">=</span> [var(<span class="dv">0</span>) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>)]</a>
+<a class="sourceLine" id="cb9-5" data-line-number="5">lr <span class="op">=</span> <span class="fl">0.1</span></a></code></pre></div>
+<p><span><label for="sn-21" class="margin-toggle">⊕</label><input type="checkbox" id="sn-21" class="margin-toggle" /><span class="marginnote"> 使用 Reverse Mode AD 就不再需要每一個參數都再計算一次。<br />
+<br />
+</span></span></p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1000</span>):</a>
+<a class="sourceLine" id="cb10-2" data-line-number="2">    Y_predicted <span class="op">=</span> [reg(x, w<span class="op">=</span>w, b<span class="op">=</span>b) <span class="cf">for</span> x <span class="kw">in</span> X_train]</a>
+<a class="sourceLine" id="cb10-3" data-line-number="3">    loss <span class="op">=</span> categorical_cross_entropy(Y_encoded, Y_predicted)</a>
+<a class="sourceLine" id="cb10-4" data-line-number="4">    loss.backprop()</a>
+<a class="sourceLine" id="cb10-5" data-line-number="5">    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</a>
+<a class="sourceLine" id="cb10-6" data-line-number="6">        b[i] <span class="op">-=</span> lr <span class="op">*</span> b[i].sensitivity</a>
+<a class="sourceLine" id="cb10-7" data-line-number="7">        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</a>
+<a class="sourceLine" id="cb10-8" data-line-number="8">            w[i][j] <span class="op">-=</span> lr <span class="op">*</span> w[i][j].sensitivity</a>
+<a class="sourceLine" id="cb10-9" data-line-number="9">    <span class="cf">if</span> epoch <span class="op">%</span> <span class="dv">10</span> <span class="op">==</span> <span class="dv">0</span>:</a>
+<a class="sourceLine" id="cb10-10" data-line-number="10">        accuracy <span class="op">=</span> accuracy_score(Y_test, [tolabel(reg(x, w<span class="op">=</span>w, b<span class="op">=</span>b)) <span class="cf">for</span> x <span class="kw">in</span> X_test])</a>
+<a class="sourceLine" id="cb10-11" data-line-number="11">        <span class="bu">print</span>(<span class="ss">f'</span><span class="sc">{</span>epoch<span class="sc">: 5d}</span><span class="ss"> loss </span><span class="sc">{</span>loss<span class="sc">.</span>value<span class="sc">}</span><span class="ss"> acc </span><span class="sc">{</span>accuracy<span class="sc">}</span><span class="ss">'</span>)</a></code></pre></div>
+<p>跑起來成果像是這樣：</p>
+<pre><code>    0 loss 1.098612288668108   acc 0.34210526315789475
+   10 loss 0.84323472659183    acc 0.6578947368421053
+   20 loss 0.716723873894274   acc 0.6578947368421053
+   30 loss 0.6493242141034026  acc 0.6578947368421053
+   40 loss 0.6030807982006535  acc 0.6578947368421053
+   50 loss 0.5661515656844388  acc 0.6578947368421053
+   60 loss 0.5340659822896819  acc 0.6578947368421053
+   70 loss 0.5047568856139167  acc 0.6578947368421053
+   80 loss 0.4771475569375817  acc 0.6578947368421053
+   90 loss 0.45064476873213055 acc 0.6578947368421053
+  100 loss 0.42493012219412674 acc 0.6578947368421053
+  110 loss 0.39987107522910936 acc 0.7105263157894737
+  120 loss 0.37549205547113373 acc 0.7105263157894737
+  130 loss 0.3519881981460512  acc 0.7368421052631579
+  140 loss 0.3297816399879364  acc 0.7631578947368421
+  150 loss 0.30960905639139913 acc 0.868421052631579
+  160 loss 0.2925264903210591  acc 0.9210526315789473</code></pre>
+<!--
+
+example :: Diagram B
+example = nodes # applyAll [connectOutside a b | (a, b) <- names]
+                # padX 1.2 # padY 1.1
+                # centerXY
+    where names = concat [ zip inputsNames weightsNames
+                         , zip weightsNames (repeat "sum")
+                         , [("sum", "act"), ("act", "out")]
+                         ]
+
+nodes = foldl1 (|||)  [ vsep 1 inputs # centerY
+                      , strutX 3
+                      , vsep 1 weights # centerY
+                      , strutX 3
+                      , sum_ # centerY
+                      , strutX 1.5
+                      , text "a" # translateY 0.5
+                      , strutX 1.5
+                      , act # centerY
+                      , strutX 1
+                      , out
+                      ]
+withText = replicate 5 (text "×" # translateY 0.5)
+
+inputsNames = map (("input_"++) . show) [1..5]
+weightsNames = map (("weight_"++) . show) [1..5]
+inputs  = (\x -> mconcat [ text "z⁽ˡ⁻¹⁾"
+                         , circle 1.25 # named x
+                         , text "×" # translate (r2 (3, 0.5))
+                         ]) <$> inputsNames
+weights = map (\x -> text "w" <> circle 1.25 # named x) weightsNames
+sum_    = text "Σ" <> circle 1.25 # named "sum"
+act     = text "f" <> circle 1.25 # named "act"
+out     = text "z⁽ˡ⁾"
+-->
+</section>
+</section>
+</article>
+<div id="disqus_thread">
+<script>
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+var disqus_config = function () {
+this.page.url = "https://op8867555.github.io/posts/2018-01-11-autodiff-reverse-mode.html";
+this.page.identifier = "2018-01-11-autodiff-reverse-mode.md";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://alex-lu-blog.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+
+  <script> renderMathInElement(document.body); </script>
+  </body>
+</html>
