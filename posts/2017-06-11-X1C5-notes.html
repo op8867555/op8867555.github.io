@@ -36,7 +36,7 @@
 <h1 class="title">[en] Notes on Thinkpad X1 Carbon 2017 + Arch Linux</h1>
 
 
-<p class="byline">January 12, 2018</p>
+<p class="byline">February 11, 2018</p>
 
 
 <p class="byline">Tags: <a href="../tags/laptop.html">laptop</a>, <a href="../tags/linux.html">linux</a>, <a href="../tags/lang%3Aen.html">lang:en</a></p>
@@ -47,6 +47,7 @@
 <section id="changelogs" class="level3">
 <h3>changelogs</h3>
 <ul>
+<li>2018/02/11 add a note for recall experience and thunderbolt 3 failures.</li>
 <li>2018/01/12 update info.</li>
 <li>2017/08/22 update kernel to 4.12; add a WWAN section.</li>
 <li>2017/07/22 rewrite the post in English, remove some outdated information.</li>
@@ -130,6 +131,22 @@ rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics, product: TM328
 <h2>WWAN</h2>
 <p>X1C5 (WWAN) comes with a Sierra EM7455 LTE Modem (1199:9079).</p>
 <p>It works out of box using latest ModemManager.</p>
+</section>
+<section id="thunderbolt-3" class="level2">
+<h2>Thunderbolt 3</h2>
+<section id="firmware-failures" class="level3">
+<h3>Firmware Failures</h3>
+<p>My X1C5’s usb-c port dies sometime after I plug-in and out my usb-c hub, it was unable to charge and connect any devices, and it sometimes just “recovered” itself. I initially guess it is a hardware failure and sent the laptop once to repair center, but the technician can’t reproduce the issue.</p>
+<p>Later I found there is a new <a href="https://pcsupport.lenovo.com/us/zh/products/laptops-and-netbooks/thinkpad-x-series-laptops/thinkpad-x1-carbon-type-20hr-20hq/downloads/ds120382">Thunderbolt 3 firmware update</a>, which says it:</p>
+<ul>
+<li>Fixed an issue where system might not be charged after repeating AC plug-in and out.</li>
+</ul>
+<p>It is not happen again after firmware updated so far. Intel WTF.</p>
+</section>
+</section>
+<section id="recall-for-loose-screws" class="level2">
+<h2>Recall for loose screws</h2>
+<p>Lenovo recently(2018/02/06) recalls X1C5 made before 2017/11 and Mine is unfortunately affected. I went to nearest Lenovo Service Center(around 4km) and it took 15~20 minutes for the technician to check. There is no loose screws at last.</p>
 </section>
 </section>
 <section id="software" class="level1">

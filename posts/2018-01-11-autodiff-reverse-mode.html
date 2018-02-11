@@ -156,16 +156,16 @@ a_i^{(l)} &amp;= \sum_j w^{(l)}_{ij} \cdot z_j^{(l-1)}
 </ol>
 <section id="wengert-tape" class="level2">
 <h2>Wengert Tape</h2>
-<p>其中一個作法是使用 Wengert Tape ，這個資料結構追蹤順向計算的過程，Reverse-Mode AD 時則是會反過來計算。<span><label for="sn-10" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-10" class="margin-toggle" /><span class="sidenote">這邊的實作參考自 Edward Kmett 所寫的 <a href="https://github.com/ekmett/ad"><code>ad</code></a> 自動微分函式庫。<br />
+<p>其中一個作法是使用 Wengert Tape ，這個資料結構追蹤順向計算的過程，Reverse-Mode AD 時則是會反過來計算。</p>
+<p>為了簡化，這邊將計算的過程推廣成三種形式： 變數、單變數函數、雙變數函數。<span><label for="sn-10" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-10" class="margin-toggle" /><span class="sidenote">這邊的實作參考自 Edward Kmett 所寫的 <a href="https://github.com/ekmett/ad"><code>ad</code></a> 自動微分函式庫。<br />
 <br />
 </span></span><span><label for="sn-11" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-11" class="margin-toggle" /><span class="sidenote">注意：為了方便實作跟解釋，我的實作有稍微變化過。<br />
 <br />
 </span></span></p>
-<p>為了簡化，這邊將計算的過程推廣成三種形式： 變數、單變數函數、雙變數函數。</p>
 <ul>
-<li><code>x</code> （或是 <code>y</code>） 表示這個計算的輸入節點 <span class="math inline">\(x, y\)</span></li>
-<li><code>dx</code> （或是 <code>dy</code>） 表示輸入對這個計算的影響 <span class="math inline">\(\frac{∂f}{∂x}, \frac{∂f}{∂y}\)</span>，也就是前述的<span class="math inline">\(\color{green}\text{綠色}\)</span>部份。</li>
-<li><code>ss</code> 表示這個計算對於整個計算的影響 <span class="math inline">\(\frac{∂ Y}{∂ f}\)</span>，也就是前述<span class="math inline">\(\color{blue}\text{藍色}\)</span>的部份。</li>
+<li><code>x</code> （或是 <code>y</code>） 表示這個計算的輸入節點 <span class="math inline">\(x, y\)</span>（反向的達到了前述第 3 點）</li>
+<li><code>dx</code> （或是 <code>dy</code>） 表示輸入對這個計算的影響 <span class="math inline">\(\frac{∂f}{∂x}, \frac{∂f}{∂y}\)</span>，也就是前述第 2 點的<span class="math inline">\(\color{green}\text{綠色}\)</span>部份。</li>
+<li><code>ss</code> 表示這個計算對於整個計算的影響 <span class="math inline">\(\frac{∂ Y}{∂ f}\)</span>，也就是前述第 1 點的<span class="math inline">\(\color{blue}\text{藍色}\)</span>部份。</li>
 </ul>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="im">from</span> collections <span class="im">import</span> namedtuple</a>
 <a class="sourceLine" id="cb1-2" data-line-number="2">Var <span class="op">=</span> namedtuple(<span class="st">'Var'</span>, [<span class="st">'ss'</span>])</a>
@@ -191,20 +191,21 @@ a_i^{(l)} &amp;= \sum_j w^{(l)}_{ij} \cdot z_j^{(l-1)}
 <a class="sourceLine" id="cb2-6" data-line-number="6">y <span class="op">=</span> Var(box())</a>
 <a class="sourceLine" id="cb2-7" data-line-number="7">sin_x <span class="op">=</span> Un(x, cos(<span class="dv">1</span>), box())</a>
 <a class="sourceLine" id="cb2-8" data-line-number="8">x_times_y <span class="op">=</span> Bin(x, y, <span class="dv">1</span>, <span class="dv">3</span>, box())</a>
-<a class="sourceLine" id="cb2-9" data-line-number="9">Y <span class="op">=</span> Bin(sin_x, x_times_y, <span class="dv">1</span>, <span class="dv">1</span>, box(<span class="dv">1</span>))</a></code></pre></div>
+<a class="sourceLine" id="cb2-9" data-line-number="9">Y <span class="op">=</span> Bin(sin_x, x_times_y, <span class="dv">1</span>, <span class="dv">1</span>, box())</a></code></pre></div>
 <p>Wengert Tape 就是紀錄輸入變數及這一連續的計算過程。</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" data-line-number="1">tape <span class="op">=</span> [x, y, sin_x, x_times_y, Y]</a></code></pre></div>
 <p>當計算 Reverse-Mode AD時，我們會將 tape 反過來累計：<span><label for="sn-16" class="margin-toggle">⊕</label><input type="checkbox" id="sn-16" class="margin-toggle" /><span class="marginnote"> 注意到這邊的實作已經在前面建構這些節點的同時，將順向計算的過程給嵌進去了。<br />
 <br />
 </span></span></p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="cf">for</span> cell <span class="kw">in</span> <span class="bu">reversed</span>(tape):</a>
-<a class="sourceLine" id="cb4-2" data-line-number="2">    <span class="cf">if</span> <span class="bu">isinstance</span>(cell, Bin):</a>
-<a class="sourceLine" id="cb4-3" data-line-number="3">        cell.x.ss[<span class="st">'value'</span>] <span class="op">+=</span> cell.ss[<span class="st">'value'</span>] <span class="op">*</span> cell.dx</a>
-<a class="sourceLine" id="cb4-4" data-line-number="4">        cell.y.ss[<span class="st">'value'</span>] <span class="op">+=</span> cell.ss[<span class="st">'value'</span>] <span class="op">*</span> cell.dy</a>
-<a class="sourceLine" id="cb4-5" data-line-number="5">    <span class="cf">elif</span> <span class="bu">isinstance</span>(cell, Un):</a>
-<a class="sourceLine" id="cb4-6" data-line-number="6">        cell.x.ss[<span class="st">'value'</span>] <span class="op">+=</span> cell.ss[<span class="st">'value'</span>] <span class="op">*</span> cell.dx</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" data-line-number="1">Y.ss[<span class="st">'value'</span>] <span class="op">=</span> <span class="dv">1</span> <span class="co"># 從 ∂Y/∂Y = 1 開始</span></a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="cf">for</span> cell <span class="kw">in</span> <span class="bu">reversed</span>(tape):</a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">    <span class="cf">if</span> <span class="bu">isinstance</span>(cell, Bin):</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4">        cell.x.ss[<span class="st">'value'</span>] <span class="op">+=</span> cell.ss[<span class="st">'value'</span>] <span class="op">*</span> cell.dx</a>
+<a class="sourceLine" id="cb4-5" data-line-number="5">        cell.y.ss[<span class="st">'value'</span>] <span class="op">+=</span> cell.ss[<span class="st">'value'</span>] <span class="op">*</span> cell.dy</a>
+<a class="sourceLine" id="cb4-6" data-line-number="6">    <span class="cf">elif</span> <span class="bu">isinstance</span>(cell, Un):</a>
+<a class="sourceLine" id="cb4-7" data-line-number="7">        cell.x.ss[<span class="st">'value'</span>] <span class="op">+=</span> cell.ss[<span class="st">'value'</span>] <span class="op">*</span> cell.dx</a></code></pre></div>
 <p>Reverse Mode AD 就像這樣在一個 pass 就能算出所有輸入的偏導數</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="bu">print</span>((x.ss[<span class="st">'value'</span>], y.ss[<span class="st">'value'</span>]))</a>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="op">&gt;&gt;&gt;</span> x.ss[<span class="st">'value'</span>], y.ss[<span class="st">'value'</span>]</a>
 <a class="sourceLine" id="cb5-2" data-line-number="2">(<span class="fl">0.010007503399554585</span>, <span class="dv">3</span>)</a></code></pre></div>
 <p>剩下的就是實作一個易用的界面給使用者了，也就是只需要指定順向計算的過程。</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="op">&gt;&gt;&gt;</span> x <span class="op">=</span> var(<span class="dv">3</span>)</a>
