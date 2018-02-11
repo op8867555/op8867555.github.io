@@ -148,16 +148,16 @@ $$\frac{∂ Y}{∂ x} =
 
 ## Wengert Tape
 
-其中一個作法是使用 Wengert Tape ，這個資料結構追蹤順向計算的過程，Reverse-Mode AD 時則是會反過來計算。[^ref][^var]
+其中一個作法是使用 Wengert Tape ，這個資料結構追蹤順向計算的過程，Reverse-Mode AD 時則是會反過來計算。
 
 [^ref]: 這邊的實作參考自 Edward Kmett 所寫的 [`ad`](https://github.com/ekmett/ad) 自動微分函式庫。
 [^var]: 注意：為了方便實作跟解釋，我的實作有稍微變化過。
 
-為了簡化，這邊將計算的過程推廣成三種形式： 變數、單變數函數、雙變數函數。
+為了簡化，這邊將計算的過程推廣成三種形式： 變數、單變數函數、雙變數函數。[^ref][^var]
 
-* `x` （或是 `y`） 表示這個計算的輸入節點 $x, y$
-* `dx` （或是 `dy`） 表示輸入對這個計算的影響 $\frac{∂f}{∂x}, \frac{∂f}{∂y}$，也就是前述的$\color{green}\text{綠色}$部份。
-* `ss` 表示這個計算對於整個計算的影響 $\frac{∂ Y}{∂ f}$，也就是前述$\color{blue}\text{藍色}$的部份。
+* `x` （或是 `y`） 表示這個計算的輸入節點 $x, y$（反向的達到了前述第 3 點）
+* `dx` （或是 `dy`） 表示輸入對這個計算的影響 $\frac{∂f}{∂x}, \frac{∂f}{∂y}$，也就是前述第 2 點的$\color{green}\text{綠色}$部份。
+* `ss` 表示這個計算對於整個計算的影響 $\frac{∂ Y}{∂ f}$，也就是前述第 1 點的$\color{blue}\text{藍色}$部份。
 
 ~~~~{.python .example}
 from collections import namedtuple
@@ -188,7 +188,7 @@ x = Var(box())
 y = Var(box())
 sin_x = Un(x, cos(1), box())
 x_times_y = Bin(x, y, 1, 3, box())
-Y = Bin(sin_x, x_times_y, 1, 1, box(1))
+Y = Bin(sin_x, x_times_y, 1, 1, box())
 ~~~~
 
 Wengert Tape 就是紀錄輸入變數及這一連續的計算過程。
@@ -201,6 +201,7 @@ tape = [x, y, sin_x, x_times_y, Y]
 注意到這邊的實作已經在前面建構這些節點的同時，將順向計算的過程給嵌進去了。]
 
 ~~~~{.python .example}
+Y.ss['value'] = 1 # 從 ∂Y/∂Y = 1 開始
 for cell in reversed(tape):
     if isinstance(cell, Bin):
         cell.x.ss['value'] += cell.ss['value'] * cell.dx
@@ -212,7 +213,7 @@ for cell in reversed(tape):
 Reverse Mode AD 就像這樣在一個 pass 就能算出所有輸入的偏導數
 
 ~~~~{.python .example}
-print((x.ss['value'], y.ss['value']))
+>>> x.ss['value'], y.ss['value']
 (0.010007503399554585, 3)
 ~~~~
 
