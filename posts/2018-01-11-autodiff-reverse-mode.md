@@ -1,6 +1,6 @@
 ---
 title: 機器如何計算微分/偏微分（下）
-tags: meachine-learning, autodiff
+tags: machine-learning, autodiff
 date: 2018-01-28
 ---
 
