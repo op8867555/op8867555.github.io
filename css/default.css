@@ -52,3 +52,13 @@ pre.example {
   background-color: #ffffdf;
   color: black;
 }
+
+li > div.sourceCode, pre:not(.sourceCode) {
+  width: 100%;
+  margin: 0 -1.4rem;
+}
+
+li .fullwidth {
+  width: 80vh;
+  max-width: 80vh;
+}
