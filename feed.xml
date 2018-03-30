@@ -7,8 +7,182 @@
         <description><![CDATA[Alex Lu's Blog Feed]]></description>
         <atom:link href="https://op8867555.github.io/feed.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Sun, 11 Feb 2018 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Fri, 30 Mar 2018 00:00:00 UT</lastBuildDate>
         <item>
+    <title>到底什麼是 Bayesian</title>
+    <link>https://op8867555.github.io/posts/2018-03-09-bayes.html</link>
+    <description><![CDATA[<section>
+<p>最近在公司內部的讀書會跟同事一起讀了這本「Probabilistic Programming and Bayesian Methods for Hackers」，看了很久覺得充滿許多疑惑，沒有辦法把概念跟概念連結起來，所以我在這邊試著以寫這篇文章的方式來對我自己解釋。</p>
+<p>如果有發現文章敘述有誤，或是有更好的敘述方式，請告訴我一聲！</p>
+</section>
+<section id="什麼是-bayes-theorem" class="level2">
+<h2>什麼是 Bayes’ Theorem</h2>
+<p>Bayes’ Theorem 來自於條件機率的公式： <span class="math display">\[
+P(A|B) = \frac{ \color{red}P(B|A) \color{black}\cdot \color{blue}P(A)}{\color{green}P(B)}
+\]</span></p>
+<ul>
+<li>我們有兩個事件<span class="math inline">\(A\)</span>、<span class="math inline">\(B\)</span></li>
+<li><span class="math inline">\(\color{blue}P(A)\)</span>、<span class="math inline">\(\color{green}P(B)\)</span> 是 <span class="math inline">\(A\)</span> 跟 <span class="math inline">\(B\)</span> 獨自發生的機率</li>
+<li><span class="math inline">\(P(A|B)\)</span> 及 <span class="math inline">\(\color{red}P(B|A)\)</span> 分別是已知 <span class="math inline">\(B\)</span> 之後 <span class="math inline">\(A\)</span> 發生，以及反過來的機率，又被稱為 likelihood</li>
+</ul>
+</section>
+<section id="怎麼應用-bayes-theorem" class="level2">
+<h2>怎麼應用 Bayes’ Theorem</h2>
+<p>網路上有很多例子：<a href="https://en.wikipedia.org/wiki/Bayes%27_theorem#Drug_testing">檢測藥品反應</a>、<a href="https://brohrer.github.io/how_bayesian_inference_works.html">猜測一個人的性別</a>、<a href="http://www.greenteapress.com/thinkbayes/html/thinkbayes004.html#sec27">找出骰子點數應該來自幾面骰</a>，類似的例子很多，就是將兩個機率擺在一起，然後用觀察到的證據來找出問題的答案。</p>
+<p>我就偷懶一下直接借用維基百科的藥品檢測的例子：</p>
+<ul>
+<li>假設有 0.5% 的人使用了這個藥品（<span class="math inline">\(P(\text{User}) = 0.005\)</span>）</li>
+<li>而藥物測試的準確率是 99% （<span class="math inline">\(P(\text{+} | \text{User}) = 0.99\)</span>）</li>
+</ul>
+<p>那麼一個測出藥物反應的人真的有使用此藥物的機率有多高？</p>
+<p><span class="math display">\[
+\begin{aligned}
+P({\text{User}}\mid {\text{+}})&amp;= {\frac {P({\text{+}}\mid {\text{User}})P({\text{User}})}{P(+)}}\\
+&amp;={\frac {P({\text{+}}\mid {\text{User}})P({\text{User}})}{P({\text{+}}\mid {\text{User}})P({\text{User}})+P({\text{+}}\mid {\text{Non-user}})P({\text{Non-user}})}}\\[8pt]
+&amp;={\frac {0.99\times 0.005}{0.99\times 0.005+0.01\times 0.995}}\\[8pt]
+&amp;\approx 33.2\%
+\end{aligned}
+\]</span></p>
+<!-- 這邊用 [Monty Hall Problem][monty-hall-wiki][^monty-hall-prob] 來舉例： -->
+<!--   * 我們用 $P(A), P(B), P(C)$ 來分別表示大獎汽車在門A, 門B, 門C後面的機率 -->
+<!--   * 我們先選了一扇門，假設選了門A -->
+<!--   * $P(D)$ 來表示主持人 Monty 打開了**門B** 而且後面沒有車的機率 -->
+<!-- 目標是求出 $P(A|D), P(B|D), P(C|D)$，因此我們必須先知道 likelihood： -->
+<!--   * $P(D|A)$ 如果大獎在門A後面，主持人會從 B 跟 C 中隨便選一個打開，所以機率是 50%。 -->
+<!--   * $P(D|B)$ 如果大獎在門B後面，主持人壓根兒不會打開它，所以機率為 0%。 -->
+<!--   * $P(D|C)$如果大獎在門C後面，主持人打開門B後，裡面絕對沒有車，所以機率皆為 100%。 -->
+<!-- 然後列出 -->
+<!-- $$ -->
+<!-- \begin{aligned} -->
+<!-- P(D|A) P(A) &= \frac{1}{2} \times \frac{1}{3} &= \frac{1}{6} \\ -->
+<!-- P(D|B) P(B) &= 0 \times \frac{1}{3} &= 0 \\ -->
+<!-- P(D|C) P(C) &= 1 \times \frac{1}{3} &= \frac{1}{3} -->
+<!-- \end{aligned} -->
+<!-- $$ -->
+<!-- 因為 $P(\mathit{H}|D) \propto P(D|\mathit{H}) P(\mathit{H}),\, \mathit{H} = A, B, C$， -->
+<!-- 我們不必計算 $P(D)$就可以得出： 換到門C中獎的機率是維持選門A的兩倍！ -->
+<!--
+我這邊借用同事在讀書會舉的例子： 一枚連續擲出正面 10 次的硬幣是否公正，
+用 $FairCoin$ 表示公正硬幣值出了正面，$H10$ 來表示一枚硬幣連續擲出 10 次正面。
+在這個例子中，$P(FairCoin) = 0.5$ 就是先驗機率，而我們要找出
+$$
+P(FairCoin | H10) = \frac{P(H10 | FairCoin)P(FairCoin)}{P(H10)}
+$$
+-->
+</section>
+<section id="bayesian-inference-for-parameter-estimation" class="level2">
+<h2>Bayesian Inference for Parameter Estimation</h2>
+<p>跟前面的 Bayes’ Theorem一樣，但是這次將目標改變了一下： 用證據<span class="math inline">\(E\)</span>（training data）來找出模型參數<span class="math inline">\(θ\)</span> 的機率分佈</p>
+<p><span class="math display">\[\begin{darray}{rlc}
+P(θ|E) &amp;=&amp; \frac{ \color{red}P(E|θ) \color{black}\cdot \color{blue}P(θ)}{\color{green}P(E)} \\[1em]
+&amp;=&amp; \frac{ \color{red}P(E|θ) \color{black}\cdot \color{blue}P(θ)}{\color{green}\int_θ P(E|θ&#39;) \cdot P(θ&#39;)\  dθ&#39;}
+\end{darray}\]</span></p>
+<ul>
+<li><span class="math inline">\(\color{blue}P(θ)\)</span> 稱為先驗機率，也就是對於某事物的猜測。</li>
+<li><span class="math inline">\(P(θ|E)\)</span> 稱為後驗機率，也就是觀察到 證據E 之後 H 的條件機率。</li>
+<li><span class="math inline">\(\color{red}P(E|θ)\)</span> 稱為 likelihood function，有時會寫成 <span class="math inline">\(L(θ|E)\)</span>。</li>
+<li><span class="math inline">\(\color{green}P(E)\)</span> 稱為 marginal likelihood，或是證據 E 事件所發生的機率</li>
+</ul>
+</section>
+<section id="怎麼進行-bayesian-inference" class="level2">
+<h2>怎麼進行 Bayesian Inference？</h2>
+<p>跟前面一樣，建模者需要指定好：</p>
+<ul>
+<li>likelihood function，也就是描述資料是怎麼產生的函數，</li>
+<li>prior，描述我們對目標參數的先驗知識。</li>
+</ul>
+<p>我在 Stack Overflow <span><label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="sidenote"><a href="https://stackoverflow.com/questions/375913/how-can-i-profile-c-code-running-in-linux">How can I profile C++ code running in Linux?</a><br />
+<br />
+</span></span> 上面看到了一個對 programmer 很有趣（也很實用）的應用：應用貝葉斯來做 profiling<span><label for="sn-2" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-2" class="margin-toggle"/><span class="sidenote">Profiling 在軟體開發上指的是分析程式的執行狀況，以找出時間或是記憶體花費較多的片段來進行改進。<br />
+<br />
+</span></span>！</p>
+<p>用這個作法只需要用 debugger 執行程式的時候，任意中斷個數次，然後觀察中斷時的 call stack，找看看裡面有沒有反覆出現的 function call。</p>
+<p>假設我們觀察到了一個很常出現的函數，它在中斷 10 次中出現了 7 次，我們想知道它出現在 call stack 的比率 <span class="math inline">\(R\)</span>，也就是找出：</p>
+<p><span><label for="sn-3" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-3" class="margin-toggle"/><span class="marginnote"> <span class="math inline">\(T\)</span> 表示出現在 call stack 的次數， <span class="math inline">\(F\)</span> 表示沒有出現的次數<br />
+<br />
+</span></span></p>
+<p><span class="math display">\[
+P(R | T=7, F=3) = \frac{P(T=7, F=3 | R) P(R)}{P(T=7, F=3)}
+\]</span></p>
+<p>為了化簡計算的複雜度，原文將 <span class="math inline">\(R\)</span> 分成 10 種可能 <span class="math inline">\(0.1, 0.2, \cdots, 1.0\)</span>。<span><label for="sn-4" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-4" class="margin-toggle"/><span class="sidenote">這是為了舉例方便，實際上就得乖乖的去算積分了…<br />
+<br />
+</span></span> 我們不知道這個函數實際上的出現比率，所以我們用 Uniform Distribution 作為 Prior。</p>
+<p><span class="math display">\[P(R=r) = 0.1, \, r = 0.1, ..., 1.0\]</span></p>
+<p>因為 <span class="math inline">\(R\)</span> 是離散的，我們可以直接算出每一個 <span class="math inline">\(P(T=7, F=3 | R=r)\)</span> 的數值，剛好就是 Binomial Distribution：</p>
+<p><span class="math display">\[P(T=t, F=f | R=r) = {t+f \choose t}\,r^{t}\,(1-r)^{f}\]</span></p>
+<p><span><label for="sn-5" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-5" class="margin-toggle"/><span class="marginnote"> <img src="/images/bayes-pmf.svg" /><br />
+<br />
+</span></span> 求出 <span class="math inline">\(P(R | T=7, F=3)\)</span> 之後，可以畫成圖來檢視、找出MAP、或是期望值。從右圖可以看到，後驗機率分佈的最高點落於 0.7，我們可以比較兩者的面積：</p>
+<p><span class="math display">\[\begin{aligned}
+  P(R | T=7, F=3, r = 0.7) \approx 30\% \\
+  P(R | r = 0.7) \approx 10\%
+  \end{aligned}\]</span></p>
+<p>也就是在觀察到了證據之後，<span class="math inline">\(r = 0.7\)</span> 的機率從 10% 更新到 30% 了！</p>
+</section>
+<section id="什麼是-likelihood-function" class="level2">
+<h2>什麼是 likelihood function？</h2>
+<p>單看 likelihood function <span class="math inline">\(P(E|θ)\)</span> 的話，我覺得很奇怪，什麼是觀察到先驗H後證據發生的機率？</p>
+<p>在 google 了好一段時間之後，我認為比較好的解釋方法是， likelihood 是「取得 證據B 來自於某個先驗 A 的機率」的函數 <span><label for="sn-6" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-6" class="margin-toggle"/><span class="sidenote">Think Bayes 的 <a href="http://www.greenteapress.com/thinkbayes/html/thinkbayes002.html#sec11">The diachronic interpretation</a><br />
+<br />
+</span></span><span><label for="sn-7" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-7" class="margin-toggle"/><span class="sidenote"><a href="http://yenchic-blog.logdown.com/posts/182922-likelihood-function-myth">likelihood function迷思</a><br />
+<br />
+</span></span>，換句話說，就是描述證據（資料）是如何被產生的。</p>
+<p>一個簡單的例子是，投擲 <span class="math inline">\(N\)</span> 次正面機率為 <span class="math inline">\(p\)</span> 的硬幣，觀察到的資料會是「<span class="math inline">\(N\)</span>次 裡面有 <span class="math inline">\(t\)</span> 次正面」的證據， likelihood function 這時會訂成 <span class="math display">\[P(E|θ) = L(\underbrace{p}_{\text{參數}\, θ} | \underbrace{N, t}_{\text{證據} \, E}) = {N \choose t} {p}^t {(1 - p)}^{N - t}\]</span></p>
+</section>
+<section id="frequentist-vs.bayesian" class="level2">
+<h2>Frequentist vs. Bayesian</h2>
+<p>統計上有兩個流派：</p>
+<ul>
+<li>Frequentist 認為機率就是頻率，而建模就是去最大化 likelihood</li>
+<li>Bayesian 使用主觀的先驗知識來進行「預測」</li>
+</ul>
+<p>兩者在資料量夠大的情況會得到一樣的答案，但是 Bayesian 能在資料量不夠多時，搭配先驗知識，做出更好的預測。</p>
+</section>
+<section id="跟-sampling-的關係" class="level2">
+<h2>跟 Sampling 的關係</h2>
+<p>找出後驗機率分佈的時候，計算 Marginal likelihood 是一件困難的事<span><label for="sn-8" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-8" class="margin-toggle"/><span class="sidenote"><a href="https://www.youtube.com/watch?v=EHqU9LE9tg8">Bayesian posterior sampling - YouTube</a><br />
+<br />
+</span></span><span><label for="sn-9" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-9" class="margin-toggle"/><span class="sidenote"><a href="https://ocw.mit.edu/courses/sloan-school-of-management/15-097-prediction-machine-learning-and-statistics-spring-2012/lecture-notes/MIT15_097S12_lec15.pdf">15.097: Probabilistic Modeling and Bayesian Analysis</a><br />
+<br />
+</span></span>，少數狀況下可以利用挑選適當的共軛先驗來化簡計算，但是大多數的情況下是辦不到的。</p>
+<p>但是因為在後驗機率分佈的時候，常常不需要知道準確(exact)的分佈，於是可以用從後驗機率分佈抽樣來取代。</p>
+<!-- ## 為什麼一定要算出 marginal likelihood？ -->
+<!-- 換個問法，既然 $P(θ | E) \propto L(θ | E)$，為什麼不直接用 likelihood 來代替？ -->
+</section>
+<section id="怎麼從後驗機率分佈中抽樣" class="level2">
+<h2>怎麼從後驗機率分佈中抽樣？</h2>
+<p>細節我雖沒有深入了解，但是大概是利用 MCMC 或是 Metropolis 演算法來做，可以參考：</p>
+<ul>
+<li>Probabilistic Programming and Bayesian Methods for Hackers 書中的 Ch.4 有簡單介紹爬山法的概念</li>
+<li><a href="http://twiecki.github.io/blog/2015/11/10/mcmc-sampling/">MCMC sampling for dummies</a> 介紹如何手寫一個後驗機率分佈的 sampler</li>
+</ul>
+</section>
+<section id="probabilistic-programming" class="level2">
+<h2>Probabilistic Programming?</h2>
+<p>Probabilistic Programming 是一種用軟體建立機率模型跟利用它們進行 inference 的方法<span><label for="sn-10" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-10" class="margin-toggle"/><span class="sidenote">出自<a href="http://hakaru-dev.github.io/intro/probprog/">Hakaru 的官網</a><br />
+<br />
+</span></span>，實作上可能是一門獨立的新語言(DSL) 或是以 library 的方式嵌於某個 General-Purpose 的語言裡面。不論是 Frequentist 或是 Bayesian Inference 都可以用這個方法實作，但是比較常看到 Bayesian Inference 使用。</p>
+<p>PyMC3 就是一個實作 Probabilistic Programming 的 Python library，舉例來說，前面的 profiling 問題可以用 PyMC3 表達成：</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="im">import</span> pymc3 <span class="im">as</span> pm</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="cf">with</span> pm.Model() <span class="im">as</span> model:</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">    <span class="co"># prior</span></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4">    r <span class="op">=</span> pm.Uniform(<span class="st">&#39;r&#39;</span>, <span class="dv">0</span>, <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6">    <span class="co"># likelihood</span></a>
+<a class="sourceLine" id="cb1-7" data-line-number="7">    res <span class="op">=</span> pm.Binomial(<span class="st">&#39;res&#39;</span>, <span class="dv">10</span>, r, observed<span class="op">=</span><span class="dv">7</span>)</a>
+<a class="sourceLine" id="cb1-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9">    <span class="co"># sampling from posterior</span></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10">    trace <span class="op">=</span> pm.sample(<span class="dv">25000</span>)</a></code></pre></div>
+</section>
+<section id="小結" class="level2">
+<h2>小結</h2>
+<p>雖然在寫這篇文章的過程中，解決了我心中不少的疑惑，但是仍然還是有許多似懂非懂之處，如果有新發現的話會再更新這篇文章。</p>
+</section>]]></description>
+    <pubDate>Fri, 30 Mar 2018 00:00:00 UT</pubDate>
+    <guid>https://op8867555.github.io/posts/2018-03-09-bayes.html</guid>
+    <dc:creator>Alex Lu</dc:creator>
+</item>
+<item>
     <title>[en] Notes on Thinkpad X1 Carbon 2017 + Arch Linux</title>
     <link>https://op8867555.github.io/posts/2017-06-11-X1C5-notes.html</link>
     <description><![CDATA[<section id="changelogs" class="level3">
@@ -1294,122 +1468,6 @@ Bisecting: 0 revisions left to test after this (roughly 0 steps)
 </section>]]></description>
     <pubDate>Sat, 09 Sep 2017 00:00:00 UT</pubDate>
     <guid>https://op8867555.github.io/posts/2017-09-09-tensorflow-prebuilt-vs-built-from-source.html</guid>
-    <dc:creator>Alex Lu</dc:creator>
-</item>
-<item>
-    <title>筆記： DS216j 安裝 shadowsocks server</title>
-    <link>https://op8867555.github.io/posts/2017-08-27-ds216j-shadowsocks.html</link>
-    <description><![CDATA[<p>最近親戚弄了台 Synology DS216j 想拿來架 shadowsocks 的 server，這篇文章筆記我架這個 server 所走的路。</p>
-<section id="changelogs" class="level3">
-<h3>changelogs</h3>
-<ul>
-<li>2017-10-12 紀錄一下，現在上游有編好的 package 能用了</li>
-</ul>
-</section>
-<section id="折騰過程" class="level1">
-<h1>折騰過程</h1>
-<p>提到在 NAS 上架 shadowsocks，可以查到很多用 docker 的解決方法，不過網路上的幾篇文章都說這台機器不能用 docker，所以我直接往 binary 的方法前進。</p>
-<p>一開始看到的是這篇 <a href="http://jexbat.com/2016/NAS-Shadowsocks/">Synology DS216Play 安装 ShadowSocks</a>，從這篇文章中得出：</p>
-<ul>
-<li>原來有 package manager 可以用</li>
-<li>shadowsocks 有用 python 跟 libev 的實作可以選</li>
-</ul>
-<section id="安裝package-manager" class="level2">
-<h2>安裝package manager</h2>
-<p>朝著安裝 package manager 的方向前進後找到了這篇<a href="https://ky0n.xyz/synology-ds216j-optware-ipkg-init/">Synology DS216j Optware IPKG 介紹</a>。<br />
-看了看發現這是篇翻譯文，而原文有了更新的<a href="http://jasmin.sakura.ne.jp/blog/0245">版本🇯🇵</a>，發現到有 <a href="https://github.com/Entware-ng/Entware-ng/">entware-ng</a> 這個比 ipkg 更新的 package manager 能用，而且已經有 shadowsocks 的<a href="http://pkg.entware.net/binaries/armv7/Packages.html">套件能用</a>。</p>
-</section>
-<section id="安裝-entware-ng" class="level2">
-<h2>安裝 entware-ng</h2>
-<p>安裝的過程不難，大致上就是開好SSH、照著<a href="https://github.com/Entware-ng/Entware-ng/wiki/Install-on-Synology-NAS">其 wiki 上寫的步驟</a>就行。</p>
-<p>筆記一下步驟：</p>
-<ul>
-<li><p>建立一個套件管理用的目錄，因為韌體更新會清 /opt ，所以要在外面建並 symlink 回去：</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="fu">mkdir</span> -p /volume1/@entware-ng/opt</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="fu">rm</span> -rf /opt</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="fu">ln</span> -sf /volume1/@entware-ng/opt /opt</a></code></pre></div></li>
-<li><p>安裝 entware</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="fu">wget</span> -O - http://pkg.entware.net/binaries/armv7/installer/entware_install.sh <span class="kw">|</span> <span class="ex">/bin/sh</span></a></code></pre></div></li>
-<li><p>設定啟動腳本（重開機時把 entware 裝的服務也帶起來）<br />
-編輯 /usr/local/etc/rc.d/entware-startup.sh （教學上沒有，但是我有順便做 <code>chmod +x</code>）</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="co">#!/bin/sh</span></a>
-<a class="sourceLine" id="cb3-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="kw">case</span> <span class="va">$1</span><span class="kw"> in</span></a>
-<a class="sourceLine" id="cb3-4" data-line-number="4">    start<span class="kw">)</span></a>
-<a class="sourceLine" id="cb3-5" data-line-number="5">    <span class="fu">mkdir</span> -p /opt</a>
-<a class="sourceLine" id="cb3-6" data-line-number="6">    <span class="fu">mount</span> -o bind /volume1/@entware-ng/opt /opt</a>
-<a class="sourceLine" id="cb3-7" data-line-number="7">    <span class="ex">/opt/etc/init.d/rc.unslung</span> start</a>
-<a class="sourceLine" id="cb3-8" data-line-number="8">    <span class="kw">;;</span></a>
-<a class="sourceLine" id="cb3-9" data-line-number="9">    stop<span class="kw">)</span></a>
-<a class="sourceLine" id="cb3-10" data-line-number="10">    <span class="kw">;;</span></a>
-<a class="sourceLine" id="cb3-11" data-line-number="11"><span class="kw">esac</span></a></code></pre></div></li>
-<li><p>在登入時自動把 <code>/opt/bin</code> <code>/opt/sbin</code>加到 <code>PATH</code> 裡面：在 /etc/profile 內加上一行</p>
-<pre><code>. /opt/etc/profile</code></pre></li>
-</ul>
-<p>裝完之後就是開心地來裝 shadowsocks</p>
-<pre><code>opkg update
-opkg install shadowsocks-libev</code></pre>
-<p><del>但是裝完卻發現沒有 <code>ss-server</code> 這個執行檔！原因似乎是因為 entware-ng 沒有跟上流的 openwrt 同步 <span><label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="sidenote"><a href="https://github.com/Entware-ng/entware-packages/commit/e3793bbbde8b907842f84731bfec292ccb069114" class="uri">https://github.com/Entware-ng/entware-packages/commit/e3793bbbde8b907842f84731bfec292ccb069114</a><br />
-<br />
-</span></span>，而不知為何的明明就有新的 Makefile ，除了 mipsel 以外卻沒有新的 binary package 能用。</del></p>
-<section id="更新" class="level3">
-<h3>2017/10/12 更新</h3>
-<p>前一陣子 entware 有跟上游同步過，所以直接安裝 <code>shadowsocks-libev-ss-server</code> 跟 <code>shadowsocks-libev-config</code> 就行了</p>
-<pre><code>opkg install shadowsocks-libev-config
-opkg install shadowsocks-libev-ss-server</code></pre>
-</section>
-</section>
-<section id="手動編譯" class="level2">
-<h2>手動編譯</h2>
-<p>沒辦法，只好來自己編。幸好 entware 的 wiki 頁上也有<a href="https://github.com/Entware-ng/Entware-ng/wiki/Compile-packages-from-sources">教學</a>，也是照著做就好。</p>
-<p>Entware-ng 用的是 OpenWrt Buildroot，所以需要先裝好<a href="http://wiki.openwrt.org/doc/howto/buildroot.exigence#install_procedure_on_linux">它依賴的套件</a>。</p>
-<p>為了不把主力機的 Arch Linux 給搞髒了，我決定用找 docker 的方式來解決。<br />
-網路上可以找到一個用 arch 為底的 Dockerfile(<a href="https://github.com/jannispinter/arch-openwrt-buildroot">arch-docker-buildroot</a>)，但是實際編譯時會出先一些版本上的不相容問題，所以我還是乖乖的用 ubuntu 的 image 來做。</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode dockerfile"><code class="sourceCode dockerfile"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw">FROM</span> ubuntu</a>
-<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="kw">RUN</span> apt-get update</a>
-<a class="sourceLine" id="cb7-3" data-line-number="3"><span class="kw">RUN</span> DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential subversion libncurses5-dev zlib1g-dev gawk gcc-multilib flex git-core gettext libssl-dev unzip python-dev python file wget sudo</a>
-<a class="sourceLine" id="cb7-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb7-5" data-line-number="5"><span class="co"># 編譯時需要非 root 帳號</span></a>
-<a class="sourceLine" id="cb7-6" data-line-number="6"><span class="kw">RUN</span> useradd -m openwrt &amp;&amp;\</a>
-<a class="sourceLine" id="cb7-7" data-line-number="7">echo <span class="st">&#39;openwrt ALL=NOPASSWD: ALL&#39;</span> &gt; /etc/sudoers.d/openwrt</a>
-<a class="sourceLine" id="cb7-8" data-line-number="8"><span class="kw">USER</span> openwrt</a>
-<a class="sourceLine" id="cb7-9" data-line-number="9"><span class="kw">WORKDIR</span> /home/openwrt</a>
-<a class="sourceLine" id="cb7-10" data-line-number="10"><span class="kw">CMD</span> [<span class="st">&quot;/bin/bash&quot;</span>]</a></code></pre></div>
-<p>docker 環境準備好、進入其 shell 之後<span><label for="sn-2" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-2" class="margin-toggle"/><span class="sidenote">我用不同的顏色來區別 docker 環境內的操作<br />
-<br />
-</span></span></p>
-<ul>
-<li><p>準備 entware 跟更新其 package feeds：</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode bash example"><code class="sourceCode bash"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="fu">git</span> clone https://github.com/Entware-ng/Entware-ng.git</a>
-<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="bu">cd</span> Entware-ng</a>
-<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="fu">make</span> package/symlinks</a>
-<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="fu">cp</span> configs/armv7.config .config</a></code></pre></div></li>
-<li><p>安裝編譯需要 tools/toolchain，這一步驟需要很長一段時間，我就跑去打 Splatoon 的 Salmon Run 了。</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode bash example"><code class="sourceCode bash"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="fu">make</span> -j4 tools/install</a>
-<a class="sourceLine" id="cb9-2" data-line-number="2"><span class="fu">make</span> -j4 toolchain/install</a></code></pre></div></li>
-<li><p><strong>確認 .config 裡面有啟用 <code>shadowsocks-libev</code> 跟 <code>shadowsocks-libev-ss-server</code> 兩個套件</strong>，我在編的時候沒確認到這點，花了好一段時間研究為什麼編完沒有 binary 檔。</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode bash example"><code class="sourceCode bash"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="fu">make</span> menuconfig <span class="co"># 選好 shadowsocks （Network 的 Web Servers/Proxies 底下）</span></a></code></pre></div>
-<p>或是直接在 .config 加上</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode bash example"><code class="sourceCode bash"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="ex">CONFIG_PACKAGE_shadowsocks-libev-config</span>=m</a>
-<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="ex">CONFIG_PACKAGE_shadowsocks-libev-ss-server</span>=m</a></code></pre></div></li>
-<li><p>然後編譯需要的套件</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode bash example"><code class="sourceCode bash"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="fu">make</span> -j4 package/shadowsocks-libev/compile</a></code></pre></div></li>
-</ul>
-<p>編譯完之後會在 bin 下面找到對應的 .ipkg 檔，接著就是傳到 NAS 上</p>
-<ul>
-<li><p>用 opkg 安裝：</p>
-<pre><code>opkg install shadowsocks-libev-config_3.0.6-2_armv7soft.ipk
-opkg install shadowsocks-libev-ss-server_3.0.6-2_armv7soft.ipk</code></pre></li>
-<li><p>設定好 <code>/opt/etc/shadowsocks.json</code> 跟 <code>/opt/etc/init.d/S22shadowsocks</code>：</p>
-<pre><code>sed -ir &#39;s/PROCS=ss-local/PROCS=ss-server/&#39; /opt/etc/init.d/S22shadowsocks</code></pre></li>
-<li><p>確認 shadowsocks-libev 可以啟動</p>
-<pre><code>/opt/etc/init.d/S22shadowsocks start</code></pre></li>
-</ul>
-<p>設定好 router 的 NAT，然後用手機之類的測試會動之後，收工。</p>
-</section>
-</section>]]></description>
-    <pubDate>Sun, 27 Aug 2017 00:00:00 UT</pubDate>
-    <guid>https://op8867555.github.io/posts/2017-08-27-ds216j-shadowsocks.html</guid>
     <dc:creator>Alex Lu</dc:creator>
 </item>
 
