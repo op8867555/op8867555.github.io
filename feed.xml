@@ -7,8 +7,299 @@
         <description><![CDATA[Alex Lu's Blog Feed]]></description>
         <atom:link href="https://op8867555.github.io/feed.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Fri, 30 Mar 2018 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Wed, 18 Apr 2018 00:00:00 UT</lastBuildDate>
         <item>
+    <title>[en] Notes on Thinkpad X1 Carbon 2017 + Arch Linux</title>
+    <link>https://op8867555.github.io/posts/2017-06-11-X1C5-notes.html</link>
+    <description><![CDATA[<section id="changelogs" class="level3">
+<h3>changelogs</h3>
+<ul>
+<li>2018/04/18 Saoto’s trackpoint cap and fingerprinter status update.</li>
+<li>2018/02/11 add a note for recall experience and thunderbolt 3 failures.</li>
+<li>2018/01/12 update info.</li>
+<li>2017/08/22 update kernel to 4.12; add a WWAN section.</li>
+<li>2017/07/22 rewrite the post in English, remove some outdated information.</li>
+</ul>
+</section>
+<section id="quick-summary" class="level1">
+<h1>Quick Summary</h1>
+<p>I’m running Arch Linux (kernel 4.15) on a Thinkpad X1 Carbon 5th Gen (X1C5).</p>
+<p>Most stuff works out of box,</p>
+<ul>
+<li>wifi</li>
+<li>backlit keyboard</li>
+<li>LEDs on keyboard (caps lock/mute/mic mute)</li>
+<li>TrackPoint - slow speed but works.</li>
+<li>TrackPad - not so precise but works.</li>
+<li>USB-C - USB-C to HDMI / USB-C Hub<span><label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="sidenote">I wrote a <a href="/posts/2017-07-21-adam-usb-c-dock.html">blog post</a> in Traditional Chinese 🇹🇼 about the hub.<br />
+<br />
+</span></span> works.</li>
+<li>Bluetooth - works with a FC30 game controller.</li>
+<li>WWAN - works with ModemManager.</li>
+<li>mini-Ethernet - works.</li>
+<li>micro SD reader</li>
+</ul>
+<p>Things <em>partially</em> working,</p>
+<ul>
+<li>Fingerprint reader</li>
+</ul>
+<p>I haven’t tried,</p>
+<ul>
+<li>Thunderbolt 3 <span><label for="sn-2" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-2" class="margin-toggle"/><span class="marginnote"> I confused usb-c with TB3, it turns out I don’t have TB3 device.<br />
+<br />
+</span></span></li>
+<li>hibernation - I don’t setup a swap partition.</li>
+</ul>
+</section>
+<section id="hardware" class="level1">
+<h1>Hardware</h1>
+<section id="trackpoint" class="level2">
+<h2>TrackPoint</h2>
+<section id="alps-or-elantech" class="level3">
+<h3>ALPS or Elantech?</h3>
+<p>X1C5 comes with two versions<span><label for="sn-3" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-3" class="margin-toggle"/><span class="sidenote"><a href="https://patchwork.kernel.org/patch/9768231/" class="uri">https://patchwork.kernel.org/patch/9768231/</a><br />
+<br />
+</span></span> of TrackPoint: ALPS and Elantech. I confirmed mine has an Elantech one using <a href="http://pcsupport.lenovo.com/tw/zh/products/laptops-and-netbooks/thinkpad-x-series-laptops/thinkpad-x1-carbon-type-20hr-20hq/downloads/ds122148">TrackPointDetect.exe</a>.</p>
+<pre><code>TouchPad-Flash Utility
+2017-06-08 20:42:27
+Command Line: &quot;C:\Users\alexlu\Desktop\FW_Updater_1.0.0.9\TrackPointDetect.exe&quot;
+OS: 64-bit
+Pst Vendor : Elan
+[ERROR]: This TrackPoint is Elan (ID:03)</code></pre>
+</section>
+<section id="cursor-speed-trackpoint-cap" class="level3">
+<h3>Cursor Speed &amp; TrackPoint Cap</h3>
+<p>I used to take the plastic adapter<span><label for="sn-4" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-4" class="margin-toggle"/><span class="sidenote"><img src="https://i.imgur.com/qyS29cDl.jpg" title="fig:" alt="The plastic adapter from previous Thinkpad" /><br />
+<br />
+</span></span> from my previous laptop - a Thinkpad E130 and trimmed a Soft Rim Cap to fit “Super Low Profile”. <span><label for="sn-5" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-5" class="margin-toggle"/><span class="marginnote"> <img src="https://i.imgur.com/cxoY1AO.jpg" /> IMHO, a soft rim is <em>much better</em> than a soft dome.<br />
+<br />
+</span></span></p>
+<p>I have switched to a 3d-printed rubber caps made by <a href="https://twitter.com/saoto28">Saoto</a>, it works really great.</p>
+<p><img src="https://i.imgur.com/zJF2hz2.jpg" /></p>
+<p>The cursor speed and acceleration gets much better.</p>
+</section>
+</section>
+<section id="trackpad" class="level2">
+<h2>TrackPad</h2>
+<p>It works with libinput and pressure-based palm detection are functional. But it is still unresponsive to small movements for current release. <span><label for="sn-6" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-6" class="margin-toggle"/><span class="sidenote"><a href="https://bugs.freedesktop.org/show_bug.cgi?id=98839" class="uri">https://bugs.freedesktop.org/show_bug.cgi?id=98839</a><br />
+<br />
+</span></span></p>
+<p><span><label for="sn-7" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-7" class="margin-toggle"/><span class="marginnote"> There is a different device according to <a href="https://www.reddit.com/r/thinkpad/comments/6wimb8/doing_some_research_on_x1c5_touchpad_issues/">this thread</a>.<br />
+<br />
+</span></span></p>
+<p><code>dmesg</code> output:</p>
+<pre><code>rmi4_smbus 0-002c: registering SMbus-connected sensor
+rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics, product: TM3289-002, fw id: 2492434</code></pre>
+</section>
+<section id="fingerprint-reader" class="level2">
+<h2>Fingerprint Reader</h2>
+<p>X1C5 have a Validity Sensor 138a:0097. There is no fully-working driver for it at this moment.</p>
+<p>There is an open source reverse engineered driver working in progress<span><label for="sn-8" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-8" class="margin-toggle"/><span class="sidenote"><a href="https://github.com/nmikhailov/Validity90" class="uri">https://github.com/nmikhailov/Validity90</a><br />
+<br />
+</span></span><span><label for="sn-9" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-9" class="margin-toggle"/><span class="sidenote"><a href="https://bugs.freedesktop.org/show_bug.cgi?id=94536" class="uri">https://bugs.freedesktop.org/show_bug.cgi?id=94536</a><br />
+<br />
+</span></span>.</p>
+<section id="partially-working-driver" class="level3">
+<h3>Partially-Working Driver</h3>
+<ul>
+<li>Nikita Mikhailov(<span class="citation" data-cites="nmikhailov">@nmikhailov</span>) reverse-engineered how to use 0097 to verify fingerprint, but fingerprints need to be enrolled in Windows first.</li>
+<li>Marco Trevisan(<span class="citation" data-cites="3v1n0">@3v1n0</span>) wrote a match-on-host driver<span><label for="sn-10" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-10" class="margin-toggle"/><span class="sidenote"><a href="https://github.com/3v1n0/libfprint" class="uri">https://github.com/3v1n0/libfprint</a><br />
+<br />
+</span></span> for 0090.</li>
+<li>Aleksandr Saraikin(<span class="citation" data-cites="hrenod">@hrenod</span>) made a modification<span><label for="sn-11" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-11" class="margin-toggle"/><span class="sidenote"><a href="https://github.com/hrenod/libfprint" class="uri">https://github.com/hrenod/libfprint</a><br />
+<br />
+</span></span> for 0097 based on <span class="citation" data-cites="3v1n0">@3v1n0</span>’s work.</li>
+</ul>
+<p><span class="citation" data-cites="hrenod">@hrenod</span>’s fork make it possible to use 0097 to authenticate now. One just need to:</p>
+<ol type="1">
+<li>initialize the device and enroll fingerprints in Windows,</li>
+<li>install <code>fprintd</code> and <span class="citation" data-cites="hrenod">@hrenod</span>’s <code>libfprint</code>,</li>
+<li>do a fake enroll (ex. <code>fprintd-enroll</code>),</li>
+<li>set up PAM rules.</li>
+</ol>
+</section>
+</section>
+<section id="wwan" class="level2">
+<h2>WWAN</h2>
+<p>X1C5 (WWAN) comes with a Sierra EM7455 LTE Modem (1199:9079).</p>
+<p>It works out of box using latest ModemManager.</p>
+</section>
+<section id="thunderbolt-3" class="level2">
+<h2>Thunderbolt 3</h2>
+<section id="firmware-failures" class="level3">
+<h3>Firmware Failures</h3>
+<p>My X1C5’s usb-c port dies sometime after I plug-in and out my usb-c hub, it was unable to charge and connect any devices, and it sometimes just “recovered” itself. I initially guess it is a hardware failure and sent the laptop once to repair center, but the technician can’t reproduce the issue.</p>
+<p>Later I found there is a new <a href="https://pcsupport.lenovo.com/us/zh/products/laptops-and-netbooks/thinkpad-x-series-laptops/thinkpad-x1-carbon-type-20hr-20hq/downloads/ds120382">Thunderbolt 3 firmware update</a>, which says it:</p>
+<ul>
+<li>Fixed an issue where system might not be charged after repeating AC plug-in and out.</li>
+</ul>
+<p>It is not happen again after firmware updated so far. Intel WTF.</p>
+</section>
+</section>
+<section id="recall-for-loose-screws" class="level2">
+<h2>Recall for loose screws</h2>
+<p>Lenovo recently(2018/02/06) recalls X1C5 made before 2017/11 and Mine is unfortunately affected. I went to nearest Lenovo Service Center(around 4km) and it took 15~20 minutes for the technician to check. There is no loose screws at last.</p>
+</section>
+</section>
+<section id="software" class="level1">
+<h1>Software</h1>
+<p>I’m using i3-gaps without a desktop environment.</p>
+<section id="hardware-video-acceleration" class="level2">
+<h2>Hardware Video Acceleration</h2>
+<p>It is possible to use the integrated graphic card to decode/encode videos, and this helps power-saving a lot.</p>
+<p><span><label for="sn-12" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-12" class="margin-toggle"/><span class="marginnote"> See this <a href="https://wiki.archlinux.org/index.php/Hardware_video_acceleration">article</a> on ArchWiki for more info.<br />
+<br />
+</span></span></p>
+<p>There are two spec/implement/API: VAAPI (by Intel) and VDPAU (by Nvidia). Since most software supports VAAPI, I just need to install <code>libva-intel-driver</code> pacakge.</p>
+</section>
+<section id="libva-intel-driver" class="level2">
+<h2>libva-intel-driver</h2>
+<p>Current release version has a bug<span><label for="sn-13" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-13" class="margin-toggle"/><span class="sidenote"><a href="https://github.com/01org/intel-vaapi-driver/issues/297" class="uri">https://github.com/01org/intel-vaapi-driver/issues/297</a><br />
+<br />
+</span></span> when decoding VP9 videos, <code>libva-intel-driver-git</code> package should fixes that.</p>
+</section>
+<section id="chromium-vaapi" class="level2">
+<h2>chromium-vaapi</h2>
+<p>There is a VAAPI implementation for Chromium OS, and there is also a patch<span><label for="sn-14" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-14" class="margin-toggle"/><span class="sidenote"><a href="https://chromium-review.googlesource.com/c/chromium/src/+/532294" class="uri">https://chromium-review.googlesource.com/c/chromium/src/+/532294</a><br />
+<br />
+</span></span> to enable that on Linux. The <code>chromium-vaapi-bin</code> package on AUR provides prebuilt binary, or you can build <code>chromium-vaapi</code> by yourself (It takes about 6 hrs first time, you can use ccache to speed up if you want to build it more than one time).</p>
+</section>
+</section>
+<section id="references" class="level1">
+<h1>References</h1>
+<ul>
+<li><a href="https://gist.github.com/gdamjan/141bb0def5f80257fae2b233ec16f3c2">gdamjan’s Note</a></li>
+<li><a href="http://fredrik.wendt.se/2017/04/26/lenovo-thinkpad-x1-carbon-5th-generation/">Fredrik’s Note</a></li>
+<li><a href="https://forums.lenovo.com/t5/forums/v3_1/forumtopicpage/board-id/tp02_en/thread-id/75464/page/29">discussion about TrackPad</a></li>
+</ul>
+</section>
+<section id="outdated" class="level1">
+<h1>Outdated</h1>
+<p>These issues/tricks/workarounds are mostly outdated(linux kernel ≤ 4.12). Maybe I should just remove this section someday…</p>
+<section id="trackpoint-1" class="level2">
+<h2>TrackPoint</h2>
+<section id="issues" class="level3">
+<h3>Issues</h3>
+<ul>
+<li><p>Recognized as a “PS/2 Generic Mouse”<br />
+⇒ No palm-detection during trackpoint use</p></li>
+<li><p>Since kernel driver doesn’t support the new trackpoint, both of sensitivity and speed aren’t adjustable.<br />
+⇒ The default speed/sensitivity is too slow to use.</p></li>
+</ul>
+</section>
+<section id="mark-it-as-a-pointing-stick" class="level3">
+<h3>Mark it as a pointing stick</h3>
+<p>I found I can making libinput treat the “PS/2 Generic Mouse” as a trackpoint using a custom udev hwdb entry.</p>
+<p><em>Note: this should not be used anymore once trackpoint gets kernel driver supports</em></p>
+<pre><code>evdev:name:PS/2 Generic Mouse:dmi:*svnLENOVO*:pvrThinkPadX1Carbon5th*
+  ID_INPUT_POINTINGSTICK=1</code></pre>
+</section>
+<section id="better-trackpoint-acceleration" class="level3">
+<h3>Better TrackPoint Acceleration</h3>
+<p>There is a <a href="https://bugs.freedesktop.org/show_bug.cgi?id=91369#c48">patch</a> which solves speed issue.</p>
+<p>I get my trackpoint much usable by setting up:</p>
+<ul>
+<li><code>LIBINPUT_ATTR_TRACKPOINT_RANGE=10</code> in hwdb</li>
+<li><code>xinput set-prop &quot;PS/2 Generic Mouse&quot; &quot;libinput Accel Speed&quot; -0.25</code> in my .xinitrc</li>
+</ul>
+</section>
+</section>
+<section id="trackpad-1" class="level2">
+<h2>TrackPad</h2>
+<p>The trackpad is <ins>able to</ins> use rmi4 over smbus for now(4.12).</p>
+<p>Turn it on by creating a <code>psmouse.conf</code> in <code>/etc/modprobe.d/</code></p>
+<pre><code>options psmouse synaptics_intertouch=1</code></pre>
+<section id="palm-detection" class="level3">
+<h3>Palm Detection</h3>
+<ul>
+<li>pressure-based palm-detection works great (libinput ≥ 1.8)</li>
+<li>palm-detection during trackpoint use requires <a href="#mark-it-as-a-pointing-stick">mark it as a pointing stick</a>.</li>
+</ul>
+</section>
+</section>
+<section id="new-hotkeys" class="level2">
+<h2>New Hotkeys</h2>
+<p>Before linux-4.12, You needs <a href="https://patchwork.kernel.org/patch/9596129/">these</a> <a href="https://patchwork.kernel.org/patch/9596131/">patches</a> to get these buttons works.</p>
+</section>
+</section>]]></description>
+    <pubDate>Wed, 18 Apr 2018 00:00:00 UT</pubDate>
+    <guid>https://op8867555.github.io/posts/2017-06-11-X1C5-notes.html</guid>
+    <dc:creator>Alex Lu</dc:creator>
+</item>
+<item>
+    <title>T-Digest 概念簡介</title>
+    <link>https://op8867555.github.io/posts/2018-04-09-tdigest.html</link>
+    <description><![CDATA[<section>
+<p>百分位數是敘述性統計中一個很好用的工具，像是</p>
+<ul>
+<li>用中位數來代表台灣人的所得</li>
+<li>用 75 百分位數來找出學測前標的成績</li>
+<li>用 99.99 百分位數來找出特別的顧客；或是找出異常的伺服器連線等。</li>
+</ul>
+<p>但是因為計算相對複雜，在資料量過大時往往無法計算， T-Digest 是一個近似大量資料中百分位數的演算法，這篇文章簡單介紹其想法。</p>
+</section>
+<section id="concepts" class="level1">
+<h1>Concepts</h1>
+<p>假設我們今天有很多數字，舉例來說這邊有 500 個 -30 ~ 30 間的數字</p>
+<p><span><label for="sn-1" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="marginnote"> 這種圖稱為 Rug plot, 其中的每一條直線代表一個數字，其 x 軸是它的值。<br />
+<br />
+</span></span> <img src="/images/tdigest/numbers.svg" data-caption="1" /></p>
+<p>我們可以用 Probabilistic Density Function(PDF) 的形式來表示：</p>
+<p><span><label for="sn-2" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-2" class="margin-toggle"/><span class="marginnote"> 機率密度函數，<span class="math inline">\(PDF(x)\)</span> 越高表示 <span class="math inline">\(x\)</span> 發生的機率越高，其面積加總起來是 100%<br />
+<br />
+</span></span></p>
+<p><img src="/images/tdigest/dist.svg" /></p>
+<p>75 百分位數就是面積佔 75% 時的 x 座標：</p>
+<p><img src="/images/tdigest/dist_75.svg" /></p>
+<section id="centroid" class="level2">
+<h2>Centroid</h2>
+<p>但是這樣要知道 500 個數字的順序才能計算，這在數字非常多的時候是不容易的。取而代之的是，試著將用很少的數字來代替 500個數字，怎麼做呢？</p>
+<p><strong>將鄰近的數字們用兩個數字代表： 平均值跟個數</strong> <span><label for="sn-3" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-3" class="margin-toggle"/><span class="sidenote">原始的論文中是用總和，但是兩者意義相同，實作上為了效率都會選用平均值。<br />
+<br />
+</span></span></p>
+<p>這樣的一組平均值跟個數被稱為 <em>Centroid</em> ，我們可以用好幾個 centroid 來代替整個 PDF, <strong>T-Digest 就是在做這件事</strong>。</p>
+<p><img src="/images/tdigest/centroids.svg" /></p>
+<p>當然可以自由決定要用幾個 centroid 來代表</p>
+<p><img src="/images/tdigest/centroids2.svg" /></p>
+<p>計算百分位數時就是只需要從這些 centroids 中找出對應位置的項目來做內插法。</p>
+<p><img src="/images/tdigest/centroids_pdf.svg" /></p>
+</section>
+<section id="clustering" class="level2">
+<h2>Clustering</h2>
+<p>將很多數字用一個或多個 centroids 代表的動作稱為 <em>clustering</em>. 我們知道當一個 centroid 代表的數字越多，流失的資訊也就越多，也就越不精確，因此<strong>怎麼 clustering 就是影響成效的一個重點</strong>。</p>
+<p>T-Digest 的作法是控制各個 centroid 的大小，在需要精確的部份用更多 centroids 來表達。為此論文提出了一個公式<span><label for="sn-4" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-4" class="margin-toggle"/><span class="marginnote"> <img src="/images/tdigest/k_q_function.svg" alt="k(q, δ) 的函數圖形" /><br />
+<br />
+</span></span>來定義這個行為：</p>
+<p><span class="math display">\[k(q, δ) = δ\left(\frac{sin^{-1}(2q - 1)}{π} + \frac{1}{2}\right)\]</span></p>
+<p>其中 <span class="math inline">\(q\)</span> 是 quantile, <span class="math inline">\(δ\)</span> 是壓縮率參數，而 <span class="math inline">\(k(q, δ)\)</span> 表示 <span class="math inline">\(q\)</span> 應該要用第幾個 centroid 表達。可以從圖中看到在靠近 <span class="math inline">\(q = 0\)</span> 跟 <span class="math inline">\(q = 1\)</span> 的時候，<span class="math inline">\(k\)</span> 的變動很大，也就是說我們用比較多的 centroids 來表示。 為什麼這樣設計呢？</p>
+<p>這是因為大部分計算百分位數時，真正關心的通常是 1、0.1、99、99.9、99.99…等很極端的百分位數，相較之下中間部份不那麼在意其精確程度了。</p>
+</section>
+<section id="merge-and-the-rest" class="level2">
+<h2>Merge and the rest …</h2>
+<p>除了透過 clustering 建構 T-Digest 之外，論文中也給了合併兩個 T-Digest 的方法。這帶來了一個很大的好處：當資料點太多時，我們可以分組計算 T-Digest 然後在合併起來，這讓平行分散計算變得可能<span><label for="sn-5" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-5" class="margin-toggle"/><span class="sidenote">很重要的一點是 T-Digest 的 merge 需要滿足結合律才能安全的用在平行分散的系統上。但很可惜的是， T-Digest 是近似演算法，所以沒有真正的滿足結合律。雖然如此，仍然可以在一定的誤差之下滿足這些條件，也使得實務上還是可行。<br />
+<br />
+</span></span>，也就是 Divide and Conquer.</p>
+<p>論文中剩下的部份除了討論成效之外，還給出了幾個實用的演算法：</p>
+<ul>
+<li>Trimmed Mean, 一個 quantile range 之間的平均值</li>
+<li>Cumulative Density Function(CDF)</li>
+<li>Inverse CDF</li>
+</ul>
+</section>
+</section>
+<section id="reference" class="level1">
+<h1>Reference</h1>
+<ul>
+<li><a href="https://github.com/tdunning/t-digest/blob/master/docs/t-digest-paper/histo.pdf">原始論文</a></li>
+<li><a href="https://blog.bcmeng.com/post/tdigest.html">TDigest 算法原理</a></li>
+<li><a href="https://dataorigami.net/blogs/napkin-folding/19055451-percentile-and-quantile-estimation-of-big-data-the-t-digest">Percentile and Quantile Estimation of Big Data: The t-Digest</a></li>
+</ul>
+</section>]]></description>
+    <pubDate>Thu, 12 Apr 2018 00:00:00 UT</pubDate>
+    <guid>https://op8867555.github.io/posts/2018-04-09-tdigest.html</guid>
+    <dc:creator>Alex Lu</dc:creator>
+</item>
+<item>
     <title>到底什麼是 Bayesian</title>
     <link>https://op8867555.github.io/posts/2018-03-09-bayes.html</link>
     <description><![CDATA[<section>
@@ -180,199 +471,6 @@ P(R | T=7, F=3) = \frac{P(T=7, F=3 | R) P(R)}{P(T=7, F=3)}
 </section>]]></description>
     <pubDate>Fri, 30 Mar 2018 00:00:00 UT</pubDate>
     <guid>https://op8867555.github.io/posts/2018-03-09-bayes.html</guid>
-    <dc:creator>Alex Lu</dc:creator>
-</item>
-<item>
-    <title>[en] Notes on Thinkpad X1 Carbon 2017 + Arch Linux</title>
-    <link>https://op8867555.github.io/posts/2017-06-11-X1C5-notes.html</link>
-    <description><![CDATA[<section id="changelogs" class="level3">
-<h3>changelogs</h3>
-<ul>
-<li>2018/02/11 add a note for recall experience and thunderbolt 3 failures.</li>
-<li>2018/01/12 update info.</li>
-<li>2017/08/22 update kernel to 4.12; add a WWAN section.</li>
-<li>2017/07/22 rewrite the post in English, remove some outdated information.</li>
-</ul>
-</section>
-<section id="quick-summary" class="level1">
-<h1>Quick Summary</h1>
-<p>I’m running Arch Linux (kernel 4.14) on a Thinkpad X1 Carbon 5th Gen (X1C5).</p>
-<p>Most stuff works out of box,</p>
-<ul>
-<li>wifi</li>
-<li>backlit keyboard</li>
-<li>LEDs on keyboard (caps lock/mute/mic mute)</li>
-<li>TrackPoint - slow speed but works.</li>
-<li>TrackPad - not so precise but works.</li>
-<li>Thunderbolt 3 - USB-C to HDMI / USB-C Hub<span><label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="sidenote">I wrote a <a href="/posts/2017-07-21-adam-usb-c-dock.html">blog post</a> in Traditional Chinese 🇹🇼 about the hub.<br />
-<br />
-</span></span> works.</li>
-<li>Bluetooth - works with a FC30 game controller.</li>
-<li>WWAN - works with ModemManager.</li>
-<li>mini-Ethernet - works.</li>
-</ul>
-<p>Things <em>not</em> working,</p>
-<ul>
-<li>Fingerprint reader</li>
-</ul>
-<p>I haven’t tried,</p>
-<ul>
-<li>micro SD reader</li>
-<li>hibernation - I don’t setup a swap partition.</li>
-</ul>
-</section>
-<section id="hardware" class="level1">
-<h1>Hardware</h1>
-<section id="trackpoint" class="level2">
-<h2>TrackPoint</h2>
-<section id="alps-or-elantech" class="level3">
-<h3>ALPS or Elantech?</h3>
-<p>X1C5 comes with two versions<span><label for="sn-2" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-2" class="margin-toggle"/><span class="sidenote"><a href="https://patchwork.kernel.org/patch/9768231/" class="uri">https://patchwork.kernel.org/patch/9768231/</a><br />
-<br />
-</span></span> of TrackPoint: ALPS and Elantech. I confirmed mine has an Elantech one using <a href="http://pcsupport.lenovo.com/tw/zh/products/laptops-and-netbooks/thinkpad-x-series-laptops/thinkpad-x1-carbon-type-20hr-20hq/downloads/ds122148">TrackPointDetect.exe</a>.</p>
-<pre><code>TouchPad-Flash Utility
-2017-06-08 20:42:27
-Command Line: &quot;C:\Users\alexlu\Desktop\FW_Updater_1.0.0.9\TrackPointDetect.exe&quot;
-OS: 64-bit
-Pst Vendor : Elan
-[ERROR]: This TrackPoint is Elan (ID:03)</code></pre>
-</section>
-<section id="cursor-speed-trackpoint-cap" class="level3">
-<h3>Cursor Speed &amp; TrackPoint Cap</h3>
-<p>I took a plastic adapter<span><label for="sn-3" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-3" class="margin-toggle"/><span class="sidenote"><img src="https://i.imgur.com/qyS29cDl.jpg" title="fig:" alt="The plastic adapter from previous Thinkpad" /><br />
-<br />
-</span></span> from my previous laptop - a Thinkpad E130 and trimmed a Soft Rim Cap to fit “Super Low Profile”. The cursor speed and acceleration gets much better.</p>
-<figure>
-<img src="https://i.imgur.com/cxoY1AOl.jpg" alt="IMHO, a soft rim is much better than a soft dome." /><figcaption>IMHO, a soft rim is <em>much better</em> than a soft dome.</figcaption>
-</figure>
-</section>
-</section>
-<section id="trackpad" class="level2">
-<h2>TrackPad</h2>
-<p>It works with libinput and pressure-based palm detection are functional. But it is still unresponsive to small movements for current release. <span><label for="sn-4" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-4" class="margin-toggle"/><span class="sidenote"><a href="https://bugs.freedesktop.org/show_bug.cgi?id=98839" class="uri">https://bugs.freedesktop.org/show_bug.cgi?id=98839</a><br />
-<br />
-</span></span></p>
-<p><span><label for="sn-5" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-5" class="margin-toggle"/><span class="marginnote"> There is a different device according to <a href="https://www.reddit.com/r/thinkpad/comments/6wimb8/doing_some_research_on_x1c5_touchpad_issues/">this thread</a>.<br />
-<br />
-</span></span></p>
-<p><code>dmesg</code> output:</p>
-<pre><code>rmi4_smbus 0-002c: registering SMbus-connected sensor
-rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics, product: TM3289-002, fw id: 2492434</code></pre>
-</section>
-<section id="fingerprint-reader" class="level2">
-<h2>Fingerprint Reader</h2>
-<p>X1C5 have a Validity Sensor 138a:0097. There is no driver for it.</p>
-<p>There is an open source reverse engineered driver working in progress<span><label for="sn-6" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-6" class="margin-toggle"/><span class="sidenote"><a href="https://github.com/nmikhailov/Validity90" class="uri">https://github.com/nmikhailov/Validity90</a><br />
-<br />
-</span></span><span><label for="sn-7" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-7" class="margin-toggle"/><span class="sidenote"><a href="https://bugs.freedesktop.org/show_bug.cgi?id=94536" class="uri">https://bugs.freedesktop.org/show_bug.cgi?id=94536</a><br />
-<br />
-</span></span>.</p>
-</section>
-<section id="wwan" class="level2">
-<h2>WWAN</h2>
-<p>X1C5 (WWAN) comes with a Sierra EM7455 LTE Modem (1199:9079).</p>
-<p>It works out of box using latest ModemManager.</p>
-</section>
-<section id="thunderbolt-3" class="level2">
-<h2>Thunderbolt 3</h2>
-<section id="firmware-failures" class="level3">
-<h3>Firmware Failures</h3>
-<p>My X1C5’s usb-c port dies sometime after I plug-in and out my usb-c hub, it was unable to charge and connect any devices, and it sometimes just “recovered” itself. I initially guess it is a hardware failure and sent the laptop once to repair center, but the technician can’t reproduce the issue.</p>
-<p>Later I found there is a new <a href="https://pcsupport.lenovo.com/us/zh/products/laptops-and-netbooks/thinkpad-x-series-laptops/thinkpad-x1-carbon-type-20hr-20hq/downloads/ds120382">Thunderbolt 3 firmware update</a>, which says it:</p>
-<ul>
-<li>Fixed an issue where system might not be charged after repeating AC plug-in and out.</li>
-</ul>
-<p>It is not happen again after firmware updated so far. Intel WTF.</p>
-</section>
-</section>
-<section id="recall-for-loose-screws" class="level2">
-<h2>Recall for loose screws</h2>
-<p>Lenovo recently(2018/02/06) recalls X1C5 made before 2017/11 and Mine is unfortunately affected. I went to nearest Lenovo Service Center(around 4km) and it took 15~20 minutes for the technician to check. There is no loose screws at last.</p>
-</section>
-</section>
-<section id="software" class="level1">
-<h1>Software</h1>
-<p>I’m using i3-gaps without a desktop environment.</p>
-<section id="hardware-video-acceleration" class="level2">
-<h2>Hardware Video Acceleration</h2>
-<p>It is possible to use the integrated graphic card to decode/encode videos, and this helps power-saving a lot.</p>
-<p><span><label for="sn-8" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-8" class="margin-toggle"/><span class="marginnote"> See this <a href="https://wiki.archlinux.org/index.php/Hardware_video_acceleration">article</a> on ArchWiki for more info.<br />
-<br />
-</span></span></p>
-<p>There are two spec/implement/API: VAAPI (by Intel) and VDPAU (by Nvidia). Since most software supports VAAPI, I just need to install <code>libva-intel-driver</code> pacakge.</p>
-</section>
-<section id="libva-intel-driver" class="level2">
-<h2>libva-intel-driver</h2>
-<p>Current release version has a bug<span><label for="sn-9" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-9" class="margin-toggle"/><span class="sidenote"><a href="https://github.com/01org/intel-vaapi-driver/issues/297" class="uri">https://github.com/01org/intel-vaapi-driver/issues/297</a><br />
-<br />
-</span></span> when decoding VP9 videos, <code>libva-intel-driver-git</code> package should fixes that.</p>
-</section>
-<section id="chromium-vaapi" class="level2">
-<h2>chromium-vaapi</h2>
-<p>There is a VAAPI implementation for Chromium OS, and there is also a patch<span><label for="sn-10" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-10" class="margin-toggle"/><span class="sidenote"><a href="https://chromium-review.googlesource.com/c/chromium/src/+/532294" class="uri">https://chromium-review.googlesource.com/c/chromium/src/+/532294</a><br />
-<br />
-</span></span> to enable that on Linux. The <code>chromium-vaapi-bin</code> package on AUR provides prebuilt binary, or you can build <code>chromium-vaapi</code> by yourself (It takes about 6 hrs first time, you can use ccache to speed up if you want to build it more than one time).</p>
-</section>
-</section>
-<section id="references" class="level1">
-<h1>References</h1>
-<ul>
-<li><a href="https://gist.github.com/gdamjan/141bb0def5f80257fae2b233ec16f3c2">gdamjan’s Note</a></li>
-<li><a href="http://fredrik.wendt.se/2017/04/26/lenovo-thinkpad-x1-carbon-5th-generation/">Fredrik’s Note</a></li>
-<li><a href="https://forums.lenovo.com/t5/forums/v3_1/forumtopicpage/board-id/tp02_en/thread-id/75464/page/29">discussion about TrackPad</a></li>
-</ul>
-</section>
-<section id="outdated" class="level1">
-<h1>Outdated</h1>
-<p>These issues/tricks/workarounds are mostly outdated(linux kernel ≤ 4.12). Maybe I should just remove this section someday…</p>
-<section id="trackpoint-1" class="level2">
-<h2>TrackPoint</h2>
-<section id="issues" class="level3">
-<h3>Issues</h3>
-<ul>
-<li><p>Recognized as a “PS/2 Generic Mouse”<br />
-⇒ No palm-detection during trackpoint use</p></li>
-<li><p>Since kernel driver doesn’t support the new trackpoint, both of sensitivity and speed aren’t adjustable.<br />
-⇒ The default speed/sensitivity is too slow to use.</p></li>
-</ul>
-</section>
-<section id="mark-it-as-a-pointing-stick" class="level3">
-<h3>Mark it as a pointing stick</h3>
-<p>I found I can making libinput treat the “PS/2 Generic Mouse” as a trackpoint using a custom udev hwdb entry.</p>
-<p><em>Note: this should not be used anymore once trackpoint gets kernel driver supports</em></p>
-<pre><code>evdev:name:PS/2 Generic Mouse:dmi:*svnLENOVO*:pvrThinkPadX1Carbon5th*
-  ID_INPUT_POINTINGSTICK=1</code></pre>
-</section>
-<section id="better-trackpoint-acceleration" class="level3">
-<h3>Better TrackPoint Acceleration</h3>
-<p>There is a <a href="https://bugs.freedesktop.org/show_bug.cgi?id=91369#c48">patch</a> which solves speed issue.</p>
-<p>I get my trackpoint much usable by setting up:</p>
-<ul>
-<li><code>LIBINPUT_ATTR_TRACKPOINT_RANGE=10</code> in hwdb</li>
-<li><code>xinput set-prop &quot;PS/2 Generic Mouse&quot; &quot;libinput Accel Speed&quot; -0.25</code> in my .xinitrc</li>
-</ul>
-</section>
-</section>
-<section id="trackpad-1" class="level2">
-<h2>TrackPad</h2>
-<p>The trackpad is <ins>able to</ins> use rmi4 over smbus for now(4.12).</p>
-<p>Turn it on by creating a <code>psmouse.conf</code> in <code>/etc/modprobe.d/</code></p>
-<pre><code>options psmouse synaptics_intertouch=1</code></pre>
-<section id="palm-detection" class="level3">
-<h3>Palm Detection</h3>
-<ul>
-<li>pressure-based palm-detection works great (libinput ≥ 1.8)</li>
-<li>palm-detection during trackpoint use requires <a href="#mark-it-as-a-pointing-stick">mark it as a pointing stick</a>.</li>
-</ul>
-</section>
-</section>
-<section id="new-hotkeys" class="level2">
-<h2>New Hotkeys</h2>
-<p>Before linux-4.12, You needs <a href="https://patchwork.kernel.org/patch/9596129/">these</a> <a href="https://patchwork.kernel.org/patch/9596131/">patches</a> to get these buttons works.</p>
-</section>
-</section>]]></description>
-    <pubDate>Sun, 11 Feb 2018 00:00:00 UT</pubDate>
-    <guid>https://op8867555.github.io/posts/2017-06-11-X1C5-notes.html</guid>
     <dc:creator>Alex Lu</dc:creator>
 </item>
 <item>
@@ -1376,98 +1474,6 @@ Bisecting: 0 revisions left to test after this (roughly 0 steps)
 </section>]]></description>
     <pubDate>Sat, 16 Sep 2017 00:00:00 UT</pubDate>
     <guid>https://op8867555.github.io/posts/2017-09-16-python-getting-town-from-gps-coord.html</guid>
-    <dc:creator>Alex Lu</dc:creator>
-</item>
-<item>
-    <title>手動編譯 vs 編譯好的 tensorflow</title>
-    <link>https://op8867555.github.io/posts/2017-09-09-tensorflow-prebuilt-vs-built-from-source.html</link>
-    <description><![CDATA[<p>亂看文章時發現到 tensorflow prebuilt 版跟自己 build 效能有落差（現在想想這也是理所當然的事），於是就來自己編編看到底差多少了。</p>
-<section id="實驗" class="level1">
-<h1>實驗</h1>
-<section id="使用的機器" class="level2">
-<h2>使用的機器</h2>
-<p>Thinkpad X1 Carbon 2017，它的 CPU 是 Intel 的 i7-7500U（對，這顆絕對不適合拿來算這個）</p>
-</section>
-<section id="使用的不同版本" class="level2">
-<h2>使用的不同版本</h2>
-<ul>
-<li><p><a href="https://pypi.python.org/pypi/tensorflow">PyPI 上的版本</a>，沒有機器相關的最佳化。</p></li>
-<li><p><a href="https://software.intel.com/en-us/articles/tensorflow-optimizations-on-modern-intel-architecture">intel 提供的版本</a> 使用 intel 的 Math Kernel library，但是沒有機器相關的最佳化<span><label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="sidenote">沒有做機器相關的最佳化時會有提醒<br />
-<br />
-</span></span>。</p></li>
-<li><p>自己 build ，用的是 tensorflow 官方 github repo 的 <a href="https://github.com/tensorflow/tensorflow/tree/32ffc5a81eee8c39bbe71536212a773b1ffd4eb2">32ffc5a81</a></p>
-<ul>
-<li><code>./configure</code> 都用預設值 (<code>-march=native</code> 開啟當下機器架構的最佳化）</li>
-<li><code>--config=mkl</code> 同 intel 版本</li>
-</ul></li>
-</ul>
-</section>
-<section id="使用的測試案例" class="level2">
-<h2>使用的測試案例</h2>
-<p>使用了 keras 的幾個 <a href="https://github.com/fchollet/keras/tree/master/examples">example</a> 來測試<span><label for="sn-2" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-2" class="margin-toggle"/><span class="sidenote">問我為什麼要用 keras 而不用 tensorflow 就好？因為我還想測 theano 啊…<br />
-<br />
-</span></span>，分別是：</p>
-<ul>
-<li>mnist-mlp</li>
-<li>mnist-cnn</li>
-<li>cifar10-cnn</li>
-</ul>
-</section>
-<section id="測試結果" class="level2">
-<h2>測試結果</h2>
-<table>
-<caption>實驗結果（數值是每次 epoch 所花的時間，越小越好）</caption>
-<thead>
-<tr class="header">
-<th style="text-align: left;">testcase</th>
-<th style="text-align: right;">pip</th>
-<th style="text-align: right;">intel</th>
-<th style="text-align: right;">built</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">mnist-mlp</td>
-<td style="text-align: right;">9.5s</td>
-<td style="text-align: right;">10.5s</td>
-<td style="text-align: right;">10.5s</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">mnist-cnn</td>
-<td style="text-align: right;">175.5s</td>
-<td style="text-align: right;">63s</td>
-<td style="text-align: right;">60s</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">cifar10-cnn[^1]</td>
-<td style="text-align: right;">275s</td>
-<td style="text-align: right;">200s</td>
-<td style="text-align: right;">200s</td>
-</tr>
-</tbody>
-</table>
-<p><span><label for="sn-3" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-3" class="margin-toggle"/><span class="marginnote"> [^1] 因為有 200 個 epoch 要跑，實在要花很多時間，所以這邊就都只取大概 3~4 個 epoch 的時間來算<br />
-<br />
-</span></span></p>
-</section>
-<section id="結論" class="level2">
-<h2>結論</h2>
-<ul>
-<li>如果是真心想要用 Intel 的 CPU 跑 tensorflow …
-<ul>
-<li>…也願意自己花時間編譯，那<strong>手動編譯</strong>是（執行時）最快的選項</li>
-<li>…卻不想自己編，但可以接受不是最新的版本，那直接使用<a href="https://software.intel.com/en-us/articles/tensorflow-optimizations-on-modern-intel-architecture"><strong>intel 提供的版本</strong></a></li>
-</ul></li>
-<li>如果沒那麼真心想用，只是先用 CPU 玩玩看，那<a href="https://pypi.python.org/pypi/tensorflow"><strong>直接用 pip 裝</strong></a>是最簡易的選項。</li>
-<li><em>真心想跑 tensorflow 還是去弄個有 GPU 的環境吧…</em>
-<ul>
-<li>用了 GTX 1060 6GB 的桌電跑 cifar10-cnn ，一個 epoch 只要 25s</li>
-</ul></li>
-</ul>
-</section>
-</section>]]></description>
-    <pubDate>Sat, 09 Sep 2017 00:00:00 UT</pubDate>
-    <guid>https://op8867555.github.io/posts/2017-09-09-tensorflow-prebuilt-vs-built-from-source.html</guid>
     <dc:creator>Alex Lu</dc:creator>
 </item>
 

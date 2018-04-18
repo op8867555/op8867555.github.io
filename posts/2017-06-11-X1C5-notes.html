@@ -36,7 +36,7 @@
 <h1 class="title">[en] Notes on Thinkpad X1 Carbon 2017 + Arch Linux</h1>
 
 
-<p class="byline">February 11, 2018</p>
+<p class="byline">April 18, 2018</p>
 
 
 <p class="byline">Tags: <a href="../tags/laptop.html">laptop</a>, <a href="../tags/linux.html">linux</a>, <a href="../tags/lang%3Aen.html">lang:en</a></p>
@@ -47,6 +47,7 @@
 <section id="changelogs" class="level3">
 <h3>changelogs</h3>
 <ul>
+<li>2018/04/18 Saoto’s trackpoint cap and fingerprinter status update.</li>
 <li>2018/02/11 add a note for recall experience and thunderbolt 3 failures.</li>
 <li>2018/01/12 update info.</li>
 <li>2017/08/22 update kernel to 4.12; add a WWAN section.</li>
@@ -55,7 +56,7 @@
 </section>
 <section id="quick-summary" class="level1">
 <h1>Quick Summary</h1>
-<p>I’m running Arch Linux (kernel 4.14) on a Thinkpad X1 Carbon 5th Gen (X1C5).</p>
+<p>I’m running Arch Linux (kernel 4.15) on a Thinkpad X1 Carbon 5th Gen (X1C5).</p>
 <p>Most stuff works out of box,</p>
 <ul>
 <li>wifi</li>
@@ -63,20 +64,23 @@
 <li>LEDs on keyboard (caps lock/mute/mic mute)</li>
 <li>TrackPoint - slow speed but works.</li>
 <li>TrackPad - not so precise but works.</li>
-<li>Thunderbolt 3 - USB-C to HDMI / USB-C Hub<span><label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle" /><span class="sidenote">I wrote a <a href="../posts/2017-07-21-adam-usb-c-dock.html">blog post</a> in Traditional Chinese 🇹🇼 about the hub.<br />
+<li>USB-C - USB-C to HDMI / USB-C Hub<span><label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle" /><span class="sidenote">I wrote a <a href="../posts/2017-07-21-adam-usb-c-dock.html">blog post</a> in Traditional Chinese 🇹🇼 about the hub.<br />
 <br />
 </span></span> works.</li>
 <li>Bluetooth - works with a FC30 game controller.</li>
 <li>WWAN - works with ModemManager.</li>
 <li>mini-Ethernet - works.</li>
+<li>micro SD reader</li>
 </ul>
-<p>Things <em>not</em> working,</p>
+<p>Things <em>partially</em> working,</p>
 <ul>
 <li>Fingerprint reader</li>
 </ul>
 <p>I haven’t tried,</p>
 <ul>
-<li>micro SD reader</li>
+<li>Thunderbolt 3 <span><label for="sn-2" class="margin-toggle">⊕</label><input type="checkbox" id="sn-2" class="margin-toggle" /><span class="marginnote"> I confused usb-c with TB3, it turns out I don’t have TB3 device.<br />
+<br />
+</span></span></li>
 <li>hibernation - I don’t setup a swap partition.</li>
 </ul>
 </section>
@@ -86,7 +90,7 @@
 <h2>TrackPoint</h2>
 <section id="alps-or-elantech" class="level3">
 <h3>ALPS or Elantech?</h3>
-<p>X1C5 comes with two versions<span><label for="sn-2" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-2" class="margin-toggle" /><span class="sidenote"><a href="https://patchwork.kernel.org/patch/9768231/" class="uri">https://patchwork.kernel.org/patch/9768231/</a><br />
+<p>X1C5 comes with two versions<span><label for="sn-3" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-3" class="margin-toggle" /><span class="sidenote"><a href="https://patchwork.kernel.org/patch/9768231/" class="uri">https://patchwork.kernel.org/patch/9768231/</a><br />
 <br />
 </span></span> of TrackPoint: ALPS and Elantech. I confirmed mine has an Elantech one using <a href="http://pcsupport.lenovo.com/tw/zh/products/laptops-and-netbooks/thinkpad-x-series-laptops/thinkpad-x1-carbon-type-20hr-20hq/downloads/ds122148">TrackPointDetect.exe</a>.</p>
 <pre><code>TouchPad-Flash Utility
@@ -98,20 +102,22 @@ Pst Vendor : Elan
 </section>
 <section id="cursor-speed-trackpoint-cap" class="level3">
 <h3>Cursor Speed &amp; TrackPoint Cap</h3>
-<p>I took a plastic adapter<span><label for="sn-3" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-3" class="margin-toggle" /><span class="sidenote"><img src="https://i.imgur.com/qyS29cDl.jpg" title="fig:" alt="The plastic adapter from previous Thinkpad" /><br />
+<p>I used to take the plastic adapter<span><label for="sn-4" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-4" class="margin-toggle" /><span class="sidenote"><img src="https://i.imgur.com/qyS29cDl.jpg" title="fig:" alt="The plastic adapter from previous Thinkpad" /><br />
 <br />
-</span></span> from my previous laptop - a Thinkpad E130 and trimmed a Soft Rim Cap to fit “Super Low Profile”. The cursor speed and acceleration gets much better.</p>
-<figure>
-<img src="https://i.imgur.com/cxoY1AOl.jpg" alt="IMHO, a soft rim is much better than a soft dome." /><figcaption>IMHO, a soft rim is <em>much better</em> than a soft dome.</figcaption>
-</figure>
+</span></span> from my previous laptop - a Thinkpad E130 and trimmed a Soft Rim Cap to fit “Super Low Profile”. <span><label for="sn-5" class="margin-toggle">⊕</label><input type="checkbox" id="sn-5" class="margin-toggle" /><span class="marginnote"> <img src="https://i.imgur.com/cxoY1AO.jpg" /> IMHO, a soft rim is <em>much better</em> than a soft dome.<br />
+<br />
+</span></span></p>
+<p>I have switched to a 3d-printed rubber caps made by <a href="https://twitter.com/saoto28">Saoto</a>, it works really great.</p>
+<p><img src="https://i.imgur.com/zJF2hz2.jpg" /></p>
+<p>The cursor speed and acceleration gets much better.</p>
 </section>
 </section>
 <section id="trackpad" class="level2">
 <h2>TrackPad</h2>
-<p>It works with libinput and pressure-based palm detection are functional. But it is still unresponsive to small movements for current release. <span><label for="sn-4" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-4" class="margin-toggle" /><span class="sidenote"><a href="https://bugs.freedesktop.org/show_bug.cgi?id=98839" class="uri">https://bugs.freedesktop.org/show_bug.cgi?id=98839</a><br />
+<p>It works with libinput and pressure-based palm detection are functional. But it is still unresponsive to small movements for current release. <span><label for="sn-6" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-6" class="margin-toggle" /><span class="sidenote"><a href="https://bugs.freedesktop.org/show_bug.cgi?id=98839" class="uri">https://bugs.freedesktop.org/show_bug.cgi?id=98839</a><br />
 <br />
 </span></span></p>
-<p><span><label for="sn-5" class="margin-toggle">⊕</label><input type="checkbox" id="sn-5" class="margin-toggle" /><span class="marginnote"> There is a different device according to <a href="https://www.reddit.com/r/thinkpad/comments/6wimb8/doing_some_research_on_x1c5_touchpad_issues/">this thread</a>.<br />
+<p><span><label for="sn-7" class="margin-toggle">⊕</label><input type="checkbox" id="sn-7" class="margin-toggle" /><span class="marginnote"> There is a different device according to <a href="https://www.reddit.com/r/thinkpad/comments/6wimb8/doing_some_research_on_x1c5_touchpad_issues/">this thread</a>.<br />
 <br />
 </span></span></p>
 <p><code>dmesg</code> output:</p>
@@ -120,12 +126,31 @@ rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics, product: TM328
 </section>
 <section id="fingerprint-reader" class="level2">
 <h2>Fingerprint Reader</h2>
-<p>X1C5 have a Validity Sensor 138a:0097. There is no driver for it.</p>
-<p>There is an open source reverse engineered driver working in progress<span><label for="sn-6" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-6" class="margin-toggle" /><span class="sidenote"><a href="https://github.com/nmikhailov/Validity90" class="uri">https://github.com/nmikhailov/Validity90</a><br />
+<p>X1C5 have a Validity Sensor 138a:0097. There is no fully-working driver for it at this moment.</p>
+<p>There is an open source reverse engineered driver working in progress<span><label for="sn-8" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-8" class="margin-toggle" /><span class="sidenote"><a href="https://github.com/nmikhailov/Validity90" class="uri">https://github.com/nmikhailov/Validity90</a><br />
 <br />
-</span></span><span><label for="sn-7" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-7" class="margin-toggle" /><span class="sidenote"><a href="https://bugs.freedesktop.org/show_bug.cgi?id=94536" class="uri">https://bugs.freedesktop.org/show_bug.cgi?id=94536</a><br />
+</span></span><span><label for="sn-9" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-9" class="margin-toggle" /><span class="sidenote"><a href="https://bugs.freedesktop.org/show_bug.cgi?id=94536" class="uri">https://bugs.freedesktop.org/show_bug.cgi?id=94536</a><br />
 <br />
 </span></span>.</p>
+<section id="partially-working-driver" class="level3">
+<h3>Partially-Working Driver</h3>
+<ul>
+<li>Nikita Mikhailov(<span class="citation" data-cites="nmikhailov">@nmikhailov</span>) reverse-engineered how to use 0097 to verify fingerprint, but fingerprints need to be enrolled in Windows first.</li>
+<li>Marco Trevisan(<span class="citation" data-cites="3v1n0">@3v1n0</span>) wrote a match-on-host driver<span><label for="sn-10" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-10" class="margin-toggle" /><span class="sidenote"><a href="https://github.com/3v1n0/libfprint" class="uri">https://github.com/3v1n0/libfprint</a><br />
+<br />
+</span></span> for 0090.</li>
+<li>Aleksandr Saraikin(<span class="citation" data-cites="hrenod">@hrenod</span>) made a modification<span><label for="sn-11" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-11" class="margin-toggle" /><span class="sidenote"><a href="https://github.com/hrenod/libfprint" class="uri">https://github.com/hrenod/libfprint</a><br />
+<br />
+</span></span> for 0097 based on <span class="citation" data-cites="3v1n0">@3v1n0</span>’s work.</li>
+</ul>
+<p><span class="citation" data-cites="hrenod">@hrenod</span>’s fork make it possible to use 0097 to authenticate now. One just need to:</p>
+<ol type="1">
+<li>initialize the device and enroll fingerprints in Windows,</li>
+<li>install <code>fprintd</code> and <span class="citation" data-cites="hrenod">@hrenod</span>’s <code>libfprint</code>,</li>
+<li>do a fake enroll (ex. <code>fprintd-enroll</code>),</li>
+<li>set up PAM rules.</li>
+</ol>
+</section>
 </section>
 <section id="wwan" class="level2">
 <h2>WWAN</h2>
@@ -155,20 +180,20 @@ rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics, product: TM328
 <section id="hardware-video-acceleration" class="level2">
 <h2>Hardware Video Acceleration</h2>
 <p>It is possible to use the integrated graphic card to decode/encode videos, and this helps power-saving a lot.</p>
-<p><span><label for="sn-8" class="margin-toggle">⊕</label><input type="checkbox" id="sn-8" class="margin-toggle" /><span class="marginnote"> See this <a href="https://wiki.archlinux.org/index.php/Hardware_video_acceleration">article</a> on ArchWiki for more info.<br />
+<p><span><label for="sn-12" class="margin-toggle">⊕</label><input type="checkbox" id="sn-12" class="margin-toggle" /><span class="marginnote"> See this <a href="https://wiki.archlinux.org/index.php/Hardware_video_acceleration">article</a> on ArchWiki for more info.<br />
 <br />
 </span></span></p>
 <p>There are two spec/implement/API: VAAPI (by Intel) and VDPAU (by Nvidia). Since most software supports VAAPI, I just need to install <code>libva-intel-driver</code> pacakge.</p>
 </section>
 <section id="libva-intel-driver" class="level2">
 <h2>libva-intel-driver</h2>
-<p>Current release version has a bug<span><label for="sn-9" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-9" class="margin-toggle" /><span class="sidenote"><a href="https://github.com/01org/intel-vaapi-driver/issues/297" class="uri">https://github.com/01org/intel-vaapi-driver/issues/297</a><br />
+<p>Current release version has a bug<span><label for="sn-13" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-13" class="margin-toggle" /><span class="sidenote"><a href="https://github.com/01org/intel-vaapi-driver/issues/297" class="uri">https://github.com/01org/intel-vaapi-driver/issues/297</a><br />
 <br />
 </span></span> when decoding VP9 videos, <code>libva-intel-driver-git</code> package should fixes that.</p>
 </section>
 <section id="chromium-vaapi" class="level2">
 <h2>chromium-vaapi</h2>
-<p>There is a VAAPI implementation for Chromium OS, and there is also a patch<span><label for="sn-10" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-10" class="margin-toggle" /><span class="sidenote"><a href="https://chromium-review.googlesource.com/c/chromium/src/+/532294" class="uri">https://chromium-review.googlesource.com/c/chromium/src/+/532294</a><br />
+<p>There is a VAAPI implementation for Chromium OS, and there is also a patch<span><label for="sn-14" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-14" class="margin-toggle" /><span class="sidenote"><a href="https://chromium-review.googlesource.com/c/chromium/src/+/532294" class="uri">https://chromium-review.googlesource.com/c/chromium/src/+/532294</a><br />
 <br />
 </span></span> to enable that on Linux. The <code>chromium-vaapi-bin</code> package on AUR provides prebuilt binary, or you can build <code>chromium-vaapi</code> by yourself (It takes about 6 hrs first time, you can use ccache to speed up if you want to build it more than one time).</p>
 </section>

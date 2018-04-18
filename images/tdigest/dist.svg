@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (http://matplotlib.org/) -->
+<svg height="89pt" version="1.1" viewBox="0 0 309 89" width="309pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+*{stroke-linecap:butt;stroke-linejoin:round;}
+  </style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M -0 89.51 
+L 309.5 89.51 
+L 309.5 0 
+L -0 0 
+z
+" style="fill:none;"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 17.75 65.06 
+L 296.75 65.06 
+L 296.75 10.7 
+L 17.75 10.7 
+z
+" style="fill:none;"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1">
+      <defs>
+       <path d="M 0 0 
+L 0 3.5 
+" id="m43a1808471" style="stroke:#000000;stroke-width:0.8;"/>
+      </defs>
+      <g>
+       <use style="stroke:#000000;stroke-width:0.8;" x="17.75" xlink:href="#m43a1808471" y="65.06"/>
+      </g>
+     </g>
+     <g id="text_1">
+      <!-- −30 -->
+      <defs>
+       <path d="M 13.703125 41 
+L 13.703125 34.09375 
+L 86.296875 34.09375 
+L 86.296875 41 
+z
+" id="SourceHanSansTW-Regular-2212"/>
+       <path d="M 26.40625 -1.296875 
+C 39.40625 -1.296875 49.90625 6.5 49.90625 19.59375 
+C 49.90625 29.59375 43 36.203125 34.296875 38.203125 
+L 34.296875 38.59375 
+C 42.09375 41.5 47.40625 47.40625 47.40625 56.296875 
+C 47.40625 68.09375 38.40625 74.703125 26.09375 74.703125 
+C 17.59375 74.703125 11.09375 71 5.59375 65.90625 
+L 10.5 60.09375 
+C 14.59375 64.203125 19.796875 67.203125 25.703125 67.40625 
+C 33.296875 67.203125 38.09375 62.703125 38.09375 55.59375 
+C 38.09375 47.703125 32.90625 41.59375 17.796875 41.59375 
+L 17.796875 34.59375 
+C 34.703125 34.59375 40.59375 28.703125 40.59375 19.90625 
+C 40.59375 11.5 34.40625 6.296875 25.703125 6.296875 
+C 17.40625 6.296875 11.796875 10.203125 7.5 14.703125 
+L 2.90625 8.703125 
+C 7.703125 3.5 14.90625 -1.296875 26.40625 -1.296875 
+z
+" id="SourceHanSansTW-Regular-33"/>
+       <path d="M 27.796875 -1.296875 
+C 41.703125 -1.296875 50.59375 11.40625 50.59375 36.90625 
+C 50.59375 62.296875 41.703125 74.703125 27.796875 74.703125 
+C 13.796875 74.703125 4.90625 62.40625 4.90625 36.90625 
+C 4.90625 11.40625 13.796875 -1.296875 27.796875 -1.296875 
+z
+M 27.796875 6 
+C 19.40625 6 13.796875 15.296875 13.796875 36.90625 
+C 13.796875 58.296875 19.40625 67.296875 27.796875 67.296875 
+C 36.09375 67.296875 41.703125 58.296875 41.703125 36.90625 
+C 41.703125 15.296875 36.09375 6 27.796875 6 
+z
+" id="SourceHanSansTW-Regular-30"/>
+      </defs>
+      <g transform="translate(7.2 80.019375)scale(0.1 -0.1)">
+       <use xlink:href="#SourceHanSansTW-Regular-2212"/>
+       <use x="99.999985" xlink:href="#SourceHanSansTW-Regular-33"/>
+       <use x="155.499969" xlink:href="#SourceHanSansTW-Regular-30"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_2">
+      <g>
+       <use style="stroke:#000000;stroke-width:0.8;" x="64.25" xlink:href="#m43a1808471" y="65.06"/>
+      </g>
+     </g>
+     <g id="text_2">
+      <!-- −20 -->
+      <defs>
+       <path d="M 4.40625 0 
+L 50.5 0 
+L 50.5 7.90625 
+L 30.203125 7.90625 
+C 26.5 7.90625 22 7.5 18.203125 7.203125 
+C 35.40625 23.5 46.90625 38.40625 46.90625 53 
+C 46.90625 66.09375 38.703125 74.703125 25.59375 74.703125 
+C 16.296875 74.703125 10 70.40625 4 63.90625 
+L 9.296875 58.703125 
+C 13.296875 63.5 18.5 67.203125 24.5 67.203125 
+C 33.59375 67.203125 38 61.09375 38 52.703125 
+C 38 40.09375 27.40625 25.5 4.40625 5.40625 
+z
+" id="SourceHanSansTW-Regular-32"/>
+      </defs>
+      <g transform="translate(53.7 80.019375)scale(0.1 -0.1)">
+       <use xlink:href="#SourceHanSansTW-Regular-2212"/>
+       <use x="99.999985" xlink:href="#SourceHanSansTW-Regular-32"/>
+       <use x="155.499969" xlink:href="#SourceHanSansTW-Regular-30"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_3">
+      <g>
+       <use style="stroke:#000000;stroke-width:0.8;" x="110.75" xlink:href="#m43a1808471" y="65.06"/>
+      </g>
+     </g>
+     <g id="text_3">
+      <!-- −10 -->
+      <defs>
+       <path d="M 8.796875 0 
+L 49 0 
+L 49 7.59375 
+L 34.296875 7.59375 
+L 34.296875 73.296875 
+L 27.296875 73.296875 
+C 23.296875 71 18.59375 69.296875 12.09375 68.09375 
+L 12.09375 62.296875 
+L 25.09375 62.296875 
+L 25.09375 7.59375 
+L 8.796875 7.59375 
+z
+" id="SourceHanSansTW-Regular-31"/>
+      </defs>
+      <g transform="translate(100.2 80.019375)scale(0.1 -0.1)">
+       <use xlink:href="#SourceHanSansTW-Regular-2212"/>
+       <use x="99.999985" xlink:href="#SourceHanSansTW-Regular-31"/>
+       <use x="155.499969" xlink:href="#SourceHanSansTW-Regular-30"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_4">
+     <g id="line2d_4">
+      <g>
+       <use style="stroke:#000000;stroke-width:0.8;" x="157.25" xlink:href="#m43a1808471" y="65.06"/>
+      </g>
+     </g>
+     <g id="text_4">
+      <!-- 0 -->
+      <g transform="translate(154.475 80.019375)scale(0.1 -0.1)">
+       <use xlink:href="#SourceHanSansTW-Regular-30"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_5">
+     <g id="line2d_5">
+      <g>
+       <use style="stroke:#000000;stroke-width:0.8;" x="203.75" xlink:href="#m43a1808471" y="65.06"/>
+      </g>
+     </g>
+     <g id="text_5">
+      <!-- 10 -->
+      <g transform="translate(198.2 80.019375)scale(0.1 -0.1)">
+       <use xlink:href="#SourceHanSansTW-Regular-31"/>
+       <use x="55.499985" xlink:href="#SourceHanSansTW-Regular-30"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_6">
+     <g id="line2d_6">
+      <g>
+       <use style="stroke:#000000;stroke-width:0.8;" x="250.25" xlink:href="#m43a1808471" y="65.06"/>
+      </g>
+     </g>
+     <g id="text_6">
+      <!-- 20 -->
+      <g transform="translate(244.7 80.019375)scale(0.1 -0.1)">
+       <use xlink:href="#SourceHanSansTW-Regular-32"/>
+       <use x="55.499985" xlink:href="#SourceHanSansTW-Regular-30"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_7">
+     <g id="line2d_7">
+      <g>
+       <use style="stroke:#000000;stroke-width:0.8;" x="296.75" xlink:href="#m43a1808471" y="65.06"/>
+      </g>
+     </g>
+     <g id="text_7">
+      <!-- 30 -->
+      <g transform="translate(291.2 80.019375)scale(0.1 -0.1)">
+       <use xlink:href="#SourceHanSansTW-Regular-33"/>
+       <use x="55.499985" xlink:href="#SourceHanSansTW-Regular-30"/>
+      </g>
+     </g>
+    </g>
+   </g>
+   <g id="line2d_8">
+    <path clip-path="url(#pb86a8a3b47)" d="M 17.75 62.589091 
+L 23.443878 62.387798 
+L 29.137755 62.0929 
+L 34.831633 61.601591 
+L 40.52551 60.791979 
+L 46.219388 59.566066 
+L 51.913265 57.895289 
+L 57.607143 55.848687 
+L 63.30102 53.578174 
+L 68.994898 51.242261 
+L 74.688776 48.894168 
+L 80.382653 46.425909 
+L 86.076531 43.658808 
+L 91.770408 40.546313 
+L 97.464286 37.307549 
+L 103.158163 34.326041 
+L 108.852041 31.868237 
+L 114.545918 29.884774 
+L 120.239796 28.084862 
+L 125.933673 26.171808 
+L 131.627551 23.985443 
+L 137.321429 21.498909 
+L 143.015306 18.821552 
+L 148.709184 16.250559 
+L 154.403061 14.231073 
+L 160.096939 13.170909 
+L 165.790816 13.256296 
+L 171.484694 14.401547 
+L 177.178571 16.31206 
+L 182.872449 18.612852 
+L 188.566327 21.047391 
+L 194.260204 23.667075 
+L 199.954082 26.803846 
+L 205.647959 30.748366 
+L 211.341837 35.39248 
+L 217.035714 40.195607 
+L 222.729592 44.511856 
+L 228.423469 47.95448 
+L 234.117347 50.50579 
+L 239.811224 52.393643 
+L 245.505102 53.92445 
+L 251.19898 55.366116 
+L 256.892857 56.861894 
+L 262.586735 58.383005 
+L 268.280612 59.770406 
+L 273.97449 60.858103 
+L 279.668367 61.587616 
+L 285.362245 62.029486 
+L 291.056122 62.313603 
+L 296.75 62.541334 
+" style="fill:none;stroke:#1f77b4;stroke-linecap:square;stroke-width:1.5;"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 17.75 65.06 
+L 17.75 10.7 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 296.75 65.06 
+L 296.75 10.7 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 17.75 65.06 
+L 296.75 65.06 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 17.75 10.7 
+L 296.75 10.7 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;"/>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pb86a8a3b47">
+   <rect height="54.36" width="279" x="17.75" y="10.7"/>
+  </clipPath>
+ </defs>
+</svg>

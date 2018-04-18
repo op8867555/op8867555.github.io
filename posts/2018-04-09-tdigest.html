@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="google-site-verification" content="CLMtF1JkUEd-jPZ3RQateLLiKyn729kaOHg9Hnu_TSo" />
+    <title>Alex's Blog - T-Digest 概念簡介</title>
+    <meta name="robots" content="index, follow" />
+    <link rel="alternate" href="/feed.xml" title="Alex Lu's Blog" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/tufte.css" />
+    <link rel="stylesheet" href="/css/pandoc.css" />
+    <link rel="stylesheet" href="/css/default.css" />
+    <link rel="stylesheet" href="/css/syntax.css" />
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-40612089-3', 'auto');
+    ga('send', 'pageview');
+    </script>
+    <!-- katex -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/contrib/auto-render.js" "></script>
+  </head>
+  <body>
+    <nav>
+<a href="../">Home</a>
+</nav>
+<article>
+
+<header>
+<h1 class="title">T-Digest 概念簡介</h1>
+
+
+<p class="byline">April 12, 2018</p>
+
+
+<p class="byline">Tags: <a href="../tags/data-analysis.html">data-analysis</a></p>
+
+</header>
+
+
+<section>
+<p>百分位數是敘述性統計中一個很好用的工具，像是</p>
+<ul>
+<li>用中位數來代表台灣人的所得</li>
+<li>用 75 百分位數來找出學測前標的成績</li>
+<li>用 99.99 百分位數來找出特別的顧客；或是找出異常的伺服器連線等。</li>
+</ul>
+<p>但是因為計算相對複雜，在資料量過大時往往無法計算， T-Digest 是一個近似大量資料中百分位數的演算法，這篇文章簡單介紹其想法。</p>
+</section>
+<section id="concepts" class="level1">
+<h1>Concepts</h1>
+<p>假設我們今天有很多數字，舉例來說這邊有 500 個 -30 ~ 30 間的數字</p>
+<p><span><label for="sn-1" class="margin-toggle">⊕</label><input type="checkbox" id="sn-1" class="margin-toggle" /><span class="marginnote"> 這種圖稱為 Rug plot, 其中的每一條直線代表一個數字，其 x 軸是它的值。<br />
+<br />
+</span></span> <img src="../images/tdigest/numbers.svg" data-caption="1" /></p>
+<p>我們可以用 Probabilistic Density Function(PDF) 的形式來表示：</p>
+<p><span><label for="sn-2" class="margin-toggle">⊕</label><input type="checkbox" id="sn-2" class="margin-toggle" /><span class="marginnote"> 機率密度函數，<span class="math inline">\(PDF(x)\)</span> 越高表示 <span class="math inline">\(x\)</span> 發生的機率越高，其面積加總起來是 100%<br />
+<br />
+</span></span></p>
+<p><img src="../images/tdigest/dist.svg" /></p>
+<p>75 百分位數就是面積佔 75% 時的 x 座標：</p>
+<p><img src="../images/tdigest/dist_75.svg" /></p>
+<section id="centroid" class="level2">
+<h2>Centroid</h2>
+<p>但是這樣要知道 500 個數字的順序才能計算，這在數字非常多的時候是不容易的。取而代之的是，試著將用很少的數字來代替 500個數字，怎麼做呢？</p>
+<p><strong>將鄰近的數字們用兩個數字代表： 平均值跟個數</strong> <span><label for="sn-3" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-3" class="margin-toggle" /><span class="sidenote">原始的論文中是用總和，但是兩者意義相同，實作上為了效率都會選用平均值。<br />
+<br />
+</span></span></p>
+<p>這樣的一組平均值跟個數被稱為 <em>Centroid</em> ，我們可以用好幾個 centroid 來代替整個 PDF, <strong>T-Digest 就是在做這件事</strong>。</p>
+<p><img src="../images/tdigest/centroids.svg" /></p>
+<p>當然可以自由決定要用幾個 centroid 來代表</p>
+<p><img src="../images/tdigest/centroids2.svg" /></p>
+<p>計算百分位數時就是只需要從這些 centroids 中找出對應位置的項目來做內插法。</p>
+<p><img src="../images/tdigest/centroids_pdf.svg" /></p>
+</section>
+<section id="clustering" class="level2">
+<h2>Clustering</h2>
+<p>將很多數字用一個或多個 centroids 代表的動作稱為 <em>clustering</em>. 我們知道當一個 centroid 代表的數字越多，流失的資訊也就越多，也就越不精確，因此<strong>怎麼 clustering 就是影響成效的一個重點</strong>。</p>
+<p>T-Digest 的作法是控制各個 centroid 的大小，在需要精確的部份用更多 centroids 來表達。為此論文提出了一個公式<span><label for="sn-4" class="margin-toggle">⊕</label><input type="checkbox" id="sn-4" class="margin-toggle" /><span class="marginnote"> <img src="../images/tdigest/k_q_function.svg" alt="k(q, δ) 的函數圖形" /><br />
+<br />
+</span></span>來定義這個行為：</p>
+<p><span class="math display">\[k(q, δ) = δ\left(\frac{sin^{-1}(2q - 1)}{π} + \frac{1}{2}\right)\]</span></p>
+<p>其中 <span class="math inline">\(q\)</span> 是 quantile, <span class="math inline">\(δ\)</span> 是壓縮率參數，而 <span class="math inline">\(k(q, δ)\)</span> 表示 <span class="math inline">\(q\)</span> 應該要用第幾個 centroid 表達。可以從圖中看到在靠近 <span class="math inline">\(q = 0\)</span> 跟 <span class="math inline">\(q = 1\)</span> 的時候，<span class="math inline">\(k\)</span> 的變動很大，也就是說我們用比較多的 centroids 來表示。 為什麼這樣設計呢？</p>
+<p>這是因為大部分計算百分位數時，真正關心的通常是 1、0.1、99、99.9、99.99…等很極端的百分位數，相較之下中間部份不那麼在意其精確程度了。</p>
+</section>
+<section id="merge-and-the-rest" class="level2">
+<h2>Merge and the rest …</h2>
+<p>除了透過 clustering 建構 T-Digest 之外，論文中也給了合併兩個 T-Digest 的方法。這帶來了一個很大的好處：當資料點太多時，我們可以分組計算 T-Digest 然後在合併起來，這讓平行分散計算變得可能<span><label for="sn-5" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-5" class="margin-toggle" /><span class="sidenote">很重要的一點是 T-Digest 的 merge 需要滿足結合律才能安全的用在平行分散的系統上。但很可惜的是， T-Digest 是近似演算法，所以沒有真正的滿足結合律。雖然如此，仍然可以在一定的誤差之下滿足這些條件，也使得實務上還是可行。<br />
+<br />
+</span></span>，也就是 Divide and Conquer.</p>
+<p>論文中剩下的部份除了討論成效之外，還給出了幾個實用的演算法：</p>
+<ul>
+<li>Trimmed Mean, 一個 quantile range 之間的平均值</li>
+<li>Cumulative Density Function(CDF)</li>
+<li>Inverse CDF</li>
+</ul>
+</section>
+</section>
+<section id="reference" class="level1">
+<h1>Reference</h1>
+<ul>
+<li><a href="https://github.com/tdunning/t-digest/blob/master/docs/t-digest-paper/histo.pdf">原始論文</a></li>
+<li><a href="https://blog.bcmeng.com/post/tdigest.html">TDigest 算法原理</a></li>
+<li><a href="https://dataorigami.net/blogs/napkin-folding/19055451-percentile-and-quantile-estimation-of-big-data-the-t-digest">Percentile and Quantile Estimation of Big Data: The t-Digest</a></li>
+</ul>
+</section>
+</article>
+<div id="disqus_thread">
+<script>
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+var disqus_config = function () {
+this.page.url = "https://op8867555.github.io/posts/2018-04-09-tdigest.html";
+this.page.identifier = "2018-04-09-tdigest.md";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://alex-lu-blog.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+
+  <script> renderMathInElement(document.body); </script>
+  </body>
+</html>
