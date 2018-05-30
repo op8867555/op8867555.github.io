@@ -1,0 +1,155 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="google-site-verification" content="CLMtF1JkUEd-jPZ3RQateLLiKyn729kaOHg9Hnu_TSo" />
+    <title>Alex's Blog - Facebook Prophet 模型簡介</title>
+    <meta name="robots" content="index, follow" />
+    <link rel="alternate" href="/feed.xml" title="Alex Lu's Blog" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/tufte.css" />
+    <link rel="stylesheet" href="/css/pandoc.css" />
+    <link rel="stylesheet" href="/css/default.css" />
+    <link rel="stylesheet" href="/css/syntax.css" />
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-40612089-3', 'auto');
+    ga('send', 'pageview');
+    </script>
+    <!-- katex -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/contrib/auto-render.js" "></script>
+  </head>
+  <body>
+    <nav>
+<a href="../">Home</a>
+</nav>
+<article>
+
+<header>
+<h1 class="title">Facebook Prophet 模型簡介</h1>
+
+
+<p class="byline">May 29, 2018</p>
+
+
+<p class="byline">Tags: <a href="../tags/machine-learning.html">machine-learning</a></p>
+
+</header>
+
+
+<section>
+<p>去年 Facebook 公開了一個時間序列<span><label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle" /><span class="sidenote">時間序列是按照時間順序的資料點所構成，舉幾個常見的時間序列是股價、每小時氣溫、一個網站每分鐘的點擊數…等。<br />
+<br />
+</span></span>的預測模型 - <a href="https://facebook.github.io/prophet/">Prophet</a>，這篇文章簡介它的構造及運作原理。</p>
+</section>
+<section id="the-model" class="level1">
+<h1>The Model</h1>
+<section id="additional-model" class="level2">
+<h2>Additional Model</h2>
+<p>Prophet 用了一個很經典的加法模型來描述資料</p>
+<p><span class="math display">\[ y(t) = g(t) + s(t) + h(t) + ε_t \]</span></p>
+<p>在所有時間點 <span class="math inline">\(t\)</span> 的數值（<span class="math inline">\(y(t)\)</span>） 是由：</p>
+<ul>
+<li>趨勢的影響 <span class="math inline">\(g(t)\)</span>、</li>
+<li>季節性的影響 <span class="math inline">\(s(t)\)</span>、</li>
+<li>假日的影響 <span class="math inline">\(h(t)\)</span> 及</li>
+<li>誤差 <span class="math inline">\(ε_t\)</span></li>
+</ul>
+<p>這四個成份所加總而來。</p>
+</section>
+<section id="trend" class="level2">
+<h2>Trend</h2>
+<p>Prophet 提供了兩種不同的趨勢函數供使用者使用。</p>
+<ul>
+<li><p>Linear 用於不會飽和的預測<span><label for="sn-2" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-2" class="margin-toggle" /><span class="sidenote">比方說 Facebook 的使用者人數不會超過當時可以連網的總人口數，這個容量上界可能會隨著時間、市場變化而有所改變。<br />
+<br />
+</span></span></p>
+<p><span class="math display">\[g(t) = k \cdot t + m\]</span></p></li>
+<li><p>Logistic 用於會飽和的預測</p>
+<p><span class="math display">\[g(t) = \frac{C(t)}{1+\exp(-k \cdot (t-m))}\]</span></p>
+<p>其中 <span class="math inline">\(C(t)\)</span> 是不同時間點的「容量」上界。</p></li>
+</ul>
+<section id="change-points" class="level3">
+<h3>Change Points</h3>
+<p>除了單純的趨勢函數之外， Prophet 還引入了轉折點(change point)的想法，也就是讓趨勢函數在不同的時間區間內，能有不同的增長率 <span class="math inline">\(k\)</span>。</p>
+<p><span><label for="sn-3" class="margin-toggle">⊕</label><input type="checkbox" id="sn-3" class="margin-toggle" /><span class="marginnote"> <span class="math inline">\(\mathbf{1}(\text{expr})\)</span> 是 <span class="math inline">\(f(t) = \begin{cases} 1 &amp; \text{if expr is true} \\ 0 &amp; \text{otherwise} \end{cases}\)</span> 的一個簡寫方法，被稱為 indicator function.<br />
+<br />
+</span></span></p>
+<p><span class="math display">\[k(t) = k_0 + \sum_{j} \mathbf{1}(t \leq t_j) \cdot δ_j\]</span></p>
+<p>其中 <span class="math inline">\(t_j\)</span> 表示 <span class="math inline">\(j\)</span> 這個轉折點的時間，也就是一開始的基礎 <span class="math inline">\(k_0\)</span> 加上接下來的所有變化。</p>
+<p>另外，調整了 <span class="math inline">\(k\)</span> 就得調整 <span class="math inline">\(m\)</span>，調整後的公式就是<a href="https://peerj.com/preprints/3190/">原文</a>中的 (3) 跟 (4)，這邊就不列出。</p>
+</section>
+</section>
+<section id="seasonality" class="level2">
+<h2>Seasonality</h2>
+<p>Prophet 應用 Fourier series 來描述季節性<span><label for="sn-4" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-4" class="margin-toggle" /><span class="sidenote">季節性是固定週期所帶來的影響，比方說：餐廳的來客數會隨的週一到週日有著類似的規律、通勤時間交通比較壅塞…等。<br />
+<br />
+</span></span></p>
+<p><span class="math display">\[s(t) = \sum_{n}^{N} \left( a_n \cos \left(\frac{2\pi nt}{P}\right) +
+b_n \sin\left(\frac{2\pi nt}{P} \right)\right)\]</span></p>
+<p>其中 <span class="math inline">\(P\)</span> 是週期的長度（年的週期是 365.25 天，周的週期是 7 天…），透過控制 <span class="math inline">\(a_n, b_n\)</span> 參數，可以近似出任何一個周期函數。</p>
+</section>
+<section id="holiday" class="level2">
+<h2>Holiday</h2>
+<p>Prophet 假設每種假日 <span class="math inline">\(D_i\)</span> 都會帶來不同的影響。</p>
+<p><span class="math display">\[ h(t) = \sum_{i}^{D} κ_i \cdot \mathbf{1}(t \in D_i) \]</span></p>
+</section>
+</section>
+<section id="fitting-the-model" class="level1">
+<h1>Fitting the model</h1>
+<p>前面定義好了模型的結構，但是要怎麼樣挑選參數呢？ Prophet 應用了機率模型來描述這些參數，</p>
+<p><span class="math display">\[\begin{gathered}
+k_0, m &amp; \sim &amp;  \mathcal{N}(0,5) \\
+δ_i &amp; \sim &amp;  Laplace(0, τ) \\
+κ_i, a_i, b_i &amp; \sim &amp;  \mathcal{N}(0, σ) \\
+ε_t &amp; \sim &amp;  \mathcal{N}(0, 0.5)\\
+y_t &amp; \sim &amp; \mathcal{N}\left( g(t)+s(t)+h(t), ε_t \right) \\
+\end{gathered}\]</span></p>
+<p>接著再用 L-BFGS 演算法找出這些參數的最大後驗估計(Maximum a posterori estimation; MAP) 或是用 MCMC 來 inference 出每個參數的後驗機率。</p>
+<p>找出這些參數之後，我們就可以拿來預測未來的數值。</p>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>Prophet 提供了一個麻瓜也會用<span><label for="sn-5" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-5" class="margin-toggle" /><span class="sidenote">不過也得先會操作 R 或是 Python<br />
+<br />
+</span></span>的預測模型：</p>
+<ul>
+<li>只需要想預測的資料就能動</li>
+<li>可以允許空資料點（傳統的統計方法不行）</li>
+<li>轉折點可以手動指定，也可以自動預測</li>
+<li>可以考慮會飽和的情況</li>
+<li><span class="math inline">\(τ, σ\)</span> 兩個 hyper-parameter 可以微調模型</li>
+<li>因為是加法模型，結果能很簡單的解釋</li>
+</ul>
+<p>雖然沒辦法包含更深入的 feature（天氣狀況、特定事件），但是如上述優點，這麼模型還是可以在商業時間序列預測上達到不錯的成效。</p>
+</section>
+</article>
+<div id="disqus_thread">
+<script>
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+var disqus_config = function () {
+this.page.url = "https://op8867555.github.io/posts/2018-05-29-facebook-prophet.html";
+this.page.identifier = "2018-05-29-facebook-prophet.md";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://alex-lu-blog.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+
+  <script> renderMathInElement(document.body); </script>
+  </body>
+</html>
