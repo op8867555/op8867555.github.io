@@ -51,7 +51,8 @@ main =
                 makeItem "" >>=
                     loadAndApplyTemplate "templates/archive.html" archiveCtx >>=
                     loadAndApplyTemplate "templates/default.html" archiveCtx >>=
-                    relativizeUrls
+                        return
+                    -- relativizeUrls
         let tagRuleFn tag pattern = do
                 let title = "Posts tagged \"" ++ tag ++ "\""
                 route idRoute
