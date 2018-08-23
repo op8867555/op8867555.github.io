@@ -194,7 +194,7 @@ a_i^{(l)} &amp;= \sum_j w^{(l)}_{ij} \cdot z_j^{(l-1)}
 <a class="sourceLine" id="cb2-9" data-line-number="9">Y <span class="op">=</span> Bin(sin_x, x_times_y, <span class="dv">1</span>, <span class="dv">1</span>, box())</a></code></pre></div>
 <p>Wengert Tape 就是紀錄輸入變數及這一連續的計算過程。</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" data-line-number="1">tape <span class="op">=</span> [x, y, sin_x, x_times_y, Y]</a></code></pre></div>
-<p>當計算 Reverse-Mode AD時，我們會將 tape 反過來累計：<span><label for="sn-16" class="margin-toggle">⊕</label><input type="checkbox" id="sn-16" class="margin-toggle" /><span class="marginnote"> 注意到這邊的實作已經在前面建構這些節點的同時，將順向計算的過程給嵌進去了。<br />
+<p>當計算 Reverse-Mode AD時，我們會將 tape 反過來累計：<span><label for="sn-16" class="margin-toggle">⊕</label><input type="checkbox" id="sn-16" class="margin-toggle" /><span class="marginnote">{-} 注意到這邊的實作已經在前面建構這些節點的同時，將順向計算的過程給嵌進去了。<br />
 <br />
 </span></span></p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" data-line-number="1">Y.ss[<span class="st">'value'</span>] <span class="op">=</span> <span class="dv">1</span> <span class="co"># 從 ∂Y/∂Y = 1 開始</span></a>
@@ -242,7 +242,7 @@ a_i^{(l)} &amp;= \sum_j w^{(l)}_{ij} \cdot z_j^{(l-1)}
 <h1>Appendix</h1>
 <section id="example-softmax-regression" class="level2">
 <h2>Example: Softmax Regression</h2>
-<p><span><label for="sn-18" class="margin-toggle">⊕</label><input type="checkbox" id="sn-18" class="margin-toggle" /><span class="marginnote"> 我的「玩具版」 Reverse-Mode AD 實作函數庫放在<a href="https://gist.github.com/op8867555/59d246a54188fe0d282656fe83e84a65">這邊</a>。<br />
+<p><span><label for="sn-18" class="margin-toggle">⊕</label><input type="checkbox" id="sn-18" class="margin-toggle" /><span class="marginnote">{-} 我的「玩具版」 Reverse-Mode AD 實作函數庫放在<a href="https://gist.github.com/op8867555/59d246a54188fe0d282656fe83e84a65">這邊</a>。<br />
 <br />
 </span></span></p>
 <p>這次以 ML 常用的 iris 資料集作為範例，建構一個 Softmax Regression 來分類這些花朵。</p>
@@ -274,7 +274,7 @@ a_i^{(l)} &amp;= \sum_j w^{(l)}_{ij} \cdot z_j^{(l-1)}
 <a class="sourceLine" id="cb8-11" data-line-number="11">    loss <span class="op">=</span> <span class="bu">sum</span>(<span class="bu">sum</span>(k <span class="op">*</span> log(k_) <span class="cf">for</span> k, k_ <span class="kw">in</span> <span class="bu">zip</span>(y, y_)) <span class="cf">for</span> y, y_ <span class="kw">in</span> <span class="bu">zip</span>(Y, Y_))</a>
 <a class="sourceLine" id="cb8-12" data-line-number="12">    <span class="cf">return</span> <span class="dv">-1</span> <span class="op">*</span> loss <span class="op">/</span> <span class="bu">len</span> (Y_)</a></code></pre></div>
 <p>用 Gradient Descent 來找到更好的 <span class="math inline">\(W\)</span> 跟 <span class="math inline">\(B\)</span></p>
-<p><span><label for="sn-20" class="margin-toggle">⊕</label><input type="checkbox" id="sn-20" class="margin-toggle" /><span class="marginnote"> 這邊需要先對標籤做 one-hot encoding 才會有跟公式輸出一致的維度。<br />
+<p><span><label for="sn-20" class="margin-toggle">⊕</label><input type="checkbox" id="sn-20" class="margin-toggle" /><span class="marginnote"> 這邊需要先對標籤做 one-hot encoding 才會有跟公式輸出一致的維度。 <br />
 <br />
 </span></span></p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="im">from</span> sklearn.metrics <span class="im">import</span> accuracy_score</a>

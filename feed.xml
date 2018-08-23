@@ -7,8 +7,134 @@
         <description><![CDATA[Alex Lu's Blog Feed]]></description>
         <atom:link href="https://op8867555.github.io/feed.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Tue, 29 May 2018 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Thu, 23 Aug 2018 00:00:00 UT</lastBuildDate>
         <item>
+    <title>ONYX Boox Note 使用心得</title>
+    <link>https://op8867555.github.io/posts/2018-07-15-boox-note.html</link>
+    <description><![CDATA[<section>
+<p>前一陣子(2018/07/07)買了 ONYX Boox Note 這台 10.3 吋的 e-ink reader 來讀書, 這邊紀錄目前使用心得。</p>
+</section>
+<section id="起因" class="level1">
+<h1>起因</h1>
+<p>因為 Kindle 6&quot; 的螢幕實在沒有很好讀 PDF，所以大多數的情況還是用電腦螢幕閱讀，但是後來越來越常覺得眼睛疲勞，於是就開始物色其他選項。</p>
+<p>在稍微做了點功課之後，我選了文石的 Boox Note<span><label for="sn-1" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="marginnote"> <img src="https://i.imgur.com/GlVMZ57.jpg" /><br />
+<br />
+</span></span>，主要的原因是：</p>
+<ul>
+<li><strong>10.3吋的螢幕</strong><br />
+看很多人說看 PDF paper 沒有 10 吋不方便，而 13.3 吋的選項都太大太難帶了</li>
+<li><strong>內建的 PDF reader 的功能</strong><br />
+頁面裁切、可以用 TOC、有針對多欄論文的閱讀模式…等</li>
+<li><strong>Android 作業系統</strong><br />
+雖然是有點舊的 6.0，但是有很大的彈性來使用其他 app</li>
+<li><strong>入手容易</strong><br />
+相較於其他幾台 Sony DPT-CP1、Remarkable、還沒上市的 Good e-Reader 10.3，Boox Note 相對好入手，台灣有代理也方便售後服務。</li>
+</ul>
+</section>
+<section id="使用狀況" class="level1">
+<h1>使用狀況</h1>
+<p>目前我用過的幾個使用情境是：</p>
+<ul>
+<li>看技術書籍/ paper</li>
+<li>看漫畫/小說</li>
+<li>聽演講、思考時做做筆記</li>
+</ul>
+<section id="pros" class="level2">
+<h2>Pros</h2>
+<ul>
+<li><strong>電子紙</strong>，這個沒什麼好說的，對眼睛真的舒服很多</li>
+<li><strong>PDF 的導覽功能</strong>
+<ul>
+<li><a href="https://i.imgur.com/4bH7XqN.gif">自動去除白邊</a>，使 A5 大小還可以直接閱讀一般的 paper</li>
+<li><a href="https://i.imgur.com/SRoTBZd.gif">article mode</a>，用大字體也很方便閱讀</li>
+</ul></li>
+<li><strong>手寫筆記方便</strong></li>
+<li><p><strong>可以用喜歡的 app</strong></p>
+<ul>
+<li>看漫畫用 Perfect Viewer</li>
+<li>kindle 內容可以直接用 app 看</li>
+</ul></li>
+</ul>
+</section>
+<section id="cons" class="level2">
+<h2>Cons</h2>
+<ul>
+<li>PDF Reader 不支援 logical page numbering<span><label for="sn-2" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-2" class="margin-toggle"/><span class="sidenote">像是那些 i, ii 之類的頁碼 <img src="https://i.imgur.com/HKtLYVy.png" /><br />
+<br />
+</span></span>，查 index 時很不方便</li>
+<li>PDF Reader 不支援切換 LTR 或是 RTL 翻頁模式（西文書常用左開、亞洲書多為右開）</li>
+<li>PDF Reader 不支援 two-page view，也不支援同時多文件閱讀</li>
+<li><strong>筆記功能薄弱</strong>，沒有圖層、不分顏色、不能複製貼上、不能整理頁面</li>
+</ul>
+</section>
+</section>
+<section id="結論" class="level1">
+<h1>結論</h1>
+<p>目前用了快兩個月了，整體來說是很方便的。不過以這個價位<span><label for="sn-3" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-3" class="margin-toggle"/><span class="sidenote">16張小朋友<br />
+<br />
+</span></span>來說，這個產品的軟體實在不是很成熟，很多小細節都還有待加強，希望可以靠未來的更新來改進。</p>
+</section>]]></description>
+    <pubDate>Thu, 23 Aug 2018 00:00:00 UT</pubDate>
+    <guid>https://op8867555.github.io/posts/2018-07-15-boox-note.html</guid>
+    <dc:creator>Alex Lu</dc:creator>
+</item>
+<item>
+    <title>Closed Nightmare 玩後感</title>
+    <link>https://op8867555.github.io/posts/2018-08-03-closed-nightmare.html</link>
+    <description><![CDATA[<section>
+<p>這幾天在 Switch 的新聞看到這個遊戲的介紹，看到是難得的恐怖懸疑 AVG，查了一下也有港台版，便跑去買了一張來玩了…</p>
+</section>
+<section id="中文化" class="level1">
+<h1>中文化</h1>
+<p>玩起來沒什麼覺得有問題的地方，也沒遇到港台用語不一致的問題。但是美中不足的是，幕後花絮影片並沒有提供字幕，對於不懂日文的人來說樂趣相對得被減少了。</p>
+<figure>
+<img src="http://i.imgur.com/snnnNekh.jpg" alt="港台版只有提供繁體中文，而不像大部分的遊戲個人經驗，我手邊的遊戲有中文的通常都可以切日文  提供複數語言支援。" /><figcaption>港台版只有提供繁體中文，而不像大部分的遊戲<span><label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="sidenote">個人經驗，我手邊的遊戲有中文的通常都可以切日文<br />
+<br />
+</span></span>提供複數語言支援。</figcaption>
+</figure>
+<figure>
+<img src="http://i.imgur.com/YzUJGzVh.jpg" alt="日版中的不同字體的部份也有保留" /><figcaption>日版中的不同字體的部份也有保留</figcaption>
+</figure>
+<figure>
+<img src="https://i.imgur.com/Y2x99SBh.jpg" alt="背景中出現的文字也有翻譯" /><figcaption>背景中出現的文字也有翻譯</figcaption>
+</figure>
+</section>
+<section id="遊戲性" class="level1">
+<h1>遊戲性</h1>
+<ul>
+<li><strong>遊戲系統</strong>非常單純，主要就是：看影片、視覺小說、點擊解迷的三種模式在交叉換。影響遊戲走向的只有選項分支跟所持道具<span><label for="sn-2" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-2" class="margin-toggle"/><span class="sidenote">雖然遊戲有章節跳躍的功能，但是所持道具不會跟著跳躍而繼承，前面章節漏拿的話，需要從該章開始從頭打到尾…<br />
+<br />
+</span></span>的不同。</li>
+<li><strong>劇情</strong>本身幾乎是一條線，剩下的分歧通常都是直達 bad end 而已，沒有複雜條件的分支<span><label for="sn-3" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-3" class="margin-toggle"/><span class="sidenote">玩到真結局心中還是有許多疑問，也有些沒有回收的伏筆，許多細節設定也都沒有解釋，說真的會讓人覺得意義不明。<br />
+<br />
+</span></span>。</li>
+<li><strong>演出</strong>是真人實物拍攝，但是整個氣氛反而有點低成本電影的感覺，使得遊玩過程中充滿喜感。</li>
+<li><strong>恐怖性</strong>實在很薄弱，主要都是以 jump scare 為主，我認為氣氛營造的並不會讓人感到恐怖、也沒什麼壓力。</li>
+<li><strong>謎題難度</strong>整體上不難，大多數都可以輕鬆突破<span><label for="sn-4" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-4" class="margin-toggle"/><span class="sidenote">少部份比較難的就是時間限制的拼圖跟沒按照特定順序就拿不到的必要道具等…<br />
+<br />
+</span></span>。</li>
+<li><strong>隱藏要素</strong>不多：只有全破之後的結局清單、音樂鑑賞及幕後花絮<span><label for="sn-5" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-5" class="margin-toggle"/><span class="sidenote">幕後花絮還算有趣，可以看到過程中很多沒有想到的拍攝手法。<br />
+<br />
+</span></span>；真結局的支線也只是多了一小段影片，沒有新的章節、解迷要素。</li>
+<li><strong>遊戲時間</strong>不長：第一輪跑完的時間大概是 3~5 小時，跑真結局跟收集全要素的時間頂多也是 10 小時上下。以一片大作價格的作品來說，內容絕對不算多。</li>
+</ul>
+</section>
+<section id="總結" class="level1">
+<h1>總結</h1>
+<ul>
+<li>整體遊玩算比較輕鬆、沒壓力的日式AVG。</li>
+<li>衝著恐怖的人來說，這片是會失望的程度。</li>
+<li>劇情說不上很強，但是整體的遊玩體驗還算是好的。</li>
+<li>內容很難對得起它的定價，等二手或是特價再買錢包比較不會痛 <span><label for="sn-6" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-6" class="margin-toggle"/><span class="sidenote">PS4版的玩家還可以拿白金，NS玩家如我就什麼都沒有留下了<br />
+<br />
+</span></span>。</li>
+</ul>
+</section>]]></description>
+    <pubDate>Fri, 03 Aug 2018 00:00:00 UT</pubDate>
+    <guid>https://op8867555.github.io/posts/2018-08-03-closed-nightmare.html</guid>
+    <dc:creator>Alex Lu</dc:creator>
+</item>
+<item>
     <title>Facebook Prophet 模型簡介</title>
     <link>https://op8867555.github.io/posts/2018-05-29-facebook-prophet.html</link>
     <description><![CDATA[<section>
@@ -459,7 +585,7 @@ $$
 <p>跟前面的 Bayes’ Theorem一樣，但是這次將目標改變了一下： 用證據<span class="math inline">\(E\)</span>（training data）來找出模型參數<span class="math inline">\(θ\)</span> 的機率分佈</p>
 <p><span class="math display">\[\begin{darray}{rlc}
 P(θ|E) &amp;=&amp; \frac{ \color{red}P(E|θ) \color{black}\cdot \color{blue}P(θ)}{\color{green}P(E)} \\[1em]
-&amp;=&amp; \frac{ \color{red}P(E|θ) \color{black}\cdot \color{blue}P(θ)}{\color{green}\int_θ P(E|θ&#39;) \cdot P(θ&#39;)\  dθ&#39;}
+&amp;=&amp; \frac{ \color{red}P(E|θ) \color{black}\cdot \color{blue}P(θ)}{\color{green}\int_θ P(E|θ&#39;) \cdot P(θ&#39;)\ dθ&#39;}
 \end{darray}\]</span></p>
 <ul>
 <li><span class="math inline">\(\color{blue}P(θ)\)</span> 稱為先驗機率，也就是對於某事物的猜測。</li>
@@ -482,7 +608,7 @@ P(θ|E) &amp;=&amp; \frac{ \color{red}P(E|θ) \color{black}\cdot \color{blue}P(�
 </span></span>！</p>
 <p>用這個作法只需要用 debugger 執行程式的時候，任意中斷個數次，然後觀察中斷時的 call stack，找看看裡面有沒有反覆出現的 function call。</p>
 <p>假設我們觀察到了一個很常出現的函數，它在中斷 10 次中出現了 7 次，我們想知道它出現在 call stack 的比率 <span class="math inline">\(R\)</span>，也就是找出：</p>
-<p><span><label for="sn-3" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-3" class="margin-toggle"/><span class="marginnote"> <span class="math inline">\(T\)</span> 表示出現在 call stack 的次數， <span class="math inline">\(F\)</span> 表示沒有出現的次數<br />
+<p><span><label for="sn-3" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-3" class="margin-toggle"/><span class="marginnote">{-} <span class="math inline">\(T\)</span> 表示出現在 call stack 的次數， <span class="math inline">\(F\)</span> 表示沒有出現的次數 <br />
 <br />
 </span></span></p>
 <p><span class="math display">\[
@@ -719,7 +845,7 @@ a_i^{(l)} &amp;= \sum_j w^{(l)}_{ij} \cdot z_j^{(l-1)}
 <a class="sourceLine" id="cb2-9" data-line-number="9">Y <span class="op">=</span> Bin(sin_x, x_times_y, <span class="dv">1</span>, <span class="dv">1</span>, box())</a></code></pre></div>
 <p>Wengert Tape 就是紀錄輸入變數及這一連續的計算過程。</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" data-line-number="1">tape <span class="op">=</span> [x, y, sin_x, x_times_y, Y]</a></code></pre></div>
-<p>當計算 Reverse-Mode AD時，我們會將 tape 反過來累計：<span><label for="sn-16" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-16" class="margin-toggle"/><span class="marginnote"> 注意到這邊的實作已經在前面建構這些節點的同時，將順向計算的過程給嵌進去了。<br />
+<p>當計算 Reverse-Mode AD時，我們會將 tape 反過來累計：<span><label for="sn-16" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-16" class="margin-toggle"/><span class="marginnote">{-} 注意到這邊的實作已經在前面建構這些節點的同時，將順向計算的過程給嵌進去了。<br />
 <br />
 </span></span></p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" data-line-number="1">Y.ss[<span class="st">&#39;value&#39;</span>] <span class="op">=</span> <span class="dv">1</span> <span class="co"># 從 ∂Y/∂Y = 1 開始</span></a>
@@ -767,7 +893,7 @@ a_i^{(l)} &amp;= \sum_j w^{(l)}_{ij} \cdot z_j^{(l-1)}
 <h1>Appendix</h1>
 <section id="example-softmax-regression" class="level2">
 <h2>Example: Softmax Regression</h2>
-<p><span><label for="sn-18" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-18" class="margin-toggle"/><span class="marginnote"> 我的「玩具版」 Reverse-Mode AD 實作函數庫放在<a href="https://gist.github.com/op8867555/59d246a54188fe0d282656fe83e84a65">這邊</a>。<br />
+<p><span><label for="sn-18" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-18" class="margin-toggle"/><span class="marginnote">{-} 我的「玩具版」 Reverse-Mode AD 實作函數庫放在<a href="https://gist.github.com/op8867555/59d246a54188fe0d282656fe83e84a65">這邊</a>。<br />
 <br />
 </span></span></p>
 <p>這次以 ML 常用的 iris 資料集作為範例，建構一個 Softmax Regression 來分類這些花朵。</p>
@@ -799,7 +925,7 @@ a_i^{(l)} &amp;= \sum_j w^{(l)}_{ij} \cdot z_j^{(l-1)}
 <a class="sourceLine" id="cb8-11" data-line-number="11">    loss <span class="op">=</span> <span class="bu">sum</span>(<span class="bu">sum</span>(k <span class="op">*</span> log(k_) <span class="cf">for</span> k, k_ <span class="kw">in</span> <span class="bu">zip</span>(y, y_)) <span class="cf">for</span> y, y_ <span class="kw">in</span> <span class="bu">zip</span>(Y, Y_))</a>
 <a class="sourceLine" id="cb8-12" data-line-number="12">    <span class="cf">return</span> <span class="dv">-1</span> <span class="op">*</span> loss <span class="op">/</span> <span class="bu">len</span> (Y_)</a></code></pre></div>
 <p>用 Gradient Descent 來找到更好的 <span class="math inline">\(W\)</span> 跟 <span class="math inline">\(B\)</span></p>
-<p><span><label for="sn-20" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-20" class="margin-toggle"/><span class="marginnote"> 這邊需要先對標籤做 one-hot encoding 才會有跟公式輸出一致的維度。<br />
+<p><span><label for="sn-20" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-20" class="margin-toggle"/><span class="marginnote"> 這邊需要先對標籤做 one-hot encoding 才會有跟公式輸出一致的維度。 <br />
 <br />
 </span></span></p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode python example"><code class="sourceCode python"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="im">from</span> sklearn.metrics <span class="im">import</span> accuracy_score</a>
@@ -894,7 +1020,7 @@ out     = text "z⁽ˡ⁾"
 </div>
 <section id="numerical-differential" class="level1">
 <h1>Numerical Differential</h1>
-<p><span><label for="sn-1" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="marginnote"> <img src="https://upload.wikimedia.org/wikipedia/commons/1/18/Derivative.svg" /> 數值微分， By Olivier Cleynen (Own work) [CC0], via Wikimedia Commons<br />
+<p><span><label for="sn-1" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="marginnote">{-} <img src="https://upload.wikimedia.org/wikipedia/commons/1/18/Derivative.svg" /> 數值微分， By Olivier Cleynen (Own work) [CC0], via Wikimedia Commons<br />
 <br />
 </span></span></p>
 <p>數值微分就是用 <span class="math inline">\(\frac{f(x + h) - f(x)}{h}\)</span> 跟一個很小的 <span class="math inline">\(h\)</span> 來<strong>近似</strong> <span class="math inline">\(\lim_{h \rightarrow 0}\frac{f(x + h) - f(x)}{h}\)</span>，實作上也只是計算用不同的參數來計算函數 <span class="math inline">\(f\)</span> 的差異，但是 <span class="math inline">\(f\)</span> 的計算成本可能不低，而且很容易遇到浮點數計算的 round-off error 跟 truncating error，所以實務上並不實用。</p>
@@ -975,7 +1101,7 @@ out     = text "z⁽ˡ⁾"
 <h1>Forward-Mode Automatic Differential</h1>
 <p>自動微分（AD）的名稱取得很容易讓人誤解，其實就是應用 chain rule 跟一些語言特性或是原始碼轉換工具，來達成不用手寫導數的程式，而可以在計算函數的同時（也就是 overhead 不大）得出<strong>真正的</strong>導數/偏導數。</p>
 <p>自動微分根據計算的順序，可以分為 Forward Mode 跟 Reverse Mode，這次先介紹比較簡單的 Forward Mode。</p>
-<p><span><label for="sn-5" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-5" class="margin-toggle"/><span class="marginnote"> Forward Mode AD 將一個函數 <span class="math inline">\(y = f(... , x, ...) = (w_m \circ w_{m-1} ... \circ w_1)(..., x, ...)\)</span> 對 <span class="math inline">\(x\)</span> 的微分，拆解成 <span class="math display">\[
+<p><span><label for="sn-5" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-5" class="margin-toggle"/><span class="marginnote">{-} Forward Mode AD 將一個函數 <span class="math inline">\(y = f(... , x, ...) = (w_m \circ w_{m-1} ... \circ w_1)(..., x, ...)\)</span> 對 <span class="math inline">\(x\)</span> 的微分，拆解成 <span class="math display">\[
   \begin{aligned}
   \frac {\partial y}{\partial x} =&amp;\frac {\partial y}{\partial w_{m-1}}{\frac {\partial w_{m-1}}{\partial x}} \\
   =&amp;\frac {\partial y}{\partial w_{m-1}}\left({\frac {\partial w_{m-1}}{\partial w_{m-2}}}{\frac {\partial w_{m-2}}{\partial x}}\right) \\
@@ -983,7 +1109,7 @@ out     = text "z⁽ˡ⁾"
   =&amp;{\frac {\partial y}{\partial w_{m-1}}} \left( \frac {\partial w_{m-1}}{\partial w_{m-2}} \cdots
   \left(\frac {\partial w_{2}}{\partial w_{1}}  \frac {\partial w_{1}}{\partial x} \right)\right)\\
   \end{aligned}
-  \]</span> 然後從 <span class="math inline">\(\frac{\partial x}{\partial x} = 1\)</span> 開始， 由 <span class="math inline">\(\frac{\partial w_1}{\partial x}\)</span> 開始計算到 <span class="math inline">\(\frac{\partial w_m}{x}\)</span>（由內而外）。<br />
+  \]</span> 然後從 <span class="math inline">\(\frac{\partial x}{\partial x} = 1\)</span> 開始， 由 <span class="math inline">\(\frac{\partial w_1}{\partial x}\)</span> 開始計算到 <span class="math inline">\(\frac{\partial w_m}{x}\)</span>（由內而外）。 <br />
 <br />
 </span></span></p>
 <p>這邊繼續使用上面的 <span class="math inline">\(Y = f(x, y) = sin(x) + x × y\)</span> 的例子，</p>
@@ -1305,209 +1431,6 @@ Cost(y, \hat y) = -\frac{1}{N}\sum_{i=1}^N \bigg[ y_i \log(\hat{y}_i)+(1-y_i) \l
 </section>]]></description>
     <pubDate>Mon, 27 Nov 2017 00:00:00 UT</pubDate>
     <guid>https://op8867555.github.io/posts/2017-11-27-cli-tools-ag-rg-fzf-fd.html</guid>
-    <dc:creator>Alex Lu</dc:creator>
-</item>
-<item>
-    <title>[EN] Use your UNIX toolbox with pandas</title>
-    <link>https://op8867555.github.io/posts/2017-10-13-use-your-unix-toolbox-with-pandas.html</link>
-    <description><![CDATA[<p>I do analysis on log / csv / json files with a Python + Pandas + Jupyter Notebook stack at work. These files are so large that I usually need to do some pre-processing before loading them into memory.</p>
-<p>UNIX tools are powerful to stream processing files: concatenation, filtering, transforming…, but it is annoying to “context-switch” between Jupyter Notebook and shell. Also, It’s generate immediate files that need to remove later manually, quite annoying.</p>
-<p>After some stackoverflow-ing, I found a solution<span><label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="sidenote"><a href="https://stackoverflow.com/questions/13651117/pandas-filter-lines-on-load-in-read-csv/13653490#13653490">pandas: filter lines on load in read_csv</a><br />
-<br />
-</span></span> says you can read files in chunks:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" data-line-number="1">df <span class="op">=</span> pd.concat(process(chunk_df) <span class="co"># do processing in python</span></a>
-<a class="sourceLine" id="cb1-2" data-line-number="2">               <span class="cf">for</span> chunk_df <span class="kw">in</span> pd.read_csv(<span class="st">&#39;bigdata.csv&#39;</span>, chunksize<span class="op">=</span><span class="dv">10000</span>))</a></code></pre></div>
-<p>But there is a big overhead to create/process immediate data-frames.</p>
-<p>Another solution<span><label for="sn-2" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-2" class="margin-toggle"/><span class="sidenote"><a href="https://stackoverflow.com/questions/39864304/how-to-use-subprocess-and-cat-to-read-in-data-line-by-line/39864368#39864368">How to use subprocess and ‘cat’ to read in data line by line?</a><br />
-<br />
-</span></span> says you can use <code>subprocess</code> with PIPE, a clever idea. So I end up with this:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="im">import</span> pandas <span class="im">as</span> pd</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="im">from</span> subprocess <span class="im">import</span> Popen, PIPE</a>
-<a class="sourceLine" id="cb2-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="cf">with</span> Popen(<span class="st">&#39;cat bigdata.csv | grep WHAT_I_CARE_ABOUT | some_transformations&#39;</span>,</a>
-<a class="sourceLine" id="cb2-5" data-line-number="5">           shell<span class="op">=</span><span class="va">True</span>,</a>
-<a class="sourceLine" id="cb2-6" data-line-number="6">           stdout<span class="op">=</span>PIPE) <span class="im">as</span> process:</a>
-<a class="sourceLine" id="cb2-7" data-line-number="7">    df <span class="op">=</span> pd.read_csv(process.stdout)</a></code></pre></div>
-<p>With this trick, I can now do some bash-fu with pandas in Jupyter-Notebook easily.</p>
-<p><strong>Reading multiples files</strong></p>
-<pre class="shell"><code>cat stats/2017/*/*.csv</code></pre>
-<p><strong>JSON query with jq</strong></p>
-<pre class="shell"><code>cat data.json | jq &#39;{.loc = .loc}&#39;</code></pre>
-<p><strong>filter lines with awk or grep</strong></p>
-<pre class="shell"><code>zcat data.csv.gz | grep &#39;SOME_TAG&#39; | awk &#39;$1 == 2017&#39;</code></pre>
-<p><strong>pipe over files in .tar</strong></p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="fu">tar</span> -xOf bigdatas.tar.gz --wildcards <span class="st">&quot;*.data.csv&quot;</span></a></code></pre></div>]]></description>
-    <pubDate>Fri, 13 Oct 2017 00:00:00 UT</pubDate>
-    <guid>https://op8867555.github.io/posts/2017-10-13-use-your-unix-toolbox-with-pandas.html</guid>
-    <dc:creator>Alex Lu</dc:creator>
-</item>
-<item>
-    <title>應用 git bisect 找出 linux kernel 中出現問題的 commit</title>
-    <link>https://op8867555.github.io/posts/2017-10-05-bisecting-linux-kernel-bug.html</link>
-    <description><![CDATA[<section id="tldr" class="level3">
-<h3>TL;DR</h3>
-<p>這篇文章筆記我使用 git bisect 來找出 linux kernel (drm/i915) 中的導致行為異常的是哪一個 commit 的過程。</p>
-</section>
-<section id="起因" class="level1">
-<h1>起因</h1>
-<p>我的筆電上裝的是 Arch Linux，Chromium 在 linux 上是<a href="https://bugs.chromium.org/p/chromium/issues/detail?id=463440">不會有硬體加速功能</a>的，為了減少 CPU 資源的浪費，也為了增加續航力，我使用的是一個非官方版本的 <a href="https://aur.archlinux.org/packages/chromium-vaapi/">chromium-vaapi</a>。</p>
-<p>最近做完系統更新之後發現硬體加速的功能出了些異常，在跟 AUR package 的使用者討論後得知：</p>
-<ul>
-<li>mesa 的版本會影響，但是降版之後有不同的異常</li>
-<li>這個不同的異常只有在播放 VP9 格式的影片時會發生</li>
-<li>在一番亂試之後發現到 kernel 降回 4.12 就沒事了！</li>
-</ul>
-<p>做了一些功課之後，我認為這個 bug 是來自於 linux kernel 中 DRM/i915 的部份，於是我便開始嘗試從茫茫 commit 海撈出那個針。</p>
-</section>
-<section id="找出問題之旅" class="level1">
-<h1>找出問題之旅</h1>
-<section id="drm-tip" class="level2">
-<h2>drm-tip</h2>
-<p>drm-tip 是裡面包含著不同的幾個團隊所維護的 drm 實作的 linux kernel</p>
-<figure>
-<img src="https://01.org/linuxgraphics/gfx-docs/maintainer-tools/_images/drm-intel-flow.svg" alt="這個 merge flow 很複雜，我也還沒搞懂" /><figcaption>這個 merge flow 很複雜，我也還沒搞懂</figcaption>
-</figure>
-</section>
-<section id="在-archlinux-上編譯" class="level2">
-<h2>在 ArchLinux 上編譯</h2>
-<p>幸好我不必了解他們是怎麼 merge，只需要 build 起來能測試功能是否正常即可。</p>
-<ul>
-<li>使用 AUR 上面的 <a href="https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=linux-drm-tip-git&amp;id=f2f3487589a22ee728472259f4bd79af75bd782b">linux-drm-tip-git</a> 這個 package 編譯最新的版本</li>
-<li>遇到 <code>make prepare</code> 詢問參數是因為 <code>config.x86-64</code> 的版本不夠新
-<ul>
-<li>我直接找了 <a href="https://aur.archlinux.org/packages/linux-mainline/">linux-mainline</a> 的來用</li>
-</ul></li>
-<li>先用 <code>makepkg -Asi</code> 編譯安裝一遍。</li>
-<li>然後使用這個版本的 kernel 後發現、恩、問題依舊</li>
-</ul>
-</section>
-<section id="加快編譯速度" class="level2">
-<h2>加快編譯速度</h2>
-<p>我用了兩個工具來加速編譯速度：</p>
-<ul>
-<li><a href="https://wiki.archlinux.org/index.php/ccache">ccache</a>: 幫 gcc 做快取，改善重複編譯所需的時間</li>
-<li><a href="https://wiki.archlinux.org/index.php/Modprobed-db">modprobed-db</a>: 減少所需編譯的模組數</li>
-</ul>
-</section>
-<section id="bisect" class="level2">
-<h2>bisect</h2>
-<p>要從至少 27000 筆的 commit 中找錯誤，當然不會一筆一筆嘗試。這邊使用的 bisect 就是用經典的演算法「二分搜尋法」來加快尋找的速度。</p>
-<section id="步驟" class="level3">
-<h3>步驟</h3>
-<ul>
-<li>編譯完之後，進 <code>src/drm-tip</code> 執行 <code>git bisect start</code></li>
-<li>確認問題還在，標記為有問題的版本 <code>git bisect bad</code></li>
-<li><code>git checkout</code> 到認為沒問題的版本（因為我知道 4.12 沒有問題，所以我找到對應的 commit 是<code>6f7da29</code>）</li>
-<li><code>makepkg -esfi</code> 編譯並安裝此版本
-<ul>
-<li>因為 <code>git bisect</code> 會 checkout 到不同的版本，所以需要用 <code>-e</code> 來告訴 makepkg 不要重新 checkout</li>
-</ul></li>
-<li><p>重開機檢查問題是否還在，沒有問題，用 <code>git bisect good</code> 標記</p>
-<pre class="shell"><code>&gt; git bisect good
-Bisecting: 13952 revisions left to test after this (roughly 14 steps)
-[73adb8c5b0ea15e3942ab5781eb3e72d4e028ada] Merge tag &#39;for-4.13/dm-fixes-2&#39; of git://git.kernel.org/pub/scm/linux/kernel/git/device-mapper/linux-dm</code></pre></li>
-</ul>
-</section>
-<section id="預估還要幾次查詢" class="level3">
-<h3>預估還要幾次查詢</h3>
-<ul>
-<li><code>git rev-list drm-tip ^6f7da290413b --count</code> 告訴我這兩個中間差了 27906 個 commit</li>
-<li>所以我預期最多還需要 16 次的篩選 (<span class="math inline">\(log_2(27906)+1 \approx 15.77\)</span>)</li>
-</ul>
-</section>
-<section id="繼續尋找問題" class="level3">
-<h3>繼續尋找問題</h3>
-<p>這邊就是不斷的重複：</p>
-<ul>
-<li>編譯</li>
-<li>測試</li>
-<li><code>git bisect [good|bad]</code></li>
-</ul>
-<pre class="half-page"><code>&gt; git bisect bad 73adb8c5b0ea
-Bisecting: 6975 revisions left to test after this (roughly 13 steps)
-[4f5dfdd29065a0d1d0e61d9744e14d1d852518be] Merge tag &#39;leds_for_4.13&#39; of git://git.kernel.org/pub/scm/linux/kernel/git/j.anaszewski/linux-leds
-
-&gt; git bisect good 4f5dfdd29065
-Bisecting: 3487 revisions left to test after this (roughly 12 steps)
-[8c03cc85a035ae7a208c28c4382ecfeb6adf79a6] fs/proc/task_mmu.c: remove obsolete comment in show_map_vma()
-
-&gt; git bisect bad 8c03cc85a035
-Bisecting: 1723 revisions left to test after this (roughly 11 steps)
-[2ceedf97aef41d071d897a6e6aec8c05fb707ec4] Merge tag &#39;dmaengine-4.13-rc1&#39; of git://git.infradead.org/users/vkoul/slave-dma
-
-&gt; git bisect good 2ceedf97aef4
-Bisecting: 818 revisions left to test after this (roughly 10 steps)
-[04d4fb5fa63876d8e7cf67f2788aecfafc6a28a7] Merge branch &#39;drm-next-4.13&#39; of git://people.freedesktop.org/~agd5f/linux into drm-next
-
-&gt; git bisect good 04d4fb5fa638
-Bisecting: 420 revisions left to test after this (roughly 9 steps)
-[00fc2c26bc46a64545cdf95a1511461ea9acecb4] drm: Remove unused drm_file parameter to drm_syncobj_replace_fence()
-
-&gt; git bisect bad 00fc2c26bc46
-Bisecting: 222 revisions left to test after this (roughly 8 steps)
-[eafae133e48c9e5f5537d5c6df34eab912336b9a] Merge tag &#39;drm-msm-next-2017-06-20&#39; of git://people.freedesktop.org/~robclark/linux into drm-next
-
-&gt; git bisect good eafae133e48c
-Bisecting: 111 revisions left to test after this (roughly 7 steps)
-[fc59921178fd63f1dbe445c2fc86e6ca997a4744] drm/i915/perf: Add more OA configs for BDW, CHV, SKL + BXT
-
-&gt; git bisect good fc59921178fd
-Bisecting: 55 revisions left to test after this (roughly 6 steps)
-[7dd4f6729f9243bd7046c6f04c107a456bda38eb] drm/i915: Async GPU relocation processing
-
-&gt; git bisect bad 7dd4f6729f92
-Bisecting: 34 revisions left to test after this (roughly 5 steps)
-[615c16a9d8649b9894592d11bc393e684b11e2ea] drm/i915/gvt: Refine virtual reset function
-
-&gt; git bisect good 615c16a9d864
-Bisecting: 17 revisions left to test after this (roughly 4 steps)
-[f6262bda462e81e959b80a96dac799bd9df27f73] drm/i915: Don&#39;t enable backlight at setup time.
-
-&gt; git bisect good f6262bda462e
-Bisecting: 8 revisions left to test after this (roughly 3 steps)
-[4c9c0d09741deab0aac76b83961cfe95b24f3e6f] drm/i915: Fix retrieval of hangcheck stats
-
-&gt; git bisect good 4c9c0d09741d
-Bisecting: 4 revisions left to test after this (roughly 2 steps)
-[2889caa9232109afc8881f29a2205abeb5709d0c] drm/i915: Eliminate lots of iterations over the execobjects array
-
-&gt; git bisect bad 2889caa92321
-Bisecting: 1 revision left to test after this (roughly 1 step)
-[507d977ff965682a925ffe479c95136680fcb77b] drm/i915: Pass vma to relocate entry
-
-&gt; git bisect good 507d977ff965
-Bisecting: 0 revisions left to test after this (roughly 0 steps)
-[071750e550af46b5d3a84ad56c2a108c3e136284] drm/i915: Disable EXEC_OBJECT_ASYNC when doing relocations</code></pre>
-</section>
-<section id="找出有問題的-commit" class="level3">
-<h3>找出有問題的 commit</h3>
-<p>不斷重複上面的步驟，最後找出第一個有問題的 commit</p>
-<pre><code>&gt; git bisect good 071750e550af
-2889caa9232109afc8881f29a2205abeb5709d0c is the first bad commit</code></pre>
-</section>
-</section>
-</section>
-<section id="後記" class="level1">
-<h1>後記</h1>
-<p>這個過程並不是很輕鬆（編譯一次至少需要 10min，還要重開機測試），將這個找到的這個 commit 回報上去之後，開發者很快的就能找到問題的關鍵點。</p>
-<p>最後得到的結論是，這個問題應該是來自 user space driver 沒有實作正確，於是我回去找了 intel-vaapi-driver 的 issue tracker，才發現到原來早在 3 個星期前就有人<a href="https://github.com/01org/intel-vaapi-driver/issues/262">回報</a>過，而且也已經修正並 merge 回 master 了。囧</p>
-<p>雖然最後發現不是 linux kernel 的問題，不過這也依然是個務實的除錯經驗。</p>
-</section>
-<section id="參考資料" class="level1">
-<h1>參考資料</h1>
-<p><strong>drm/i915</strong></p>
-<ul>
-<li><a href="https://01.org/linuxgraphics/documentation/how-report-bugs">how to report bugs</a></li>
-<li><a href="https://01.org/linuxgraphics/gfx-docs/maintainer-tools/drm-intel.html">drm-intel</a></li>
-</ul>
-<p><strong>git bisect</strong></p>
-<ul>
-<li><a href="https://wiki.archlinux.org/index.php/Bisecting_bugs">Bisecting bugs</a></li>
-<li><a href="https://project-insanity.org/blog/2013/02/13/how-i-found-a-kernel-regression-using-git-bisect/">How I fixed a kernel regression using git bisect</a></li>
-</ul>
-</section>]]></description>
-    <pubDate>Thu, 05 Oct 2017 00:00:00 UT</pubDate>
-    <guid>https://op8867555.github.io/posts/2017-10-05-bisecting-linux-kernel-bug.html</guid>
     <dc:creator>Alex Lu</dc:creator>
 </item>
 

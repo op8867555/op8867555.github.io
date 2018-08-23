@@ -54,7 +54,7 @@
 </div>
 <section id="numerical-differential" class="level1">
 <h1>Numerical Differential</h1>
-<p><span><label for="sn-1" class="margin-toggle">⊕</label><input type="checkbox" id="sn-1" class="margin-toggle" /><span class="marginnote"> <img src="https://upload.wikimedia.org/wikipedia/commons/1/18/Derivative.svg" /> 數值微分， By Olivier Cleynen (Own work) [CC0], via Wikimedia Commons<br />
+<p><span><label for="sn-1" class="margin-toggle">⊕</label><input type="checkbox" id="sn-1" class="margin-toggle" /><span class="marginnote">{-} <img src="https://upload.wikimedia.org/wikipedia/commons/1/18/Derivative.svg" /> 數值微分， By Olivier Cleynen (Own work) [CC0], via Wikimedia Commons<br />
 <br />
 </span></span></p>
 <p>數值微分就是用 <span class="math inline">\(\frac{f(x + h) - f(x)}{h}\)</span> 跟一個很小的 <span class="math inline">\(h\)</span> 來<strong>近似</strong> <span class="math inline">\(\lim_{h \rightarrow 0}\frac{f(x + h) - f(x)}{h}\)</span>，實作上也只是計算用不同的參數來計算函數 <span class="math inline">\(f\)</span> 的差異，但是 <span class="math inline">\(f\)</span> 的計算成本可能不低，而且很容易遇到浮點數計算的 round-off error 跟 truncating error，所以實務上並不實用。</p>
@@ -135,7 +135,7 @@
 <h1>Forward-Mode Automatic Differential</h1>
 <p>自動微分（AD）的名稱取得很容易讓人誤解，其實就是應用 chain rule 跟一些語言特性或是原始碼轉換工具，來達成不用手寫導數的程式，而可以在計算函數的同時（也就是 overhead 不大）得出<strong>真正的</strong>導數/偏導數。</p>
 <p>自動微分根據計算的順序，可以分為 Forward Mode 跟 Reverse Mode，這次先介紹比較簡單的 Forward Mode。</p>
-<p><span><label for="sn-5" class="margin-toggle">⊕</label><input type="checkbox" id="sn-5" class="margin-toggle" /><span class="marginnote"> Forward Mode AD 將一個函數 <span class="math inline">\(y = f(... , x, ...) = (w_m \circ w_{m-1} ... \circ w_1)(..., x, ...)\)</span> 對 <span class="math inline">\(x\)</span> 的微分，拆解成 <span class="math display">\[
+<p><span><label for="sn-5" class="margin-toggle">⊕</label><input type="checkbox" id="sn-5" class="margin-toggle" /><span class="marginnote">{-} Forward Mode AD 將一個函數 <span class="math inline">\(y = f(... , x, ...) = (w_m \circ w_{m-1} ... \circ w_1)(..., x, ...)\)</span> 對 <span class="math inline">\(x\)</span> 的微分，拆解成 <span class="math display">\[
   \begin{aligned}
   \frac {\partial y}{\partial x} =&amp;\frac {\partial y}{\partial w_{m-1}}{\frac {\partial w_{m-1}}{\partial x}} \\
   =&amp;\frac {\partial y}{\partial w_{m-1}}\left({\frac {\partial w_{m-1}}{\partial w_{m-2}}}{\frac {\partial w_{m-2}}{\partial x}}\right) \\
@@ -143,7 +143,7 @@
   =&amp;{\frac {\partial y}{\partial w_{m-1}}} \left( \frac {\partial w_{m-1}}{\partial w_{m-2}} \cdots
   \left(\frac {\partial w_{2}}{\partial w_{1}}  \frac {\partial w_{1}}{\partial x} \right)\right)\\
   \end{aligned}
-  \]</span> 然後從 <span class="math inline">\(\frac{\partial x}{\partial x} = 1\)</span> 開始， 由 <span class="math inline">\(\frac{\partial w_1}{\partial x}\)</span> 開始計算到 <span class="math inline">\(\frac{\partial w_m}{x}\)</span>（由內而外）。<br />
+  \]</span> 然後從 <span class="math inline">\(\frac{\partial x}{\partial x} = 1\)</span> 開始， 由 <span class="math inline">\(\frac{\partial w_1}{\partial x}\)</span> 開始計算到 <span class="math inline">\(\frac{\partial w_m}{x}\)</span>（由內而外）。 <br />
 <br />
 </span></span></p>
 <p>這邊繼續使用上面的 <span class="math inline">\(Y = f(x, y) = sin(x) + x × y\)</span> 的例子，</p>

@@ -108,7 +108,7 @@ $$
 <p>跟前面的 Bayes’ Theorem一樣，但是這次將目標改變了一下： 用證據<span class="math inline">\(E\)</span>（training data）來找出模型參數<span class="math inline">\(θ\)</span> 的機率分佈</p>
 <p><span class="math display">\[\begin{darray}{rlc}
 P(θ|E) &amp;=&amp; \frac{ \color{red}P(E|θ) \color{black}\cdot \color{blue}P(θ)}{\color{green}P(E)} \\[1em]
-&amp;=&amp; \frac{ \color{red}P(E|θ) \color{black}\cdot \color{blue}P(θ)}{\color{green}\int_θ P(E|θ') \cdot P(θ')\  dθ'}
+&amp;=&amp; \frac{ \color{red}P(E|θ) \color{black}\cdot \color{blue}P(θ)}{\color{green}\int_θ P(E|θ') \cdot P(θ')\ dθ'}
 \end{darray}\]</span></p>
 <ul>
 <li><span class="math inline">\(\color{blue}P(θ)\)</span> 稱為先驗機率，也就是對於某事物的猜測。</li>
@@ -131,7 +131,7 @@ P(θ|E) &amp;=&amp; \frac{ \color{red}P(E|θ) \color{black}\cdot \color{blue}P(�
 </span></span>！</p>
 <p>用這個作法只需要用 debugger 執行程式的時候，任意中斷個數次，然後觀察中斷時的 call stack，找看看裡面有沒有反覆出現的 function call。</p>
 <p>假設我們觀察到了一個很常出現的函數，它在中斷 10 次中出現了 7 次，我們想知道它出現在 call stack 的比率 <span class="math inline">\(R\)</span>，也就是找出：</p>
-<p><span><label for="sn-3" class="margin-toggle">⊕</label><input type="checkbox" id="sn-3" class="margin-toggle" /><span class="marginnote"> <span class="math inline">\(T\)</span> 表示出現在 call stack 的次數， <span class="math inline">\(F\)</span> 表示沒有出現的次數<br />
+<p><span><label for="sn-3" class="margin-toggle">⊕</label><input type="checkbox" id="sn-3" class="margin-toggle" /><span class="marginnote">{-} <span class="math inline">\(T\)</span> 表示出現在 call stack 的次數， <span class="math inline">\(F\)</span> 表示沒有出現的次數 <br />
 <br />
 </span></span></p>
 <p><span class="math display">\[
