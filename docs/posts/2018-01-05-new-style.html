@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="dcterms.date" content="2018-01-05">
+  <title>更換 blog 主題以迎接 2018 年</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/css/tufte.css">
+  <link rel="stylesheet" href="/css/pandoc.css">
+  <link rel="stylesheet" href="/css/default.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+   var mathElements = document.getElementsByClassName("math");
+   var macros = [];
+   for (var i = 0; i < mathElements.length; i++) {
+    var texText = mathElements[i].firstChild;
+    if (mathElements[i].tagName == "SPAN") {
+     katex.render(texText.data, mathElements[i], {
+      displayMode: mathElements[i].classList.contains('display'),
+      throwOnError: false,
+      macros: macros,
+      fleqn: false
+     });
+  }}});
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<nav>
+<a href="/">Home</a>
+</nav>
+<article>
+<header>
+<h1 class="title">更換 blog 主題以迎接 2018 年</h1>
+<p class="byline">2018-01-05</p>
+<p class="byline">Tags:
+<a href="/tags.html#blog">blog</a>,
+<a href="/tags.html#css">css</a>,
+<a href="/tags.html#hakyll">hakyll</a></p>
+</header>
+<section>
+<p>過了 2017，我決定換掉之前用 Google 的 <a href="https://getmdl.io/">Material Design Lite</a> 手刻的 css，改用了 <a href="https://github.com/edwardtufte/tufte-css">Tufte CSS</a> <label for="sn-0" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-0" class="margin-toggle"/><span class="sidenote">正確來說是它的 pandoc 版 fork “<a href="https://github.com/jez/tufte-pandoc-css">tufte-pandoc-css</a>”</span> 這套以 Edward Tufte 的書籍及手稿<label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="sidenote">我沒看過，但是就是樣利用兩欄設計，把 foot note 改作 side note 的風格。</span>的風格為基礎的主題。</p>
+<p>這邊特地截了兩者的截圖以作為紀念（不過其實<code>git checkout</code>一下也行）</p>
+<p><label for="sn-2" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-2" class="margin-toggle"/><span class="marginnote"> 之前的主題走 Material Design 的卡片風格，以無襯線的黑體為主。 <a href="https://i.imgur.com/TQjq0Ju.png"><img src="https://i.imgur.com/TQjq0Ju.png" /></a></span></p>
+<p><a href="https://i.imgur.com/e5mGJpO.png"><img src="https://i.imgur.com/e5mGJpO.png" /></a></p>
+<p>除此之外，我還做了：</p>
+<ul>
+<li>改用 <a href="https://khan.github.io/KaTeX/"><span class="math inline">\KaTeX</span></a> 這個前端渲染引擎來呈現 LaTeX 的運算式，相較於之前 pandoc 的基本款實作支援更多語法，而且渲染結果也好看了不少。</li>
+<li>使用 pandoc 的 <code>eastAsianLineBreakFilter</code> 來改進中文斷行的呈現。</li>
+</ul>
+</section>
+</article>
+<div id="disqus_thread">
+<script>
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+var disqus_config = function () {
+this.page.url = "https://op8867555.github.io";
+this.page.identifier = "";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://alex-lu-blog.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div></body>
+</html>

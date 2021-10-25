@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="dcterms.date" content="2018-04-18">
+  <title>[en] Notes on Thinkpad X1 Carbon 2017 + Arch Linux</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/css/tufte.css">
+  <link rel="stylesheet" href="/css/pandoc.css">
+  <link rel="stylesheet" href="/css/default.css">
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<nav>
+<a href="/">Home</a>
+</nav>
+<article>
+<header>
+<h1 class="title">[en] Notes on Thinkpad X1 Carbon 2017 + Arch Linux</h1>
+<p class="byline">2018-04-18</p>
+<p class="byline">Tags:
+<a href="/tags.html#laptop">laptop</a>,
+<a href="/tags.html#linux">linux</a>,
+<a href="/tags.html#lang:en">lang:en</a></p>
+</header>
+<section id="changelogs" class="level3">
+<h3>changelogs</h3>
+<ul>
+<li>2018/04/18 Saoto’s trackpoint cap and fingerprinter status update.</li>
+<li>2018/02/11 add a note for recall experience and thunderbolt 3 failures.</li>
+<li>2018/01/12 update info.</li>
+<li>2017/08/22 update kernel to 4.12; add a WWAN section.</li>
+<li>2017/07/22 rewrite the post in English, remove some outdated information.</li>
+</ul>
+</section>
+<section id="quick-summary" class="level1">
+<h1>Quick Summary</h1>
+<p>I’m running Arch Linux (kernel 4.15) on a Thinkpad X1 Carbon 5th Gen (X1C5).</p>
+<p>Most stuff works out of box,</p>
+<ul>
+<li>wifi</li>
+<li>backlit keyboard</li>
+<li>LEDs on keyboard (caps lock/mute/mic mute)</li>
+<li>TrackPoint - slow speed but works.</li>
+<li>TrackPad - not so precise but works.</li>
+<li>USB-C - USB-C to HDMI / USB-C Hub<label for="sn-0" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-0" class="margin-toggle"/><span class="sidenote">I wrote a <a href="/posts/2017-07-21-adam-usb-c-dock.html">blog post</a> in Traditional Chinese 🇹🇼 about the hub.</span> works.</li>
+<li>Bluetooth - works with a FC30 game controller.</li>
+<li>WWAN - works with ModemManager.</li>
+<li>mini-Ethernet - works.</li>
+<li>micro SD reader</li>
+</ul>
+<p>Things <em>partially</em> working,</p>
+<ul>
+<li>Fingerprint reader</li>
+</ul>
+<p>I haven’t tried,</p>
+<ul>
+<li>Thunderbolt 3 <label for="sn-1" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="marginnote"> I confused usb-c with TB3, it turns out I don’t have TB3 device.</span></li>
+<li>hibernation - I don’t setup a swap partition.</li>
+</ul>
+</section>
+<section id="hardware" class="level1">
+<h1>Hardware</h1>
+<section id="trackpoint" class="level2">
+<h2>TrackPoint</h2>
+<section id="alps-or-elantech" class="level3">
+<h3>ALPS or Elantech?</h3>
+<p>X1C5 comes with two versions<label for="sn-2" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-2" class="margin-toggle"/><span class="sidenote"><a href="https://patchwork.kernel.org/patch/9768231/" class="uri">https://patchwork.kernel.org/patch/9768231/</a></span> of TrackPoint: ALPS and Elantech. I confirmed mine has an Elantech one using <a href="http://pcsupport.lenovo.com/tw/zh/products/laptops-and-netbooks/thinkpad-x-series-laptops/thinkpad-x1-carbon-type-20hr-20hq/downloads/ds122148">TrackPointDetect.exe</a>.</p>
+<pre><code>TouchPad-Flash Utility
+2017-06-08 20:42:27
+Command Line: &quot;C:\Users\alexlu\Desktop\FW_Updater_1.0.0.9\TrackPointDetect.exe&quot;
+OS: 64-bit
+Pst Vendor : Elan
+[ERROR]: This TrackPoint is Elan (ID:03)</code></pre>
+</section>
+<section id="cursor-speed-trackpoint-cap" class="level3">
+<h3>Cursor Speed &amp; TrackPoint Cap</h3>
+<p>I used to take the plastic adapter<label for="sn-3" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-3" class="margin-toggle"/><span class="sidenote"><img src="https://i.imgur.com/qyS29cDl.jpg" title="fig:" alt="The plastic adapter from previous Thinkpad" /></span> from my previous laptop - a Thinkpad E130 and trimmed a Soft Rim Cap to fit “Super Low Profile”. <label for="sn-4" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-4" class="margin-toggle"/><span class="marginnote"> <img src="https://i.imgur.com/cxoY1AO.jpg" /> IMHO, a soft rim is <em>much better</em> than a soft dome.</span></p>
+<p>I have switched to a 3d-printed rubber caps made by <a href="https://twitter.com/saoto28">Saoto</a>, it works really great.</p>
+<p><img src="https://i.imgur.com/zJF2hz2.jpg" /></p>
+<p>The cursor speed and acceleration gets much better.</p>
+</section>
+</section>
+<section id="trackpad" class="level2">
+<h2>TrackPad</h2>
+<p>It works with libinput and pressure-based palm detection are functional. But it is still unresponsive to small movements for current release. <label for="sn-5" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-5" class="margin-toggle"/><span class="sidenote"><a href="https://bugs.freedesktop.org/show_bug.cgi?id=98839" class="uri">https://bugs.freedesktop.org/show_bug.cgi?id=98839</a></span></p>
+<p><label for="sn-6" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-6" class="margin-toggle"/><span class="marginnote"> There is a different device according to <a href="https://www.reddit.com/r/thinkpad/comments/6wimb8/doing_some_research_on_x1c5_touchpad_issues/">this thread</a>.</span></p>
+<p><code>dmesg</code> output:</p>
+<pre><code>rmi4_smbus 0-002c: registering SMbus-connected sensor
+rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics, product: TM3289-002, fw id: 2492434</code></pre>
+</section>
+<section id="fingerprint-reader" class="level2">
+<h2>Fingerprint Reader</h2>
+<p>X1C5 have a Validity Sensor 138a:0097. There is no fully-working driver for it at this moment.</p>
+<p>There is an open source reverse engineered driver working in progress<label for="sn-7" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-7" class="margin-toggle"/><span class="sidenote"><a href="https://github.com/nmikhailov/Validity90" class="uri">https://github.com/nmikhailov/Validity90</a></span><label for="sn-8" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-8" class="margin-toggle"/><span class="sidenote"><a href="https://bugs.freedesktop.org/show_bug.cgi?id=94536" class="uri">https://bugs.freedesktop.org/show_bug.cgi?id=94536</a></span>.</p>
+<section id="partially-working-driver" class="level3">
+<h3>Partially-Working Driver</h3>
+<ul>
+<li>Nikita Mikhailov(<span class="citation" data-cites="nmikhailov">@nmikhailov</span>) reverse-engineered how to use 0097 to verify fingerprint, but fingerprints need to be enrolled in Windows first.</li>
+<li>Marco Trevisan(<span class="citation" data-cites="3v1n0">@3v1n0</span>) wrote a match-on-host driver<label for="sn-9" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-9" class="margin-toggle"/><span class="sidenote"><a href="https://github.com/3v1n0/libfprint" class="uri">https://github.com/3v1n0/libfprint</a></span> for 0090.</li>
+<li>Aleksandr Saraikin(<span class="citation" data-cites="hrenod">@hrenod</span>) made a modification<label for="sn-10" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-10" class="margin-toggle"/><span class="sidenote"><a href="https://github.com/hrenod/libfprint" class="uri">https://github.com/hrenod/libfprint</a></span> for 0097 based on <span class="citation" data-cites="3v1n0">@3v1n0</span>’s work.</li>
+</ul>
+<p><span class="citation" data-cites="hrenod">@hrenod</span>’s fork make it possible to use 0097 to authenticate now. One just need to:</p>
+<ol type="1">
+<li>initialize the device and enroll fingerprints in Windows,</li>
+<li>install <code>fprintd</code> and <span class="citation" data-cites="hrenod">@hrenod</span>’s <code>libfprint</code>,</li>
+<li>do a fake enroll (ex. <code>fprintd-enroll</code>),</li>
+<li>set up PAM rules.</li>
+</ol>
+</section>
+</section>
+<section id="wwan" class="level2">
+<h2>WWAN</h2>
+<p>X1C5 (WWAN) comes with a Sierra EM7455 LTE Modem (1199:9079).</p>
+<p>It works out of box using latest ModemManager.</p>
+</section>
+<section id="thunderbolt-3" class="level2">
+<h2>Thunderbolt 3</h2>
+<section id="firmware-failures" class="level3">
+<h3>Firmware Failures</h3>
+<p>My X1C5’s usb-c port dies sometime after I plug-in and out my usb-c hub, it was unable to charge and connect any devices, and it sometimes just “recovered” itself. I initially guess it is a hardware failure and sent the laptop once to repair center, but the technician can’t reproduce the issue.</p>
+<p>Later I found there is a new <a href="https://pcsupport.lenovo.com/us/zh/products/laptops-and-netbooks/thinkpad-x-series-laptops/thinkpad-x1-carbon-type-20hr-20hq/downloads/ds120382">Thunderbolt 3 firmware update</a>, which says it:</p>
+<ul>
+<li>Fixed an issue where system might not be charged after repeating AC plug-in and out.</li>
+</ul>
+<p>It is not happen again after firmware updated so far. Intel WTF.</p>
+</section>
+</section>
+<section id="recall-for-loose-screws" class="level2">
+<h2>Recall for loose screws</h2>
+<p>Lenovo recently(2018/02/06) recalls X1C5 made before 2017/11 and Mine is unfortunately affected. I went to nearest Lenovo Service Center(around 4km) and it took 15~20 minutes for the technician to check. There is no loose screws at last.</p>
+</section>
+</section>
+<section id="software" class="level1">
+<h1>Software</h1>
+<p>I’m using i3-gaps without a desktop environment.</p>
+<section id="hardware-video-acceleration" class="level2">
+<h2>Hardware Video Acceleration</h2>
+<p>It is possible to use the integrated graphic card to decode/encode videos, and this helps power-saving a lot.</p>
+<p><label for="sn-11" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-11" class="margin-toggle"/><span class="marginnote"> See this <a href="https://wiki.archlinux.org/index.php/Hardware_video_acceleration">article</a> on ArchWiki for more info.</span></p>
+<p>There are two spec/implement/API: VAAPI (by Intel) and VDPAU (by Nvidia). Since most software supports VAAPI, I just need to install <code>libva-intel-driver</code> pacakge.</p>
+</section>
+<section id="libva-intel-driver" class="level2">
+<h2>libva-intel-driver</h2>
+<p>Current release version has a bug<label for="sn-12" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-12" class="margin-toggle"/><span class="sidenote"><a href="https://github.com/01org/intel-vaapi-driver/issues/297" class="uri">https://github.com/01org/intel-vaapi-driver/issues/297</a></span> when decoding VP9 videos, <code>libva-intel-driver-git</code> package should fixes that.</p>
+</section>
+<section id="chromium-vaapi" class="level2">
+<h2>chromium-vaapi</h2>
+<p>There is a VAAPI implementation for Chromium OS, and there is also a patch<label for="sn-13" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-13" class="margin-toggle"/><span class="sidenote"><a href="https://chromium-review.googlesource.com/c/chromium/src/+/532294" class="uri">https://chromium-review.googlesource.com/c/chromium/src/+/532294</a></span> to enable that on Linux. The <code>chromium-vaapi-bin</code> package on AUR provides prebuilt binary, or you can build <code>chromium-vaapi</code> by yourself (It takes about 6 hrs first time, you can use ccache to speed up if you want to build it more than one time).</p>
+</section>
+</section>
+<section id="references" class="level1">
+<h1>References</h1>
+<ul>
+<li><a href="https://gist.github.com/gdamjan/141bb0def5f80257fae2b233ec16f3c2">gdamjan’s Note</a></li>
+<li><a href="http://fredrik.wendt.se/2017/04/26/lenovo-thinkpad-x1-carbon-5th-generation/">Fredrik’s Note</a></li>
+<li><a href="https://forums.lenovo.com/t5/forums/v3_1/forumtopicpage/board-id/tp02_en/thread-id/75464/page/29">discussion about TrackPad</a></li>
+</ul>
+</section>
+<section id="outdated" class="level1">
+<h1>Outdated</h1>
+<p>These issues/tricks/workarounds are mostly outdated(linux kernel ≤ 4.12). Maybe I should just remove this section someday…</p>
+<section id="trackpoint-1" class="level2">
+<h2>TrackPoint</h2>
+<section id="issues" class="level3">
+<h3>Issues</h3>
+<ul>
+<li><p>Recognized as a “PS/2 Generic Mouse”<br />
+⇒ No palm-detection during trackpoint use</p></li>
+<li><p>Since kernel driver doesn’t support the new trackpoint, both of sensitivity and speed aren’t adjustable.<br />
+⇒ The default speed/sensitivity is too slow to use.</p></li>
+</ul>
+</section>
+<section id="mark-it-as-a-pointing-stick" class="level3">
+<h3>Mark it as a pointing stick</h3>
+<p>I found I can making libinput treat the “PS/2 Generic Mouse” as a trackpoint using a custom udev hwdb entry.</p>
+<p><em>Note: this should not be used anymore once trackpoint gets kernel driver supports</em></p>
+<pre><code>evdev:name:PS/2 Generic Mouse:dmi:*svnLENOVO*:pvrThinkPadX1Carbon5th*
+  ID_INPUT_POINTINGSTICK=1</code></pre>
+</section>
+<section id="better-trackpoint-acceleration" class="level3">
+<h3>Better TrackPoint Acceleration</h3>
+<p>There is a <a href="https://bugs.freedesktop.org/show_bug.cgi?id=91369#c48">patch</a> which solves speed issue.</p>
+<p>I get my trackpoint much usable by setting up:</p>
+<ul>
+<li><code>LIBINPUT_ATTR_TRACKPOINT_RANGE=10</code> in hwdb</li>
+<li><code>xinput set-prop "PS/2 Generic Mouse" "libinput Accel Speed" -0.25</code> in my .xinitrc</li>
+</ul>
+</section>
+</section>
+<section id="trackpad-1" class="level2">
+<h2>TrackPad</h2>
+<p>The trackpad is <ins>able to</ins> use rmi4 over smbus for now(4.12).</p>
+<p>Turn it on by creating a <code>psmouse.conf</code> in <code>/etc/modprobe.d/</code></p>
+<pre><code>options psmouse synaptics_intertouch=1</code></pre>
+<section id="palm-detection" class="level3">
+<h3>Palm Detection</h3>
+<ul>
+<li>pressure-based palm-detection works great (libinput ≥ 1.8)</li>
+<li>palm-detection during trackpoint use requires <a href="#mark-it-as-a-pointing-stick">mark it as a pointing stick</a>.</li>
+</ul>
+</section>
+</section>
+<section id="new-hotkeys" class="level2">
+<h2>New Hotkeys</h2>
+<p>Before linux-4.12, You needs <a href="https://patchwork.kernel.org/patch/9596129/">these</a> <a href="https://patchwork.kernel.org/patch/9596131/">patches</a> to get these buttons works.</p>
+</section>
+</section>
+</article>
+<div id="disqus_thread">
+<script>
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+var disqus_config = function () {
+this.page.url = "https://op8867555.github.io";
+this.page.identifier = "";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://alex-lu-blog.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div></body>
+</html>

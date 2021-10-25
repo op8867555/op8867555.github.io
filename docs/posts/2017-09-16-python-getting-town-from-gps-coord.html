@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="dcterms.date" content="2017-09-16">
+  <title>用 Python 計算經緯度對應的鄉鎮市區</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="/css/tufte.css">
+  <link rel="stylesheet" href="/css/pandoc.css">
+  <link rel="stylesheet" href="/css/default.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+   var mathElements = document.getElementsByClassName("math");
+   var macros = [];
+   for (var i = 0; i < mathElements.length; i++) {
+    var texText = mathElements[i].firstChild;
+    if (mathElements[i].tagName == "SPAN") {
+     katex.render(texText.data, mathElements[i], {
+      displayMode: mathElements[i].classList.contains('display'),
+      throwOnError: false,
+      macros: macros,
+      fleqn: false
+     });
+  }}});
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<nav>
+<a href="/">Home</a>
+</nav>
+<article>
+<header>
+<h1 class="title">用 Python 計算經緯度對應的鄉鎮市區</h1>
+<p class="byline">2017-09-16</p>
+<p class="byline">Tags:
+<a href="/tags.html#python">python</a>,
+<a href="/tags.html#gis">gis</a></p>
+</header>
+<section id="tldr" class="level3">
+<h3>TL;DR</h3>
+<p>這篇文章筆記最近朋友問的一個問題： 如何不靠外部 API 取得一個經緯度座標落在哪一個鄉鎮市區。</p>
+<p>這邊應用政府 open data 的 <a href="https://data.gov.tw/dataset/7441">鄉鎮市區界線</a> 資料，加上 python 的 shapely 做範圍判斷、用 rtree 建立索引加速查詢。</p>
+</section>
+<section id="實作筆記" class="level1">
+<h1>實作筆記</h1>
+<p>想法很單純，就是透過判斷座標(輸入的經緯度)有沒有落在多邊形(鄉鎮邊界)的範圍內。</p>
+<section id="資料來源" class="level2">
+<h2>資料來源</h2>
+<p>政府有提供<a href="https://data.gov.tw/dataset/7441">鄉鎮市區界線</a>資料，是一個 <a href="https://en.wikipedia.org/wiki/Shapefile">Shapefile</a>。 Python 要讀取 .shp 檔不難，有很多 library 可以做到，可以參考<a href="https://gis.stackexchange.com/questions/113799/how-to-read-a-shapefile-in-python">這篇</a>。</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fiona</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> shapely.geometry <span class="im">import</span> shape, Point</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>collection <span class="op">=</span> fiona.<span class="bu">open</span>(<span class="st">&#39;./TOWN_MOI_1060525.shp&#39;</span>)</span></code></pre></div>
+</section>
+<section id="查詢" class="level2">
+<h2>查詢</h2>
+<p>這邊我使用的是 <code>shapely</code> 這個套件來計算座標有無座落於某個多邊形。 所以先將 .shp 內的 geometry 建立成 shapely 的 Polygon 物件：</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>shapes <span class="op">=</span> {}</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>properties <span class="op">=</span> {}</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> f <span class="kw">in</span> collection:</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    town_id <span class="op">=</span> <span class="bu">int</span>(f[<span class="st">&#39;properties&#39;</span>][<span class="st">&#39;TOWNCODE&#39;</span>])</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    shapes[town_id] <span class="op">=</span> shape(f[<span class="st">&#39;geometry&#39;</span>])</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    properties[town_id] <span class="op">=</span> f[<span class="st">&#39;properties&#39;</span>]</span></code></pre></div>
+<p>這樣就可以用 <code class="sourceCode python">polygon.contains(Point(x, y))</code> 判斷一個點有沒有座落於其中。對這所有的多邊形走訪一遍就可以知道座落於哪裡：</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> search(x, y):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">next</span>((town_id</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                 <span class="cf">for</span> town_id <span class="kw">in</span> shapes</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                 <span class="cf">if</span> shapes[town_id].contains(Point(x, y))), <span class="va">None</span>)</span></code></pre></div>
+</section>
+<section id="加速查詢" class="level2">
+<h2>加速查詢</h2>
+<p>上面的查詢很單純地測試全台灣 368 個鄉鎮市的多邊形了一遍，如果是小量的輸入資料應該還算是可以接受，不過如果需要更細的比對（計算到村里）、或是有大量資料要計算的話，這樣的方法還是不夠有效率。</p>
+<p>因為在查詢一個台北的座標時，其實不用考慮離他太遠的台中、台南…等其他鄉鎮市區。</p>
+<p>基於這樣的想法，這邊用 R-Tree 這個<a href="https://en.wikipedia.org/wiki/R-tree">資料結構</a>來幫這些多邊形的 bounding box（多邊形的最小外接矩形）做索引：</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> rtree <span class="im">import</span> index</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>idx <span class="op">=</span> index.Index()</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> town_id, shape <span class="kw">in</span> shapes.items():</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    idx.insert(town_id, shape.bounds)</span></code></pre></div>
+<p>這樣就可以透過 <code class="sourceCode python">idx.intersection((x, y))</code> 來找出跟座標有交集的 bounding box。我們只需要檢查座標落在其中的哪一個的多邊形即可：</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> search(x, y):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">next</span>((town_id</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                 <span class="cf">for</span> town_id <span class="kw">in</span> idx.intersection((x, y))</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                 <span class="cf">if</span> shapes[town_id].contains(Point(x, y))), <span class="va">None</span>)</span></code></pre></div>
+<p>這樣查詢的時間就可以從 <span class="math inline">O(N)</span> 加快到 <span class="math inline">O(log_M N + M)</span> 了。以鄉鎮市區來說，在我的筆電上，從本來每次平均需要 3.95ms 提升到每次平均 223 µs，至少快了 16 倍。</p>
+<figure>
+<img src="https://i.imgur.com/MDrOi7i.png" alt="以🇹🇼總統府來舉例，它落在萬華區跟中正區兩個 bounding boxes 裡面" /><figcaption aria-hidden="true">以🇹🇼總統府來舉例，它落在萬華區跟中正區兩個 bounding boxes 裡面</figcaption>
+</figure>
+</section>
+</section>
+</article>
+<div id="disqus_thread">
+<script>
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+var disqus_config = function () {
+this.page.url = "https://op8867555.github.io";
+this.page.identifier = "";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://alex-lu-blog.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div></body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="dcterms.date" content="2017-09-09">
+  <title>手動編譯 vs 編譯好的 tensorflow</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/css/tufte.css">
+  <link rel="stylesheet" href="/css/pandoc.css">
+  <link rel="stylesheet" href="/css/default.css">
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<nav>
+<a href="/">Home</a>
+</nav>
+<article>
+<header>
+<h1 class="title">手動編譯 vs 編譯好的 tensorflow</h1>
+<p class="byline">2017-09-09</p>
+<p class="byline">Tags:
+<a href="/tags.html#tensorflow">tensorflow</a></p>
+</header>
+<p>亂看文章時發現到 tensorflow prebuilt 版跟自己 build 效能有落差（現在想想這也是理所當然的事），於是就來自己編編看到底差多少了。</p>
+<section id="實驗" class="level1">
+<h1>實驗</h1>
+<section id="使用的機器" class="level2">
+<h2>使用的機器</h2>
+<p>Thinkpad X1 Carbon 2017，它的 CPU 是 Intel 的 i7-7500U（對，這顆絕對不適合拿來算這個）</p>
+</section>
+<section id="使用的不同版本" class="level2">
+<h2>使用的不同版本</h2>
+<ul>
+<li><p><a href="https://pypi.python.org/pypi/tensorflow">PyPI 上的版本</a>，沒有機器相關的最佳化。</p></li>
+<li><p><a href="https://software.intel.com/en-us/articles/tensorflow-optimizations-on-modern-intel-architecture">intel 提供的版本</a> 使用 intel 的 Math Kernel library，但是沒有機器相關的最佳化<label for="sn-0" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-0" class="margin-toggle"/><span class="sidenote">沒有做機器相關的最佳化時會有提醒<br />
+<code>The TensorFlow library wasn't compiled to use SSE4.1 instructions, but these are available on your machine and could speed up CPU computations.
+The TensorFlow library wasn't compiled to use SSE4.2 instructions, but these are available on your machine and could speed up CPU computations.
+The TensorFlow library wasn't compiled to use AVX instructions, but these are available on your machine and could speed up CPU computations.
+The TensorFlow library wasn't compiled to use AVX2 instructions, but these are available on your machine and could speed up CPU computations.
+The TensorFlow library wasn't compiled to use FMA instructions, but these are available on your machine and could speed up CPU computations.</code></span>。</p></li>
+<li><p>自己 build ，用的是 tensorflow 官方 github repo 的 <a href="https://github.com/tensorflow/tensorflow/tree/32ffc5a81eee8c39bbe71536212a773b1ffd4eb2">32ffc5a81</a></p>
+<ul>
+<li><code>./configure</code> 都用預設值 (<code>-march=native</code> 開啟當下機器架構的最佳化）</li>
+<li><code>--config=mkl</code> 同 intel 版本</li>
+</ul></li>
+</ul>
+</section>
+<section id="使用的測試案例" class="level2">
+<h2>使用的測試案例</h2>
+<p>使用了 keras 的幾個 <a href="https://github.com/fchollet/keras/tree/master/examples">example</a> 來測試<label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="sidenote">問我為什麼要用 keras 而不用 tensorflow 就好？因為我還想測 theano 啊…</span>，分別是：</p>
+<ul>
+<li>mnist-mlp</li>
+<li>mnist-cnn</li>
+<li>cifar10-cnn</li>
+</ul>
+</section>
+<section id="測試結果" class="level2">
+<h2>測試結果</h2>
+<table>
+<caption>實驗結果（數值是每次 epoch 所花的時間，越小越好）</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">testcase</th>
+<th style="text-align: right;">pip</th>
+<th style="text-align: right;">intel</th>
+<th style="text-align: right;">built</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">mnist-mlp</td>
+<td style="text-align: right;">9.5s</td>
+<td style="text-align: right;">10.5s</td>
+<td style="text-align: right;">10.5s</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">mnist-cnn</td>
+<td style="text-align: right;">175.5s</td>
+<td style="text-align: right;">63s</td>
+<td style="text-align: right;">60s</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">cifar10-cnn[^1]</td>
+<td style="text-align: right;">275s</td>
+<td style="text-align: right;">200s</td>
+<td style="text-align: right;">200s</td>
+</tr>
+</tbody>
+</table>
+<p><label for="sn-2" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-2" class="margin-toggle"/><span class="marginnote"> [^1] 因為有 200 個 epoch 要跑，實在要花很多時間，所以這邊就都只取大概 3~4 個 epoch 的時間來算</span></p>
+</section>
+<section id="結論" class="level2">
+<h2>結論</h2>
+<ul>
+<li>如果是真心想要用 Intel 的 CPU 跑 tensorflow …
+<ul>
+<li>…也願意自己花時間編譯，那<strong>手動編譯</strong>是（執行時）最快的選項</li>
+<li>…卻不想自己編，但可以接受不是最新的版本，那直接使用<a href="https://software.intel.com/en-us/articles/tensorflow-optimizations-on-modern-intel-architecture"><strong>intel 提供的版本</strong></a></li>
+</ul></li>
+<li>如果沒那麼真心想用，只是先用 CPU 玩玩看，那<a href="https://pypi.python.org/pypi/tensorflow"><strong>直接用 pip 裝</strong></a>是最簡易的選項。</li>
+<li><em>真心想跑 tensorflow 還是去弄個有 GPU 的環境吧…</em>
+<ul>
+<li>用了 GTX 1060 6GB 的桌電跑 cifar10-cnn ，一個 epoch 只要 25s</li>
+</ul></li>
+</ul>
+</section>
+</section>
+</article>
+<div id="disqus_thread">
+<script>
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+var disqus_config = function () {
+this.page.url = "https://op8867555.github.io";
+this.page.identifier = "";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://alex-lu-blog.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div></body>
+</html>

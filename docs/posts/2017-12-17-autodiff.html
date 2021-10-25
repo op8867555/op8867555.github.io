@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="dcterms.date" content="2018-01-09">
+  <title>機器如何計算微分/偏微分（上）</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="/css/tufte.css">
+  <link rel="stylesheet" href="/css/pandoc.css">
+  <link rel="stylesheet" href="/css/default.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+   var mathElements = document.getElementsByClassName("math");
+   var macros = [];
+   for (var i = 0; i < mathElements.length; i++) {
+    var texText = mathElements[i].firstChild;
+    if (mathElements[i].tagName == "SPAN") {
+     katex.render(texText.data, mathElements[i], {
+      displayMode: mathElements[i].classList.contains('display'),
+      throwOnError: false,
+      macros: macros,
+      fleqn: false
+     });
+  }}});
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<nav>
+<a href="/">Home</a>
+</nav>
+<article>
+<header>
+<h1 class="title">機器如何計算微分/偏微分（上）</h1>
+<p class="byline">2018-01-09</p>
+<p class="byline">Tags:
+<a href="/tags.html#machine-learning">machine-learning</a>,
+<a href="/tags.html#autodiff">autodiff</a></p>
+</header>
+<section>
+<p>提到近年來熱門的類神經網路模型，反傳導(back propagation)是一個相當重要的過程，其中應用的就是計算梯度（gradient，就是每個參數的偏微分）修正神經參數來達到「學習」的效果，類神經網路的結構越來越複雜，使得人工推導梯度公式越來越不可行，如何應用電腦計算微分變成了一個重要的問題。</p>
+</section>
+<div class="fullwidth">
+<figure>
+<img src="https://i.imgur.com/R5QzZY4.png" alt="這張圖簡單地解釋了計算微分的幾種作法。摘自”Automatic Differentiation of Algorithms for Machine Learning”" /><figcaption aria-hidden="true">這張圖簡單地解釋了計算微分的幾種作法。摘自”Automatic Differentiation of Algorithms for Machine Learning”</figcaption>
+</figure>
+</div>
+<section id="numerical-differential" class="level1">
+<h1>Numerical Differential</h1>
+<p><label for="sn-0" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-0" class="margin-toggle"/><span class="sidenote"> {-} <img src="https://upload.wikimedia.org/wikipedia/commons/1/18/Derivative.svg" /> 數值微分， By Olivier Cleynen (Own work) [CC0], via Wikimedia Commons</span></p>
+<p>數值微分就是用 <span class="math inline">\frac{f(x + h) - f(x)}{h}</span> 跟一個很小的 <span class="math inline">h</span> 來<strong>近似</strong> <span class="math inline">\lim_{h \rightarrow 0}\frac{f(x + h) - f(x)}{h}</span>，實作上也只是計算用不同的參數來計算函數 <span class="math inline">f</span> 的差異，但是 <span class="math inline">f</span> 的計算成本可能不低，而且很容易遇到浮點數計算的 round-off error 跟 truncating error，所以實務上並不實用。</p>
+<section id="實作" class="level2">
+<h2>實作</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> math <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> diff(f, x, epilson<span class="op">=</span><span class="fl">0.00001</span>):</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (f(x<span class="op">+</span>epilson) <span class="op">-</span> f(x))<span class="op">/</span>epilson</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>diff(sin, pi) <span class="co"># -0.9999999999898844</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> f(x, y):</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sin(x) <span class="op">+</span> x <span class="op">*</span> y</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 計算偏微分就是把不關心的參數視為常數</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> functools <span class="im">import</span> partial</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>diff(partial(f, y<span class="op">=</span><span class="dv">2</span>), <span class="dv">3</span>) <span class="co"># 1.0100067978413563 (df(2,3)dx)</span></span></code></pre></div>
+</section>
+</section>
+<section id="symbolic-differential" class="level1">
+<h1>Symbolic Differential</h1>
+<p>符號微分是符號計算 (Symbolic Computing) 的一個經典例子：不去計算數值，而是 <em>跟人類一樣</em> 直接處理這些符號。<label for="sn-1" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="marginnote"> 我最早是在 SICP 一書看見這個作法，可以忍受很多括號的讀者可以去看一下 <a href="https://mitpress.mit.edu/sicp/full-text/book/book-Z-H-16.html#%_sec_2.3.2">§2.3.2</a> 的介紹。</span> 在修習微積分課程時，一定會提到如何利用 <a href="https://en.wikipedia.org/wiki/Differentiation_rules">Differentiation rules</a> 來求出導數，像是:</p>
+<ul>
+<li><span class="math inline">(a \cdot f)&#39; = af&#39;</span></li>
+<li><span class="math inline">(f + g)&#39; = f&#39; + g&#39;</span></li>
+<li><span class="math inline">(f(x) \cdot g(x))&#39; = f&#39;(x)g(x) + f(x)g&#39;(x)</span></li>
+<li><span class="math inline">(f(g(x)))&#39; = f&#39;(g(x)) g&#39;(x)</span></li>
+</ul>
+<p>而 Symbolic Differential 就是採用跟人類一樣的方法，對著 expression tree 不斷的做 pattern matching 跟 rewrite。這個方法很好實作，只需要照著 Differential rules 改寫便是，而且可以得到<strong>真正的</strong><label for="sn-2" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-2" class="margin-toggle"/><span class="sidenote">Exact Derivative，也就是跟手動推導的結果一致，Numerical Differential 因為浮點數的特性，會產生誤差而無法算出真正的導數/偏導數</span>導數/偏導數。</p>
+<p>但是這個方法最大的問題是在改寫的過程中，會出現很多冗於的式子： <span class="math inline">x \times 1</span>, <span class="math inline">x + 0</span> 之類的，因此很容易產生出巨大的（沒效率）的結果。<label for="sn-3" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-3" class="margin-toggle"/><span class="sidenote">“Automatic Differentiation in Machine Learning: a Survey” 一文中舉例到： <span class="math display">f(x) = 64x(1 - x)(1 - 2x)^2(1 - 8x + 8x^2)^2</span> 在沒有化簡的情況做符號微分會得到 <span class="math display">\begin{gathered}
+  128x(1 - x)(-8 + 16x)(1 - 2x)^2(1 - 8x+8x^2) \\
+  + 64(1-x)(1-2x)^2 (1-8x+ 8x^2)^2\\
+  - 64x(1-2x)^2 (1-8x+8x^2)^2 \\
+  - 256x(1 - x)(1 - 2x)(1 - 8x + 8x^2)^2
+  \end{gathered} </span> 這條很複雜的式子，但是經過化簡則只剩下 <span class="math display">\begin{gathered}
+  64(1 - 42x + 504x^2 - 2640x^3  \\
+  + 7040x^4 -9984x^5 + 7168x^6 -2048x^7)
+  \end{gathered}</span>，而隨著原式<span class="math inline">f</span>的複雜度上升，沒做好簡化的符號微分會膨脹非常快。</span></p>
+<p>以 Python 來說，SymPy 就實作了符號積分，可以看到 <code>diff</code> 會產出一個新的運算式。</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sympy <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> var(<span class="st">&#39;x&#39;</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>expr <span class="op">=</span> diff(sin(x)) <span class="co"># cos(x)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>expr.evalf(subs<span class="op">=</span>{<span class="st">&#39;x&#39;</span>: pi}) <span class="co"># -1.000000000000</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>expr2 <span class="op">=</span> diff(sin(x)<span class="op">+</span> x <span class="op">*</span> y, x)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>expr2.evalf(subs<span class="op">=</span>{<span class="st">&#39;x&#39;</span>: <span class="dv">3</span>, <span class="st">&#39;y&#39;</span>: <span class="dv">2</span>}) <span class="co"># 1.0100075033995546</span></span></code></pre></div>
+<!--
+
+左圖為$f(x, y) = sin(x) + x*y$的示意圖，右圖為以符號計算$\frac{df}{dx}$的示意圖：
+
+
+~~~~
+        f(x, y)    |         dfdx
+          +-+      |         +-+
+          |+|      |         |+|
+          +-+      |         +-+
+         /  \      |        /  \
+        /    \     |       /    \
+    +---+     +-+  |   +---+     +-+
+    |sin|     |×|  |   |cos|     |0|
+    +---+     +-+  |   +---+     +-+
+      |       /|   |     |
+      | _____/ |   |     |
+      |/       |   |     |
+     +-+      +-+  |    +-+
+     |x|      |y|  |    |x|
+     +-+      +-+  |    +-+
+~~~~~
+-->
+</section>
+<section id="forward-mode-automatic-differential" class="level1">
+<h1>Forward-Mode Automatic Differential</h1>
+<p>自動微分（AD）的名稱取得很容易讓人誤解，其實就是應用 chain rule 跟一些語言特性或是原始碼轉換工具，來達成不用手寫導數的程式，而可以在計算函數的同時（也就是 overhead 不大）得出<strong>真正的</strong>導數/偏導數。</p>
+<p>自動微分根據計算的順序，可以分為 Forward Mode 跟 Reverse Mode，這次先介紹比較簡單的 Forward Mode。</p>
+<p><label for="sn-4" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-4" class="margin-toggle"/><span class="sidenote"> {-} Forward Mode AD 將一個函數 <span class="math inline">y = f(... , x, ...) = (w_m \circ w_{m-1} ... \circ w_1)(..., x, ...)</span> 對 <span class="math inline">x</span> 的微分，拆解成 <span class="math display">
+  \begin{aligned}
+  \frac {\partial y}{\partial x} =&amp;\frac {\partial y}{\partial w_{m-1}}{\frac {\partial w_{m-1}}{\partial x}} \\
+  =&amp;\frac {\partial y}{\partial w_{m-1}}\left({\frac {\partial w_{m-1}}{\partial w_{m-2}}}{\frac {\partial w_{m-2}}{\partial x}}\right) \\
+  =&amp;\frac {\partial y}{\partial w_{m-1}}\left({\frac {\partial w_{m-1}}{\partial w_{m-2}}}\left({\frac {\partial w_{m-2}}{\partial w_{m-3}}}{\frac {\partial w_{m-3}}{\partial x}}\right)\right) \\
+  =&amp;{\frac {\partial y}{\partial w_{m-1}}} \left( \frac {\partial w_{m-1}}{\partial w_{m-2}} \cdots
+  \left(\frac {\partial w_{2}}{\partial w_{1}}  \frac {\partial w_{1}}{\partial x} \right)\right)\\
+  \end{aligned}
+  </span> 然後從 <span class="math inline">\frac{\partial x}{\partial x} = 1</span> 開始， 由 <span class="math inline">\frac{\partial w_1}{\partial x}</span> 開始計算到 <span class="math inline">\frac{\partial w_m}{x}</span>（由內而外）。 </span></p>
+<p>這邊繼續使用上面的 <span class="math inline">Y = f(x, y) = sin(x) + x × y</span> 的例子，</p>
+<p>我們可以把 <span class="math inline">Y</span> 拆解成下圖（左）</p>
+<p><span class="math display">
+\begin{array}{rl|rl}
+  Y &amp; =  w_5       &amp; \dot{Y} &amp; = \dot{w_5} \\
+w_5 &amp; =  w_3 + w_4 &amp; \dot{w_5} &amp; = \dot{w_3} + \dot{w_4} \\
+w_4 &amp; =  w_1 × w_2 &amp; \dot{w_4} &amp; = w_2 × \dot{w_1} + w_1 × \dot{w_2}\\
+w_3 &amp; =  sin(w_1)  &amp; \dot{w_3} &amp; = cos(w_1) \\
+w_2 &amp; =  y         &amp; \dot{w_2} &amp; = 0\\
+w_1 &amp; =  x         &amp; \dot{w_1} &amp; = 1\\
+\end{array}
+</span></p>
+<p>然後我們就可以從 <span class="math inline">\frac{\partial x}{\partial x} = 1, \frac{\partial y}{\partial x} = 0</span> 開始，求出 <span class="math inline">\frac{\partial w_i}{\partial x} \big \vert_{i = 1 \cdots 5}</span>，最後求出<span class="math inline">\frac{\partial Y}{\partial x}</span> （如上圖（右），這邊用 <span class="math inline">\dot{X}</span> 來表示 <span class="math inline">\frac{\partial X}{\partial x}</span>）。</p>
+<p>從計算順序上，Forward-Mode AD 跟原先函數是一樣的，所以被稱為 Forward Mode。</p>
+<section id="實作-1" class="level2">
+<h2>實作</h2>
+<p>一個常見的實作方法是定義一個新的資料結構 Dual Number，跟利用 operator overloading 來實作其算術系統。下面使用 Python 舉例<label for="sn-5" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-5" class="margin-toggle"/><span class="sidenote">較完整的 Dual Number 定義可以在 <a href="https://en.wikipedia.org/wiki/Automatic_differentiation#Automatic_differentiation_using_dual_numbers">Wikipedia</a> 找到。如同文中寫到，我們可以使用 <span class="math inline">g(\langle u,u&#39; \rangle , \langle v,v&#39; \rangle )  = \langle g(u,v) , g_u(u,v) u&#39; + g_v(u,v) v&#39; \rangle</span> 來定義這些 primitive functions(<span class="math inline">sin, cos, \cdots</span>)。</span><label for="sn-6" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-6" class="margin-toggle"/><span class="sidenote">為了可以寫出像是 <code class="sourceCode python"><span class="dv">4</span> <span class="op">*</span> Dual(<span class="dv">1</span>, <span class="dv">1</span>)</code> 這樣混合著 <code>float</code> 跟 <code>Dual</code> 的程式，可以參考 <a href="https://docs.python.org/3/reference/datamodel.html#emulating-numeric-types">Python Reference §3.3.7</a> 使用 <code>__radd__</code> 系列的 method 來實作。</span>：</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> namedtuple</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Dual(namedtuple(<span class="st">&quot;Dual&quot;</span>, [<span class="st">&quot;x&quot;</span>, <span class="st">&quot;dx&quot;</span>])):</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">&#39;&#39;&#39;dx 追蹤 x 的變化對當下輸出的影響&#39;&#39;&#39;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__add__</span>(<span class="va">self</span>, other):</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> Dual(<span class="va">self</span>.x <span class="op">+</span> other.x, <span class="va">self</span>.dx <span class="op">+</span> other.dx)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__mul__</span>(<span class="va">self</span>, other):</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> Dual(<span class="va">self</span>.x <span class="op">*</span> other.x, other.x <span class="op">*</span> <span class="va">self</span>.dx <span class="op">+</span> <span class="va">self</span>.x <span class="op">*</span> other.dx)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 下略</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sin(dual):</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># inline chain rule here</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> Dual(math.sin(dual.x), dual.dx <span class="op">*</span> math.cos(dual.x))</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co"># 這邊省略其他函數</span></span></code></pre></div>
+<p>舉例來說，我們可以透過控制<code>Dual(x, dx)</code>的<code>dx</code>來分別計算 <span class="math inline">\frac{\partial f}{\partial x}</span> 跟 <span class="math inline">\frac{\partial f}{\partial y}</span></p>
+<p><label for="sn-7" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-7" class="margin-toggle"/><span class="marginnote"> <a href="https://upload.wikimedia.org/wikipedia/commons/a/a4/ForwardAccumulationAutomaticDifferentiation.png"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/ForwardAccumulationAutomaticDifferentiation.png/512px-ForwardAccumulationAutomaticDifferentiation.png" /></a> 這是 Wikipedia 上面對 <span class="math inline">Y = f(x,y) = sin(x) + x × y</span> 做 forward-mode AD 的示意圖。<br />
+By Berland at English Wikipedia [Public domain], via Wikimedia Commons</span></p>
+<p><span class="math display">f(x,y) = sin(x) + x*y</span></p>
+<p>（<code class="sourceCode python">Dual(x, <span class="dv">1</span>)</code> 對應到 <span class="math inline">\frac{dx}{dx} = 1</span>；<code class="sourceCode python">Dual(c, <span class="dv">0</span>)</code> 對應到 <span class="math inline">\frac{dc}{dx} = 0</span>）</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 要計算偏導數的函數可以用本來的寫法，而不用自幹，有沒有感覺到「自動」？</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> f(x, y):</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> sin(x) <span class="op">+</span> x<span class="op">*</span>y</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>f(Dual(<span class="dv">3</span>, <span class="dv">1</span>), Dual(<span class="dv">2</span>, <span class="dv">0</span>))</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Dual(x=6.141120008059867, dx=1.0100075033995546)</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>f(Dual(<span class="dv">3</span>, <span class="dv">0</span>), Dual(<span class="dv">2</span>, <span class="dv">1</span>))</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Dual(x=6.141120008059867, dx=3.0)</span></span></code></pre></div>
+<p>這是怎麼辦到的？我們可以用類似 Equational Reasoning<label for="sn-8" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-8" class="margin-toggle"/><span class="sidenote">Equational Reasoning 就像數學證明一樣，比較常用在 Pure Functional 的程式語言上，不過既然這個例子也幾乎是 Pure Functional 的，在這邊就使用這個技巧來說明。</span> 的方式來展開：</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>(  f(Dual(<span class="dv">3</span>, <span class="dv">1</span>), Dual(<span class="dv">2</span>,<span class="dv">0</span>))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="op">==</span> sin(Dual(<span class="dv">3</span>, <span class="dv">1</span>)) <span class="op">+</span> Dual(<span class="dv">3</span>, <span class="dv">1</span>) <span class="op">*</span> Dual(<span class="dv">2</span>,<span class="dv">0</span>)                        <span class="co"># definition of f</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="op">==</span> Dual(math.sin(<span class="dv">3</span>), <span class="dv">1</span> <span class="op">*</span> math.cos(<span class="dv">3</span>)) <span class="op">+</span> Dual(<span class="dv">3</span>, <span class="dv">1</span>) <span class="op">*</span> Dual(<span class="dv">2</span>,<span class="dv">0</span>)     <span class="co"># definition of sin</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="op">==</span> Dual(math.sin(<span class="dv">3</span>), <span class="dv">1</span> <span class="op">*</span> math.cos(<span class="dv">3</span>)) <span class="op">+</span> Dual(<span class="dv">3</span> <span class="op">*</span> <span class="dv">2</span>, <span class="dv">2</span> <span class="op">*</span> <span class="dv">1</span> <span class="op">+</span> <span class="dv">3</span> <span class="op">*</span> <span class="dv">0</span>) <span class="co"># definition of __mul__</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="op">==</span> Dual(math.sin(<span class="dv">3</span>) <span class="op">+</span> <span class="dv">3</span> <span class="op">*</span> <span class="dv">2</span>, <span class="dv">1</span> <span class="op">*</span> math.cos(<span class="dv">3</span>) <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> <span class="dv">1</span> <span class="op">+</span> <span class="dv">3</span> <span class="op">*</span> <span class="dv">0</span>)      <span class="co"># definition of __add__</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="op">==</span> Dual(x<span class="op">=</span><span class="fl">6.141120008059867</span>, dx<span class="op">=</span><span class="fl">1.0100075033995546</span>)  )</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># returns True since this is a valid python expression.</span></span></code></pre></div>
+<p>順帶一提，我們不需要額外實作 Chain Rule，因為它已經包含在 Dual Number 的算術系統內了。</p>
+<p><label for="sn-9" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-9" class="margin-toggle"/><span class="marginnote"> 可以看到第 3 行的 <code>dx</code> 正好等於應用 Chain Rule 求出的 <span class="math inline">\frac{\partial sin(sin(x))}{\partial x} = cos(x) × cos(sin(x))</span>。<br />
+這是因為在 <code>sin(dual)</code> 的定義中 <code class="sourceCode python">Dual(math.sin(dual.x), dual.dx <span class="op">*</span> math.cos(dual.x))</code> 裡面就已經 <em>inline</em> chain rule 了</span></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource python numberLines"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a>(  sin(sin(Dual(<span class="dv">1</span>, <span class="dv">1</span>)))</span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="op">==</span> sin(Dual(math.sin(<span class="dv">1</span>), <span class="dv">1</span> <span class="op">*</span> math.cos(<span class="dv">1</span>)))                          <span class="co"># definition of sin</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="op">==</span> Dual(math.sin(math.sin(<span class="dv">1</span>)), math.cos(<span class="dv">1</span>) <span class="op">*</span> math.cos(math.sin(<span class="dv">1</span>))) <span class="co"># definition of sin</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a><span class="op">==</span> Dual(x<span class="op">=</span><span class="fl">0.7456241416655579</span>, dx<span class="op">=</span><span class="fl">0.36003948908962097</span>) )</span></code></pre></div>
+<!--
+
+左圖為$f = sin(x) + x * y$的示意圖，右邊為以 Dual Number 實作的示意圖：
+
+~~~~
+        f(x, y)    |       f(x, y); dfdx                      f(3,2); dfdx
+          +-+      |          +---+---+                       +-----+-----+
+          |+|      |          | + | + |                       |6.14 | 1.01|
+          +-+      |          +---+---+                       +-----+-----+
+         /  \      |          /       \                        /       \
+        /    \     |         /         \                      /         \
+    +---+     +-+  |  +------+------+  +--+----------+   +----+-----+   +--+--+
+    |sin|     |×|  |  |sin(a)|cos(a)|  |× | a*db+b*db|   |0.14|-0.98|   | 6| 2|
+    +---+     +-+  |  +------+------+  +--+----------+   +----+-----+   +--+--+
+      |       /|   |        |           / |                   |          / |
+      | _____/ |   |        |  ________/  |                   |  _______/  |
+      |/       |   |        | /           |                   | /          |
+     +-+      +-+  |     +--+--+       +--+--+             +--+--+      +--+--+
+     |x|      |y|  |     |x | 1|       |y | 0|             |3 | 1|      |2 | 0|
+     +-+      +-+  |     +--+--+       +--+--+             +--+--+      +--+--+
+~~~~
+
+-->
+<p>這個方法的問題是每一個參數<span class="math inline">x_i</span>都必須算過一次，類神經的梯度來說需要<span class="math inline">O(n)</span>的時間才能算完（<span class="math inline">n</span>是參數的個數），並不是很適合類神經網路計算梯度（因為<span class="math inline">n</span>通常都不小）。</p>
+</section>
+</section>
+<section id="小結" class="level1">
+<h1>小結</h1>
+<p>本文介紹了</p>
+<ul>
+<li>Numerical Differential，用近似的方法計算，其優點是實作最簡單，缺點是計算誤差大到不夠實用</li>
+<li>Symbolic Differential，其實就是把人類計算微分的過程用電腦實作，可以得到正確的數值，但是會遇到算式膨脹的問題</li>
+<li>Forward-Mode Automatic Differential，應用了 chain rule，在計算的過程也可以簡單的算出正確的偏導數，但是不適合計算梯度。</li>
+</ul>
+<p>下一篇文章會介紹 Reverse-Mode Automatic Differential，是 Forward-Mode 相反方向的版本，同時也是 back propagation 的 general 版本。</p>
+</section>
+<section id="references" class="level1">
+<h1>References</h1>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Automatic_differentiation">Automatic differentiation on Wikipedia</a></li>
+<li><a href="https://idontgetoutmuch.wordpress.com/2013/10/13/backpropogation-is-just-steepest-descent-with-automatic-differentiation-2">Backpropogation is Just Steepest Descent with Automatic Differentiation</a></li>
+<li><a href="https://arxiv.org/pdf/1502.05767.pdf">Automatic Differentiation in Machine Learning: a Survey</a></li>
+<li><a href="https://arxiv.org/pdf/1404.7456.pdf">Automatic Differentiation of Algorithms for Machine Learning</a></li>
+</ul>
+</section>
+<section id="appendix" class="level1">
+<h1>Appendix</h1>
+<section id="example-logistic-regression" class="level2">
+<h2>Example: Logistic Regression</h2>
+<p>這邊用挑戰者號的O型環失效資料<label for="sn-10" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-10" class="margin-toggle"/><span class="marginnote"> 選這份資料是因為我最近在讀 “Probabilistic Programming &amp; Bayesian Methods for Hackers” 剛好介紹到這一份<a href="https://raw.githubusercontent.com/CamDavidsonPilon/Probabilistic-Programming-and-Bayesian-Methods-for-Hackers/master/Chapter2_MorePyMC/data/challenger_data.csv">資料集</a>。</span>作為範例，以上述的 Forward-Mode AD<label for="sn-11" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-11" class="margin-toggle"/><span class="marginnote"> <strong>注意:</strong> 這邊的 <code>forwardad</code> 已經有實作 <code>__radd__</code>, <code>exp</code>, <code>log</code>…等滿足下面程式所需的最小需求。</span> 實作 Gradient Descent 來進行 Logistic Regression。</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python example"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> forwardad <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> io <span class="im">import</span> StringIO</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> StringIO(<span class="st">&#39;Date,Temperature,Damage Incident</span><span class="ch">\n</span><span class="st">04/12/1981,66,0.0</span><span class="ch">\n</span><span class="st">11/12/1981,70,1.0</span><span class="ch">\n</span><span class="st">3/22/82,69,0.0</span><span class="ch">\n</span><span class="st">6/27/82,80,</span><span class="ch">\n</span><span class="st">01/11/1982,68,0.0</span><span class="ch">\n</span><span class="st">04/04/1983,67,0.0</span><span class="ch">\n</span><span class="st">6/18/83,72,0.0</span><span class="ch">\n</span><span class="st">8/30/83,73,0.0</span><span class="ch">\n</span><span class="st">11/28/83,70,0.0</span><span class="ch">\n</span><span class="st">02/03/1984,57,1.0</span><span class="ch">\n</span><span class="st">04/06/1984,63,1.0</span><span class="ch">\n</span><span class="st">8/30/84,70,1.0</span><span class="ch">\n</span><span class="st">10/05/1984,78,0.0</span><span class="ch">\n</span><span class="st">11/08/1984,67,0.0</span><span class="ch">\n</span><span class="st">1/24/85,53,1.0</span><span class="ch">\n</span><span class="st">04/12/1985,67,0.0</span><span class="ch">\n</span><span class="st">4/29/85,75,0.0</span><span class="ch">\n</span><span class="st">6/17/85,70,0.0</span><span class="ch">\n</span><span class="st">7/29/85,81,0.0</span><span class="ch">\n</span><span class="st">8/27/85,76,0.0</span><span class="ch">\n</span><span class="st">10/03/1985,79,0.0</span><span class="ch">\n</span><span class="st">10/30/85,75,1.0</span><span class="ch">\n</span><span class="st">11/26/85,76,0.0</span><span class="ch">\n</span><span class="st">01/12/1986,58,1.0</span><span class="ch">\n</span><span class="st">1/28/86,31,1.0</span><span class="ch">\n</span><span class="st">&#39;</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(data).dropna()</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> df[<span class="st">&#39;Temperature&#39;</span>].tolist()</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>Y <span class="op">=</span> df[<span class="st">&#39;Damage Incident&#39;</span>].tolist()</span></code></pre></div>
+<p>這邊使用 logistic function 做模型，binary cross-entropy 作為 loss function。</p>
+<p><span class="math display">
+\begin{gathered}
+f(x) = \frac{1}{1+ exp(\beta x + \alpha)} \\
+Cost(y, \hat y) = -\frac{1}{N}\sum_{i=1}^N \bigg[ y_i \log(\hat{y}_i)+(1-y_i) \log(1-\hat{y}_i) \bigg]
+\end{gathered}
+</span> <label for="sn-12" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-12" class="margin-toggle"/><span class="marginnote"> 這邊可以看到，寫出來的程式幾乎沒有為了計算微分而改變，而是照著本來的定義在寫。</span></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python example"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> f(alpha, beta, x):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">1</span> <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> exp(beta <span class="op">*</span> x <span class="op">+</span> alpha))</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cross_entroy(Y, Y_):</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> y, y_ <span class="kw">in</span> <span class="bu">zip</span>(Y, Y_):</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">-=</span> y <span class="op">*</span> log(y_) <span class="op">+</span> (<span class="dv">1</span> <span class="op">-</span> y) <span class="op">*</span> log(<span class="dv">1</span> <span class="op">-</span> y_)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> loss <span class="op">/</span> <span class="bu">len</span>(Y)</span></code></pre></div>
+<p>最後使用 Gradient Descent 來找出 <span class="math inline">\alpha, \beta</span>。</p>
+<p><label for="sn-13" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-13" class="margin-toggle"/><span class="marginnote"> <code>alpha</code>, <code>beta</code>, <code>lr</code>, <code>n_epoch</code> 這些參數都是可以設定的。</span></p>
+<p><label for="sn-14" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-14" class="margin-toggle"/><span class="marginnote"> 受限於 Forward-Mode AD 先天上的限制，<span class="math inline">\alpha</span> 跟 <span class="math inline">\beta</span> 的微分需要分開計算。</span></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python example"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>alpha <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>beta  <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>lr <span class="op">=</span> <span class="fl">0.005</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>n_epoch <span class="op">=</span> <span class="dv">1000</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 為了避免 log(0) ，這邊先置換成 0 ≈ 1e-18</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>Y <span class="op">=</span> [<span class="fl">1e-18</span> <span class="cf">if</span> x <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> x <span class="cf">for</span> x <span class="kw">in</span> Y]</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(n_epoch):</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    Y_alpha <span class="op">=</span> [f(Dual(alpha, <span class="dv">1</span>), beta, x) <span class="cf">for</span> x <span class="kw">in</span> X]</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    Y_beta  <span class="op">=</span> [f(alpha, Dual(beta, <span class="dv">1</span>), x) <span class="cf">for</span> x <span class="kw">in</span> X]</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    loss_alpha <span class="op">=</span> cross_entroy(Y, Y_alpha)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    loss_beta  <span class="op">=</span> cross_entroy(Y, Y_beta)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> epoch <span class="op">%</span> <span class="dv">100</span> <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&#39;</span><span class="sc">{</span>epoch<span class="sc">: 5d}</span><span class="ss"> loss </span><span class="sc">{</span>loss_alpha<span class="sc">.x}</span><span class="ss"> alpha </span><span class="sc">{</span>alpha<span class="sc">}</span><span class="ss"> beta </span><span class="sc">{</span>beta<span class="sc">}</span><span class="ss">&#39;</span>)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">-=</span> lr <span class="op">*</span> loss_alpha.dx</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    beta  <span class="op">-=</span> lr <span class="op">*</span> loss_beta.dx</span></code></pre></div>
+<p>這邊是上面程式執行的結果（重新排版過），可以看到 Learning Rate 設定的有點太大了。有興趣的讀者可以試著自己實作看看。</p>
+<pre><code>    0 loss 0.693147180559945  alpha  0                   beta  0
+  100 loss 0.966931426916483  alpha -0.0201008838271800  beta  0.0465418617995232
+  200 loss 1.114664696718874  alpha -0.0417346760460772  beta -0.0170795861942109
+  300 loss 3.558155059566457  alpha -0.0595466871292758  beta  0.1800165252346373
+  400 loss 0.961973323155755  alpha -0.0821799396148940  beta  0.0472951650365717
+  500 loss 1.110644944663376  alpha -0.1037522632990092  beta -0.0161308641984885
+  600 loss 3.555985812065263  alpha -0.1215047609258659  beta  0.1809462252622945
+  700 loss 0.957097575658038  alpha -0.1440822016889158  beta  0.0480494092224557
+  800 loss 1.106712443731962  alpha -0.1655931706446121  beta -0.0151865701942648
+  900 loss 3.553772437842705  alpha -0.1832862200585766  beta  0.1818707335807102</code></pre>
+</section>
+</section>
+</article>
+<div id="disqus_thread">
+<script>
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+var disqus_config = function () {
+this.page.url = "https://op8867555.github.io";
+this.page.identifier = "";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://alex-lu-blog.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div></body>
+</html>
