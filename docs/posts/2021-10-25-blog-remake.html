@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="dcterms.date" content="2021-10-25">
+  <title>Remake my blog again</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/css/tufte.css">
+  <link rel="stylesheet" href="/css/pandoc.css">
+  <link rel="stylesheet" href="/css/default.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+   var mathElements = document.getElementsByClassName("math");
+   var macros = [];
+   for (var i = 0; i < mathElements.length; i++) {
+    var texText = mathElements[i].firstChild;
+    if (mathElements[i].tagName == "SPAN") {
+     katex.render(texText.data, mathElements[i], {
+      displayMode: mathElements[i].classList.contains('display'),
+      throwOnError: false,
+      macros: macros,
+      fleqn: false
+     });
+  }}});
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<nav>
+<a href="/">Home</a>
+</nav>
+<article>
+<header>
+<h1 class="title">Remake my blog again</h1>
+<p class="byline">2021-10-25</p>
+<p class="byline">Tags:
+<a href="/tags.html#blog">blog</a></p>
+</header>
+<!-- It had been a while I setup this blog 3 years ago, Hakyll is a cool choice to build a static blog site. -->
+<!-- However, -->
+<p>I remake my blog by makefile and pandoc now.</p>
+<section id="motivation" class="level1">
+<h1>Motivation</h1>
+<p>It had been a while since my last post, I did want do some writings but didn’t make it. I felt the Hakyll stack is too complex for me:</p>
+<ul>
+<li>I rarely write Haskell now,</li>
+<li>I don’t want to install a full stack of GHC to just build a blog, especially it takes me for 30 mins,</li>
+<li>I found makefile + pandoc is flexible enough when I wrote my dissertation for M.S degree using only pandoc and <span class="math inline">\LaTeX</span>.</li>
+</ul>
+<p>After this, I decided to switch a different static-site generator(SSG). However, most SSGs don’t fulfill my requirements:</p>
+<ul>
+<li>use <code>pandoc</code> as converter and easily integrates with filter</li>
+<li>easy to hack</li>
+</ul>
+<p>So I ended up writing my own blog generator.</p>
+</section>
+<section id="current-implementation" class="level1">
+<h1>Current Implementation</h1>
+<p>The tools I used:</p>
+<ul>
+<li>GNU Make, for building the whole site</li>
+<li><code>pandoc</code>, for converting Markdown file to HTML</li>
+<li><a href="https://gist.github.com/tarleb/3bcb5a566fbec7f2d59adcd2b4b88b53"><code>sidenote.lua</code></a> with <a href="https://github.com/jez/tufte-pandoc-css"><code>pandoc-tufte-css</code></a></li>
+<li>A python script extracts YAML front matter from posts and generates a YAML file feed into <code>pandoc</code>, for generating aggregated pages like “Archive”, “Recently Posts”, …</li>
+</ul>
+</section>
+<section id="next-steps" class="level1">
+<h1>Next steps</h1>
+<ul class="task-list">
+<li><input type="checkbox" disabled="" />
+generates RSS feed</li>
+</ul>
+</section>
+</article>
+<div id="disqus_thread">
+<script>
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+var disqus_config = function () {
+this.page.url = "https://op8867555.github.io";
+this.page.identifier = "";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://alex-lu-blog.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div></body>
+</html>
