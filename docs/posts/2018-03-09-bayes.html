@@ -75,6 +75,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <link rel="stylesheet" href="/css/tufte.css">
   <link rel="stylesheet" href="/css/pandoc.css">
   <link rel="stylesheet" href="/css/default.css">
+  <link rel="stylesheet" href="/css/variant.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
    var mathElements = document.getElementsByClassName("math");
@@ -191,7 +192,7 @@ P(θ|E) &amp;=&amp; \frac{ \color{red}P(E|θ) \color{black}\cdot \color{blue}P(�
 <p>我在 Stack Overflow <label for="sn-0" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-0" class="margin-toggle"/><span class="sidenote"><a href="https://stackoverflow.com/questions/375913/how-can-i-profile-c-code-running-in-linux">How can I profile C++ code running in Linux?</a></span> 上面看到了一個對 programmer 很有趣（也很實用）的應用：應用貝葉斯來做 profiling<label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="sidenote">Profiling 在軟體開發上指的是分析程式的執行狀況，以找出時間或是記憶體花費較多的片段來進行改進。</span>！</p>
 <p>用這個作法只需要用 debugger 執行程式的時候，任意中斷個數次，然後觀察中斷時的 call stack，找看看裡面有沒有反覆出現的 function call。</p>
 <p>假設我們觀察到了一個很常出現的函數，它在中斷 10 次中出現了 7 次，我們想知道它出現在 call stack 的比率 <span class="math inline">R</span>，也就是找出：</p>
-<p><label for="sn-2" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-2" class="margin-toggle"/><span class="sidenote"> {-} <span class="math inline">T</span> 表示出現在 call stack 的次數， <span class="math inline">F</span> 表示沒有出現的次數 </span></p>
+<p><label for="sn-2" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-2" class="margin-toggle"/><span class="marginnote">  <span class="math inline">T</span> 表示出現在 call stack 的次數， <span class="math inline">F</span> 表示沒有出現的次數 </span></p>
 <p><span class="math display">
 P(R | T=7, F=3) = \frac{P(T=7, F=3 | R) P(R)}{P(T=7, F=3)}
 </span></p>

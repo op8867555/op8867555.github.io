@@ -1,0 +1,23 @@
+@import 'https://fonts.googleapis.com/css?family=Roboto+Condensed';
+body {
+  font-family: 'Roboto Condensed', Arial, Helvetica, 'Noto Sans TC', 'Source Han Sans', sans-serif;
+  background-color: #fefefe;
+  color: #222;
+}
+.numeral, .sidenote-number { font-family: "Roboto Condensed"; }
+
+.sidenote-number:after, .sidenote:before { content: counter(sidenote-counter) " ";
+                                           position: relative;
+                                           vertical-align: baseline;
+                                           color: #f00000;
+                                          font-family: "Roboto Condensed"; 
+                                        }
+
+div.sourceCode,
+pre:not(.sourceCode) {
+  padding: 0;
+}
+
+div.sourceCode pre {
+  padding: 1.4rem;
+}
