@@ -21,3 +21,16 @@ pre:not(.sourceCode) {
 div.sourceCode pre {
   padding: 1.4rem;
 }
+
+blockquote {
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 40px;
+    margin-inline-end: 40px;
+}
+
+blockquote p {
+    font-size: 1.1rem;
+    width: 50%;
+}
