@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="dcterms.date" content="2021-11-27">
+  <title>初學 rust 筆記</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="/css/tufte.css">
+  <link rel="stylesheet" href="/css/pandoc.css">
+  <link rel="stylesheet" href="/css/default.css">
+  <link rel="stylesheet" href="/css/variant.css">
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-40612089-3', 'auto');
+    ga('send', 'pageview');
+  </script>
+</head>
+<body>
+<nav>
+<a href="/">Home</a>
+</nav>
+<article>
+<header>
+<h1 class="title">初學 rust 筆記</h1>
+<p class="byline">2021-11-27
+</p>
+<p class="byline">Tags:
+<a href="/tags.html#programming">programming</a>,
+<a href="/tags.html#rust">rust</a></p>
+</header>
+<p><em>(Alternative title: what I wish I knew when I learned Rust)</em></p>
+<p>開始寫 rust 半年了，簡單記錄一下初學時沒注意到的好東西。</p>
+<section id="language-server" class="level1">
+<h1>Language Server</h1>
+<p>一開始寫 rust 的時候馬上就去找了 lsp server 來用，但是那時候看 <a href="https://langserver.org/">langserver.org</a> 以為 <code>rls</code> 是首選，用了好一陣子才發現到 <a href="https://rust-analyzer.github.io/">rust-analyzer</a> 是取代 <code>rls</code> 的更加選擇：尤其是多了 <code>code-action</code> 與 <code>clippy</code> 的支援，寫起來方便了不少。</p>
+</section>
+<section id="rust-edition" class="level1">
+<h1>Rust edition</h1>
+<p>剛學 rust 的時候是以寫 parser 為出發點，那時不知道 rust 有區分 edition，而查到的文章在引用外部 crate 時都會加上 <code class="sourceCode rust"><span class="kw">extern</span> <span class="kw">crate</span> SOME_CRATE</code>，但是這在 2018 edition 已經是用不到的了。</p>
+</section>
+<section id="optionresult-operator" class="level1">
+<h1>Option/Result &amp; <code>?</code> operator</h1>
+<p>可能是剛開始在讀 <a href="https://doc.rust-lang.org/">rust book</a> 時似乎讀太急，沒有注意到 <a href="https://doc.rust-lang.org/book/ch09-02-recoverable-errors-with-result.html#a-shortcut-for-propagating-errors-the--operator"><code>?</code> operator</a> 這個好用的東西，反而還花了好多時間看 rust 有沒有 do notation 的替代品… <label for="sn-0" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-0" class="margin-toggle"/><span class="marginnote"> 不過我還是很想念 monad 與他的好夥伴 do notation，希望之後 GAT 出來有緣用到</span></p>
+</section>
+<section id="const-generics-mvp" class="level1">
+<h1>Const Generics <em>MVP</em></h1>
+<p>在寫 array 相關的 generic function 時，能在 type 上描述 array 的大小，十分方便。這使得我不用改用 <code>&amp;[T]</code> 或是寫死成常數長度，可以在 compile-time 任意決定我需要的大小。</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode rust"><code class="sourceCode rust"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> Array<span class="op">&lt;</span>T<span class="op">,</span> <span class="kw">const</span> N<span class="op">:</span> <span class="dt">usize</span><span class="op">&gt;</span> <span class="op">{</span> arr<span class="op">:</span> [T<span class="op">;</span> N] <span class="op">}</span></span></code></pre></div>
+</section>
+<section id="associated-types-addoutputt" class="level1">
+<h1>Associated Types: <code>Add&lt;Output=T&gt;</code></h1>
+<p>剛開始不知道有 associated type 可以指定，每次用完 <code>Add</code> 之類的 traits 都還寫死 <code>From</code>/<code>Into</code> 來轉型</p>
+</section>
+<section id="iterators-type" class="level1">
+<h1>iterator’s type</h1>
+<p>在 rust 裡面，iterator 的 type 不像其他語言<label for="sn-1" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="marginnote"> 我的其他語言是指 Python, Haskell</span>一樣只表達每個元素的型別(<code>Iterator&lt;T&gt;</code>)，而是將整個運算個過程層層包在 type 裡的 (<code>Filter&lt;Map&lt;Iter&lt;...&gt;, ...&gt;, ...&gt;</code>)，這使得下面這樣的程式不會 type check:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode rust"><code class="sourceCode rust"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> xs <span class="op">=</span> <span class="kw">match</span> filter_flag <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="cn">true</span>  <span class="op">=&gt;</span> xs<span class="op">.</span>iter()<span class="op">.</span>filter(<span class="op">|</span>x<span class="op">|</span> x <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span>)<span class="op">,</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="cn">false</span> <span class="op">=&gt;</span> xs<span class="op">.</span>iter()</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">// do something over xs</span></span></code></pre></div>
+</section>
+</article>
+<div id="disqus_thread">
+<script>
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+var disqus_config = function () {
+this.page.url = "https://op8867555.github.io/posts/2021-11-27-wiwik-rust.html";
+this.page.identifier = "2021-11-27-wiwik-rust.md";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://alex-lu-blog.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div></body>
+</html>
