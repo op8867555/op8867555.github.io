@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="dcterms.date" content="2022-01-19">
+  <title>隔離網路下的 rust 開發</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/css/tufte.css">
+  <link rel="stylesheet" href="/css/pandoc.css">
+  <link rel="stylesheet" href="/css/default.css">
+  <link rel="stylesheet" href="/css/variant.css">
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-40612089-3', 'auto');
+    ga('send', 'pageview');
+  </script>
+</head>
+<body>
+<nav>
+<a href="/">Home</a>
+</nav>
+<article>
+<header>
+<h1 class="title">隔離網路下的 rust 開發</h1>
+<p class="byline">2022-01-19
+</p>
+<p class="byline">Tags:
+<a href="/tags.html#rust">rust</a></p>
+</header>
+<p>記錄一下隔離環境下的開發環境設置</p>
+<section id="動機" class="level1">
+<h1>動機</h1>
+<ul>
+<li>開發環境受限不能連上網際網路，也無法使用 proxy 連出，只能透過先準備好的檔案安裝。</li>
+<li>工作環境有兩處需要：開發機與另一台 Gitlab CI runner 的建置機</li>
+<li>開發的專案不只一個，彼此也有相依性</li>
+</ul>
+</section>
+<section id="作法" class="level1">
+<h1>作法</h1>
+<section id="rust-toolchain" class="level2">
+<h2>Rust Toolchain</h2>
+<p><strong>外網</strong> 用 <code>rustup</code> 安裝完後直接整包 <code>.rustup</code>, <code>.cargo</code> 資料夾打包。</p>
+<p><strong>內網</strong> 解開後，將 <code>.cargo/bin</code> 加入 <code>$PATH</code> 後，用 <code>rustup default stable</code> 確認</p>
+</section>
+<section id="cargo-crates" class="level2">
+<h2>Cargo &amp; crates</h2>
+<p><strong>外網 </strong> 用 <code>cargo new</code> 建立專案後，手動攥寫 <code>Cargo.toml</code> ，用 <code>cargo update</code> 後，再用 <code>cargo-local-registry --no-delete -s Cargo.lock REGISTRY_DIR</code> 來建立 local registry，最後再打包整個 <code>REGISTRY_DIR</code></p>
+<p><strong>內網 </strong> 在 <code>.cargo/config.toml</code> 加入 <label for="sn-0" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-0" class="margin-toggle"/><span class="sidenote">從 <a href="https://hatsunearu.github.io/2018/04/29/rust-offline/">Installing Rust Offline</a> 文中摘錄</span></p>
+<pre><code>[source.offline]
+local-registry = &quot;PATH_TO_REGISTRY_DIR&quot;
+
+[source.crates-io]
+replace-with = &quot;offline&quot;</code></pre>
+</section>
+<section id="private-registry" class="level2">
+<h2>private registry</h2>
+<p>現在的 private registry 選項不算多，因為沒有太多需求，我這邊只用了 <code>estuary</code> 來簡單架設</p>
+</section>
+</section>
+<section id="歿案" class="level1">
+<h1>歿案</h1>
+<section id="crates-cargo-vendor" class="level3">
+<h3>(crates) <code>cargo vendor</code></h3>
+<p><code>vendor</code> 就是把需要的套件下載到專案資料夾，但是這樣但是用 vendor 來管理套件相依性實在是很麻煩，而且為了 CI 還得將 vendor 一起進版本控制，不是很乾淨。</p>
+</section>
+<section id="toolchaincrates-panamax" class="level3">
+<h3>(toolchain/crates) Panamax</h3>
+<p><a href="https://github.com/panamax-rs/panamax">Panamax</a> 是一個獨立的打包工具，可以指定需要的 rust 版本並將 <a href="https://crates.io" class="uri">https://crates.io</a> 整個下載回來的工具，作為完全隔離的狀況下倒是一個不錯的選項，但是對我來說打包整個 <a href="https://crates.io" class="uri">https://crates.io</a>，而不能只選需要的部份還是太多了。</p>
+</section>
+<section id="private-registry-git" class="level3">
+<h3>(private registry) <code>git</code></h3>
+<p><code>Cargo.toml</code> 在指定套件時雖然可以指定 git 作為來源，但是因為其會將每個不同的 commit 作為不相容的版本，而無法將 tag 作為 semvar 解讀，因此用起來很不方便。</p>
+</section>
+</section>
+</article>
+<div id="disqus_thread">
+<script>
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+var disqus_config = function () {
+this.page.url = "https://op8867555.github.io/posts/2022-01-19-air-gapped-rust-dev.html";
+this.page.identifier = "2022-01-19-air-gapped-rust-dev.md";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://alex-lu-blog.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div></body>
+</html>
