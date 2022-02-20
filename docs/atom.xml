@@ -1,0 +1,164 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <id>https://op8867555.github.io</id>
+  <title>Alex's Blog</title>
+  <updated>2022-02-20T04:15:02.537077+00:00</updated>
+  <author>
+    <name>Alex Lu</name>
+  </author>
+  <generator uri="https://lkiesow.github.io/python-feedgen" version="0.9.0">python-feedgen</generator>
+  <entry>
+    <id>https://op8867555.github.io/posts/2022-01-19-air-gapped-rust-dev.html</id>
+    <title>隔離網路下的 rust 開發</title>
+    <updated>2022-01-19T00:00:00+08:00</updated>
+    <link href="https://op8867555.github.io/posts/2022-01-19-air-gapped-rust-dev.html" rel="alternate"/>
+    <published>2022-01-19T00:00:00+08:00</published>
+  </entry>
+  <entry>
+    <id>https://op8867555.github.io/posts/2021-12-31-review.html</id>
+    <title>回顧 2021</title>
+    <updated>2021-12-31T00:00:00+08:00</updated>
+    <link href="https://op8867555.github.io/posts/2021-12-31-review.html" rel="alternate"/>
+    <published>2021-12-31T00:00:00+08:00</published>
+  </entry>
+  <entry>
+    <id>https://op8867555.github.io/posts/2021-11-27-wiwik-rust.html</id>
+    <title>初學 rust 筆記</title>
+    <updated>2021-11-27T00:00:00+08:00</updated>
+    <link href="https://op8867555.github.io/posts/2021-11-27-wiwik-rust.html" rel="alternate"/>
+    <published>2021-11-27T00:00:00+08:00</published>
+  </entry>
+  <entry>
+    <id>https://op8867555.github.io/posts/2021-11-19-abstraction.html</id>
+    <title>程式碼中的抽象</title>
+    <updated>2021-11-19T00:00:00+08:00</updated>
+    <link href="https://op8867555.github.io/posts/2021-11-19-abstraction.html" rel="alternate"/>
+    <published>2021-11-19T00:00:00+08:00</published>
+  </entry>
+  <entry>
+    <id>https://op8867555.github.io/posts/2021-10-25-blog-remake.html</id>
+    <title>Remake my blog again</title>
+    <updated>2021-10-25T00:00:00+08:00</updated>
+    <link href="https://op8867555.github.io/posts/2021-10-25-blog-remake.html" rel="alternate"/>
+    <published>2021-10-25T00:00:00+08:00</published>
+  </entry>
+  <entry>
+    <id>https://op8867555.github.io/posts/2018-07-15-boox-note.html</id>
+    <title>ONYX Boox Note 使用心得</title>
+    <updated>2018-08-23T00:00:00+08:00</updated>
+    <link href="https://op8867555.github.io/posts/2018-07-15-boox-note.html" rel="alternate"/>
+    <published>2018-07-15T00:00:00+08:00</published>
+  </entry>
+  <entry>
+    <id>https://op8867555.github.io/posts/2018-08-03-closed-nightmare.html</id>
+    <title>Closed Nightmare 玩後感</title>
+    <updated>2018-08-03T00:00:00+08:00</updated>
+    <link href="https://op8867555.github.io/posts/2018-08-03-closed-nightmare.html" rel="alternate"/>
+    <published>2018-08-03T00:00:00+08:00</published>
+  </entry>
+  <entry>
+    <id>https://op8867555.github.io/posts/2018-05-29-facebook-prophet.html</id>
+    <title>Facebook Prophet 模型簡介</title>
+    <updated>2018-05-29T00:00:00+08:00</updated>
+    <link href="https://op8867555.github.io/posts/2018-05-29-facebook-prophet.html" rel="alternate"/>
+    <published>2018-05-29T00:00:00+08:00</published>
+  </entry>
+  <entry>
+    <id>https://op8867555.github.io/posts/2017-06-11-X1C5-notes.html</id>
+    <title>[en] Notes on Thinkpad X1 Carbon 2017 + Arch Linux</title>
+    <updated>2018-04-18T00:00:00+08:00</updated>
+    <link href="https://op8867555.github.io/posts/2017-06-11-X1C5-notes.html" rel="alternate"/>
+    <published>2017-06-11T00:00:00+08:00</published>
+  </entry>
+  <entry>
+    <id>https://op8867555.github.io/posts/2018-04-09-tdigest.html</id>
+    <title>T-Digest 概念簡介</title>
+    <updated>2018-04-12T00:00:00+08:00</updated>
+    <link href="https://op8867555.github.io/posts/2018-04-09-tdigest.html" rel="alternate"/>
+    <published>2018-04-09T00:00:00+08:00</published>
+  </entry>
+  <entry>
+    <id>https://op8867555.github.io/posts/2018-03-09-bayes.html</id>
+    <title>到底什麼是 Bayesian</title>
+    <updated>2018-03-30T00:00:00+08:00</updated>
+    <link href="https://op8867555.github.io/posts/2018-03-09-bayes.html" rel="alternate"/>
+    <published>2018-03-09T00:00:00+08:00</published>
+  </entry>
+  <entry>
+    <id>https://op8867555.github.io/posts/2018-01-11-autodiff-reverse-mode.html</id>
+    <title>機器如何計算微分/偏微分（下）</title>
+    <updated>2018-01-28T00:00:00+08:00</updated>
+    <link href="https://op8867555.github.io/posts/2018-01-11-autodiff-reverse-mode.html" rel="alternate"/>
+    <published>2018-01-11T00:00:00+08:00</published>
+  </entry>
+  <entry>
+    <id>https://op8867555.github.io/posts/2017-12-17-autodiff.html</id>
+    <title>機器如何計算微分/偏微分（上）</title>
+    <updated>2018-01-09T00:00:00+08:00</updated>
+    <link href="https://op8867555.github.io/posts/2017-12-17-autodiff.html" rel="alternate"/>
+    <published>2017-12-17T00:00:00+08:00</published>
+  </entry>
+  <entry>
+    <id>https://op8867555.github.io/posts/2018-01-05-new-style.html</id>
+    <title>更換 blog 主題以迎接 2018 年</title>
+    <updated>2018-01-05T00:00:00+08:00</updated>
+    <link href="https://op8867555.github.io/posts/2018-01-05-new-style.html" rel="alternate"/>
+    <published>2018-01-05T00:00:00+08:00</published>
+  </entry>
+  <entry>
+    <id>https://op8867555.github.io/posts/2017-11-27-cli-tools-ag-rg-fzf-fd.html</id>
+    <title>筆記：幾個 CLI 實用工具: ag, fzf, fd, ripgrep</title>
+    <updated>2017-11-27T00:00:00+08:00</updated>
+    <link href="https://op8867555.github.io/posts/2017-11-27-cli-tools-ag-rg-fzf-fd.html" rel="alternate"/>
+    <published>2017-11-27T00:00:00+08:00</published>
+  </entry>
+  <entry>
+    <id>https://op8867555.github.io/posts/2017-10-13-use-your-unix-toolbox-with-pandas.html</id>
+    <title>[EN] Use your UNIX toolbox with pandas</title>
+    <updated>2017-10-13T00:00:00+08:00</updated>
+    <link href="https://op8867555.github.io/posts/2017-10-13-use-your-unix-toolbox-with-pandas.html" rel="alternate"/>
+    <published>2017-10-13T00:00:00+08:00</published>
+  </entry>
+  <entry>
+    <id>https://op8867555.github.io/posts/2017-10-05-bisecting-linux-kernel-bug.html</id>
+    <title>應用 git bisect 找出 linux kernel 中出現問題的 commit</title>
+    <updated>2017-10-05T00:00:00+08:00</updated>
+    <link href="https://op8867555.github.io/posts/2017-10-05-bisecting-linux-kernel-bug.html" rel="alternate"/>
+    <published>2017-10-05T00:00:00+08:00</published>
+  </entry>
+  <entry>
+    <id>https://op8867555.github.io/posts/2017-09-16-python-getting-town-from-gps-coord.html</id>
+    <title>用 Python 計算經緯度對應的鄉鎮市區</title>
+    <updated>2017-09-16T00:00:00+08:00</updated>
+    <link href="https://op8867555.github.io/posts/2017-09-16-python-getting-town-from-gps-coord.html" rel="alternate"/>
+    <published>2017-09-16T00:00:00+08:00</published>
+  </entry>
+  <entry>
+    <id>https://op8867555.github.io/posts/2017-09-09-tensorflow-prebuilt-vs-built-from-source.html</id>
+    <title>手動編譯 vs 編譯好的 tensorflow</title>
+    <updated>2017-09-09T00:00:00+08:00</updated>
+    <link href="https://op8867555.github.io/posts/2017-09-09-tensorflow-prebuilt-vs-built-from-source.html" rel="alternate"/>
+    <published>2017-09-09T00:00:00+08:00</published>
+  </entry>
+  <entry>
+    <id>https://op8867555.github.io/posts/2017-08-27-ds216j-shadowsocks.html</id>
+    <title>筆記： DS216j 安裝 shadowsocks server</title>
+    <updated>2017-08-27T00:00:00+08:00</updated>
+    <link href="https://op8867555.github.io/posts/2017-08-27-ds216j-shadowsocks.html" rel="alternate"/>
+    <published>2017-08-27T00:00:00+08:00</published>
+  </entry>
+  <entry>
+    <id>https://op8867555.github.io/posts/2017-08-11-vega.html</id>
+    <title>用 VEGA 資料視覺化</title>
+    <updated>2017-08-11T00:00:00+08:00</updated>
+    <link href="https://op8867555.github.io/posts/2017-08-11-vega.html" rel="alternate"/>
+    <published>2017-08-11T00:00:00+08:00</published>
+  </entry>
+  <entry>
+    <id>https://op8867555.github.io/posts/2017-07-21-adam-usb-c-dock.html</id>
+    <title>ADAM CASA Hub A01 在 Linux 使用狀況＆個人心得</title>
+    <updated>2017-07-20T00:00:00+08:00</updated>
+    <link href="https://op8867555.github.io/posts/2017-07-21-adam-usb-c-dock.html" rel="alternate"/>
+    <published>2017-07-21T00:00:00+08:00</published>
+  </entry>
+</feed>

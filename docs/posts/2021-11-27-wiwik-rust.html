@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="generator" content="pandoc">
+  <link rel="alternate" href="/atom.xml" title="Alex Lu's Blog" type="application/atom+xml">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <meta name="dcterms.date" content="2021-11-27">
   <title>初學 rust 筆記</title>
@@ -128,7 +129,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="iterators-type" class="level1">
 <h1>iterator’s type</h1>
 <p>在 rust 裡面，iterator 的 type 不像其他語言<label for="sn-1" class="margin-toggle">&#8853;</label><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="marginnote"> 我的其他語言是指 Python, Haskell</span>一樣只表達每個元素的型別(<code>Iterator&lt;T&gt;</code>)，而是將整個運算個過程層層包在 type 裡的 (<code>Filter&lt;Map&lt;Iter&lt;...&gt;, ...&gt;, ...&gt;</code>)，這使得下面這樣的程式不會 type check:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode rust"><code class="sourceCode rust"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> xs <span class="op">=</span> <span class="kw">match</span> filter_flag <span class="op">{</span></span>
+<div class="sourceCode" id="cb2"><pre class="sourceCode rust"><code class="sourceCode rust"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> xs <span class="op">=</span> <span class="cf">match</span> filter_flag <span class="op">{</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="cn">true</span>  <span class="op">=&gt;</span> xs<span class="op">.</span>iter()<span class="op">.</span>filter(<span class="op">|</span>x<span class="op">|</span> x <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span>)<span class="op">,</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="cn">false</span> <span class="op">=&gt;</span> xs<span class="op">.</span>iter()</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>

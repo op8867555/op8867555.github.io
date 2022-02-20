@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="generator" content="pandoc">
+  <link rel="alternate" href="/atom.xml" title="Alex Lu's Blog" type="application/atom+xml">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <meta name="dcterms.date" content="2017-12-17">
   <title>機器如何計算微分/偏微分（上）</title>
@@ -362,7 +363,7 @@ Cost(y, \hat y) = -\frac{1}{N}\sum_{i=1}^N \bigg[ y_i \log(\hat{y}_i)+(1-y_i) \l
 <span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    loss_alpha <span class="op">=</span> cross_entroy(Y, Y_alpha)</span>
 <span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    loss_beta  <span class="op">=</span> cross_entroy(Y, Y_beta)</span>
 <span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> epoch <span class="op">%</span> <span class="dv">100</span> <span class="op">==</span> <span class="dv">0</span>:</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&#39;</span><span class="sc">{</span>epoch<span class="sc">: 5d}</span><span class="ss"> loss </span><span class="sc">{</span>loss_alpha<span class="sc">.x}</span><span class="ss"> alpha </span><span class="sc">{</span>alpha<span class="sc">}</span><span class="ss"> beta </span><span class="sc">{</span>beta<span class="sc">}</span><span class="ss">&#39;</span>)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&#39;</span><span class="sc">{</span>epoch<span class="sc">: 5d}</span><span class="ss"> loss </span><span class="sc">{</span>loss_alpha<span class="sc">.</span>x<span class="sc">}</span><span class="ss"> alpha </span><span class="sc">{</span>alpha<span class="sc">}</span><span class="ss"> beta </span><span class="sc">{</span>beta<span class="sc">}</span><span class="ss">&#39;</span>)</span>
 <span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">-=</span> lr <span class="op">*</span> loss_alpha.dx</span>
 <span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    beta  <span class="op">-=</span> lr <span class="op">*</span> loss_beta.dx</span></code></pre></div>
 <p>這邊是上面程式執行的結果（重新排版過），可以看到 Learning Rate 設定的有點太大了。有興趣的讀者可以試著自己實作看看。</p>
